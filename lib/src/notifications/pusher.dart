@@ -41,6 +41,7 @@ abstract class Pusher {
         'lang': language,
         'kind': kind,
         'data': data,
+        'append': true
       };
 }
 
@@ -51,7 +52,6 @@ class HttpPusher extends Pusher {
   @override
   Map<String, dynamic> get data => {
         'url': url.toString(),
-        'format': 'event_id_only',
       };
 
   @override

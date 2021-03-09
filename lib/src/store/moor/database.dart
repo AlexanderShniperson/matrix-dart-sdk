@@ -349,7 +349,7 @@ class Database extends _$Database {
       for (final roomId in roomIds) {
         batch.deleteWhere(
           roomEvents,
-          (tbl) => tbl.id.like('$roomId:%'),
+          (tbl) => tbl.id.isIn(['$roomId:%']),
         );
       }
     });

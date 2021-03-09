@@ -6,6 +6,7 @@
 
 import 'dart:convert';
 
+import 'package:crews/utils/debug_util.dart';
 import 'package:meta/meta.dart';
 import 'package:chopper/chopper.dart';
 import 'package:http/http.dart' as http;
@@ -56,7 +57,7 @@ class Api {
 
     response.throwIfNeeded();
 
-    return json.decode(response.body);
+    return response.body != null ? json.decode(response.body) : null;
   }
 
   Future<void> logout({@required String accessToken}) async {
@@ -447,6 +448,8 @@ extension on Response {
       return;
     }
 
+    DebugUtil.printDebug("MATRIX - ERROR", json.decode(error).toString());
+    DebugUtil.logToDB("MATRIX - ERROR", json.decode(error).toString());
     throw MatrixException.fromJson(json.decode(error));
   }
 }

@@ -8,6 +8,10 @@ import 'package:meta/meta.dart';
 
 import 'exception.dart';
 
+typedef _Submit = Future<AuthenticationSession> Function(
+  Map<String, dynamic> json,
+);
+
 typedef Request = Future<Map<String, dynamic>> Function(
   Map<String, dynamic> auth,
 );
@@ -19,7 +23,7 @@ class AuthenticationSession<T> {
   final String key;
   final Iterable<Flow> flows;
 
-  /// Result will be non-null if the authentication is successfully
+  /// Result of will be non-null if the authentication is successfully
   /// completed.
   final T result;
 
@@ -29,18 +33,12 @@ class AuthenticationSession<T> {
 
   bool get hasError => error != null;
 
-  final Request _request;
-  final OnSuccess<T> _onSuccess;
-
   AuthenticationSession._({
     @required this.key,
     @required this.flows,
     this.result,
     this.error,
-    Request request,
-    OnSuccess<T> onSuccess,
-  })  : _request = request,
-        _onSuccess = onSuccess;
+  });
 
   factory AuthenticationSession.fromJson(
     Map<String, dynamic> json, {
@@ -58,40 +56,35 @@ class AuthenticationSession<T> {
     return AuthenticationSession._(
       key: key,
       error: error,
-      request: request,
       flows: flowsJson
           .map(
             (f) => Flow._fromJson(
               f,
               json['params'],
               json['completed'],
+              submit: (json) async {
+                final withSession = {...json, 'session': key};
+
+                final response = await request(withSession);
+
+                if (response.containsKey('flows')) {
+                  return AuthenticationSession<T>.fromJson(
+                    response,
+                    request: request,
+                    onSuccess: onSuccess,
+                  );
+                } else {
+                  return AuthenticationSession<T>._(
+                    key: key,
+                    flows: null,
+                    result: await onSuccess(response),
+                  );
+                }
+              },
             ),
           )
           .toList(),
     );
-  }
-
-  /// Complete a stage of this session.
-  Future<AuthenticationSession<T>> complete(StageResponse data) async {
-    final withSession = {...data.toJson(), 'session': key};
-
-    final response = await _request(withSession);
-
-    if (response.containsKey('flows')) {
-      return AuthenticationSession<T>.fromJson(
-        response,
-        request: _request,
-        onSuccess: _onSuccess,
-      );
-    } else {
-      return AuthenticationSession<T>._(
-        key: key,
-        flows: null,
-        result: await _onSuccess(response),
-        request: _request,
-        onSuccess: _onSuccess,
-      );
-    }
   }
 }
 
@@ -139,17 +132,18 @@ class Flow {
   factory Flow._fromJson(
     Map<String, dynamic> json,
     Map<String, dynamic> paramsJson,
-    List<dynamic> completedJson,
-  ) {
+    List<dynamic> completedJson, {
+    @required _Submit submit,
+  }) {
     final stagesJson = json['stages'] as List<dynamic>;
 
     final stages = stagesJson
-        .map((s) => Stage._fromJson(s, paramsJson))
+        .map((s) => Stage._fromJson(s, paramsJson, submit: submit))
         .where((s) => s != null)
         .toList();
 
     final completed = completedJson
-        ?.map((s) => Stage._fromJson(s, paramsJson))
+        ?.map((s) => Stage._fromJson(s, paramsJson, submit: submit))
         ?.where((s) => s != null)
         ?.toList();
 
@@ -177,43 +171,47 @@ class Flow {
 
 @immutable
 abstract class Stage {
+  final _Submit _submit;
+
   final String _type;
 
-  Stage._(this._type);
+  Stage._(this._submit, this._type);
 
   factory Stage._fromJson(
     String type,
-    Map<String, dynamic> paramsJson,
-  ) {
+    Map<String, dynamic> paramsJson, {
+    @required _Submit submit,
+  }) {
     final relevantParams = paramsJson[type];
 
     switch (type) {
       case RecaptchaStage.__type:
-        return RecaptchaStage._fromJson(relevantParams);
+        return RecaptchaStage._fromJson(relevantParams, submit: submit);
       case TermsStage.__type:
-        return TermsStage._fromJson(relevantParams);
+        return TermsStage._fromJson(relevantParams, submit: submit);
       case DummyStage.__type:
-        return DummyStage._();
+        return DummyStage._(submit);
       default:
-        return RawStage._(
-          type: type,
-          params: relevantParams,
-        );
+        return RawStage._(submit: submit, type: type, params: relevantParams);
     }
   }
 
-  StageResponse respond();
-}
-
-@immutable
-class StageResponse {
-  final String _type;
-
-  StageResponse(this._type);
-
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> _toSubmitJson() => {
         'type': _type,
       };
+
+  /// Complete this stage by passing data.
+  ///
+  /// The [AuthenticationSession] is guaranteed to have a type parameter `T`
+  /// of the original [AuthenticationSession]. Meaning this is safe:
+  /// ```dart
+  /// // Is a AuthenticationSession<MyUser>
+  /// session = homeserver.register(..);
+  ///
+  /// // This is safe (assuming the stage is a DummyStage)
+  /// session = session.flows.first.stages.first.complete();
+  /// ```
+  Future<AuthenticationSession> complete() => _submit(_toSubmitJson());
 }
 
 class RawStage extends Stage {
@@ -222,14 +220,15 @@ class RawStage extends Stage {
   final Map<String, dynamic> params;
 
   RawStage._({
+    @required _Submit submit,
     @required this.type,
     @required Map<String, dynamic> params,
   })  : params = params ?? {},
-        super._(type);
+        super._(submit, type);
 
   @override
-  RawStageResponse respond([Map<String, dynamic> params]) =>
-      RawStageResponse._(_type, params);
+  Future<AuthenticationSession> complete([Map<String, dynamic> params]) =>
+      _submit({...super._toSubmitJson(), ...params});
 
   @override
   bool operator ==(dynamic other) {
@@ -244,37 +243,16 @@ class RawStage extends Stage {
   int get hashCode => type.hashCode + params.hashCode;
 }
 
-@immutable
-class RawStageResponse extends StageResponse {
-  final Map<String, dynamic> params;
-
-  RawStageResponse._(String type, this.params) : super(type);
-
-  @override
-  Map<String, dynamic> toJson() => {
-        ...super.toJson(),
-        ...params,
-      };
-}
-
 class DummyStage extends Stage {
   static const __type = 'm.login.dummy';
 
-  DummyStage._() : super._(__type);
+  DummyStage._(_Submit submit) : super._(submit, __type);
 
   @override
   bool operator ==(dynamic other) => other is DummyStage;
 
   @override
   int get hashCode => _type.hashCode;
-
-  @override
-  DummyStageResponse respond() => DummyStageResponse._();
-}
-
-@immutable
-class DummyStageResponse extends StageResponse {
-  DummyStageResponse._() : super(DummyStage.__type);
 }
 
 class RecaptchaStage extends Stage {
@@ -282,17 +260,23 @@ class RecaptchaStage extends Stage {
 
   final String publicKey;
 
-  RecaptchaStage._(this.publicKey) : super._(__type);
+  RecaptchaStage._(
+    _Submit submit,
+    this.publicKey,
+  ) : super._(submit, __type);
 
-  factory RecaptchaStage._fromJson(Map<String, dynamic> paramsJson) {
+  factory RecaptchaStage._fromJson(
+    Map<String, dynamic> paramsJson, {
+    @required _Submit submit,
+  }) {
     final publicKey = paramsJson['public_key'];
 
-    return RecaptchaStage._(publicKey);
+    return RecaptchaStage._(submit, publicKey);
   }
 
   @override
-  RecaptchaStageResponse respond({@required String response}) =>
-      RecaptchaStageResponse._(response);
+  Future<AuthenticationSession> complete({@required String response}) =>
+      _submit({...super._toSubmitJson(), 'response': response});
 
   @override
   bool operator ==(dynamic other) {
@@ -307,31 +291,25 @@ class RecaptchaStage extends Stage {
   int get hashCode => publicKey.hashCode;
 }
 
-@immutable
-class RecaptchaStageResponse extends StageResponse {
-  final String response;
-
-  RecaptchaStageResponse._(this.response) : super(RecaptchaStage.__type);
-
-  @override
-  Map<String, dynamic> toJson() => {
-        ...super.toJson(),
-        'response': response,
-      };
-}
-
 class TermsStage extends Stage {
   static const __type = 'm.login.terms';
 
   /// Policies with a key, per language.
   final Map<String, List<Policy>> policies;
 
-  TermsStage._(this.policies) : super._(__type);
+  TermsStage._(
+    _Submit submit,
+    this.policies,
+  ) : super._(submit, __type);
 
-  factory TermsStage._fromJson(Map<String, dynamic> paramsJson) {
+  factory TermsStage._fromJson(
+    Map<String, dynamic> paramsJson, {
+    @required _Submit submit,
+  }) {
     final policiesJson = paramsJson['policies'] as Map<String, dynamic>;
 
     return TermsStage._(
+      submit,
       policiesJson.map(
         (key, value) {
           final json = value as Map<String, dynamic>;
@@ -371,9 +349,6 @@ class TermsStage extends Stage {
 
   @override
   int get hashCode => policies.hashCode;
-
-  @override
-  TermsStageResponse respond() => TermsStageResponse._();
 }
 
 @immutable
@@ -405,9 +380,4 @@ class Policy {
   @override
   int get hashCode =>
       version.hashCode + language.hashCode + name.hashCode + url.hashCode;
-}
-
-@immutable
-class TermsStageResponse extends StageResponse {
-  TermsStageResponse._() : super(TermsStage.__type);
 }

@@ -32,7 +32,7 @@ import '../event/ephemeral/ephemeral.dart';
 
 import '../homeserver.dart';
 import '../identifier.dart';
-import '../user.dart';
+import '../matrix_user.dart';
 
 import 'member/member.dart';
 import 'member/member_timeline.dart';
@@ -93,7 +93,7 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
   Iterable<RoomAlias> get alternativeAliases =>
       stateEvents.canonicalAliasChange?.content?.alternativeAliases;
 
-  /// [User] that created this room.
+  /// [MatrixUser] that created this room.
   UserId get creatorId => stateEvents.creation?.creatorId;
 
   /// Whether this room is a replacement for another room.

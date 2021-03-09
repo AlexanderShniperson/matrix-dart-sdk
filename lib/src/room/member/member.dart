@@ -9,12 +9,12 @@ import 'package:quiver/core.dart';
 import '../../event/room/state/member_change_event.dart';
 
 import '../../identifier.dart';
-import '../../user.dart';
+import '../../matrix_user.dart';
 
 import 'membership.dart';
 
 /// A user that's a member of a certain room.
-class Member extends User {
+class Member extends MatrixUser {
   /// Event this member's state is based on.
   final MemberChangeEvent event;
 

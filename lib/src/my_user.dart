@@ -15,11 +15,11 @@ import 'identifier.dart';
 import 'notifications/pushers.dart';
 import 'store/store.dart';
 import 'updater/updater.dart';
-import 'user.dart';
+import 'matrix_user.dart';
 
 /// A user which is authenticated and can send messages, join rooms etc.
 @immutable
-class MyUser extends User implements Contextual<MyUser> {
+class MyUser extends MatrixUser implements Contextual<MyUser> {
   @override
   final Context context;
 

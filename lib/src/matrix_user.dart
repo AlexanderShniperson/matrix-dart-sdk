@@ -11,7 +11,7 @@ import 'package:quiver/core.dart';
 import 'identifier.dart';
 
 @immutable
-abstract class User with Identifiable<UserId> {
+abstract class MatrixUser with Identifiable<UserId> {
   @override
   UserId get id;
 
@@ -20,7 +20,7 @@ abstract class User with Identifiable<UserId> {
 
   @override
   bool operator ==(dynamic other) =>
-      other is User &&
+      other is MatrixUser &&
       id == other.id &&
       name == other.name &&
       avatarUrl == other.avatarUrl;

@@ -302,7 +302,7 @@ class Updater {
   }) async {
     if (receipt) {
       final isReadAlready = _user.rooms[roomId].readReceipts.any(
-        (receipt) => receipt.eventId == until,
+        (receipt) => receipt.eventId == until && receipt.userId == _user.id,
       );
 
       if (isReadAlready) {
@@ -582,18 +582,18 @@ class Updater {
   }
 
   /// Note: Will return RequestUpdate<Pushers> in the future.
-  Future<RequestUpdate<MyUser>> setPusher(Map<String, dynamic> pusher) async {
-    await homeserver.api.pushers.set(
+  Future<void> setPusher(Map<String, dynamic> pusher) {
+    return homeserver.api.pushers.set(
       accessToken: _user.accessToken,
       body: pusher,
     );
 
-    return RequestUpdate.fromUpdate(
-      await updates.first,
-      data: (user) => user,
-      deltaData: (delta) => delta,
-      type: RequestType.setPusher,
-    );
+    //  RequestUpdate.fromUpdate(
+    //   await updates.first,
+    //   data: (user) => user,
+    //   deltaData: (delta) => delta,
+    //   type: RequestType.setPusher,
+    // );
   }
 
   void _addError(dynamic error, [StackTrace stackTrace]) {

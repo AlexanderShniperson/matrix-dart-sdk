@@ -5,9 +5,8 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 export 'src/homeserver.dart';
-export 'src/authentication_session.dart';
 export 'src/updater/updater.dart';
-export 'src/user.dart';
+export 'src/matrix_user.dart';
 export 'src/my_user.dart';
 export 'src/exception.dart';
 export 'src/identifier.dart';

@@ -47,7 +47,7 @@ class RawEventContent extends EventContent {
       RawEventContent(json);
 
   @override
-  Map<String, dynamic> toJson() => Map.of(_content);
+  Map<String, dynamic> toJson() => _content == null ? null : Map.of(_content);
 
   dynamic operator [](String key) => _content[key];
 
