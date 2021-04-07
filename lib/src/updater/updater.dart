@@ -58,6 +58,8 @@ class Updater {
   final _subject = StreamController<Update>.broadcast();
   Stream<Update> get updates => _subject.stream;
 
+  bool get isReady => _store.isOpen && !_subject.isClosed;
+
   /// Initializes the [myUser] with a valid [Context], and will also
   /// initialize it's properties that need the context, such as [Rooms].
   ///

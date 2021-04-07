@@ -38,6 +38,8 @@ export 'src/event/room/state/topic_change_event.dart';
 export 'src/event/room/state/power_levels_change_event.dart';
 export 'src/event/room/state/join_rules_change_event.dart';
 export 'src/event/room/state/canonical_alias_change_event.dart';
+export 'src/event/room/raw_room_event.dart';
+export 'src/event/ephemeral/receipt_event.dart';
 
 export 'src/room/member/membership.dart';
 export 'src/room/member/member.dart';

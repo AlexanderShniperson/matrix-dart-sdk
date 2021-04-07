@@ -103,6 +103,9 @@ class IsolatedUpdater implements Updater {
 
   SendPort _sendPort;
 
+  @override
+  bool get isReady => _sendPort != null;
+
   final _receivePort = ReceivePort();
 
   Stream<dynamic> __messageStream;
