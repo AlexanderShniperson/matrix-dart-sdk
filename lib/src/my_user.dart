@@ -16,6 +16,7 @@ import 'notifications/pushers.dart';
 import 'store/store.dart';
 import 'updater/updater.dart';
 import 'matrix_user.dart';
+import 'model/error_with_stacktrace.dart';
 
 /// A user which is authenticated and can send messages, join rooms etc.
 @immutable
@@ -254,6 +255,8 @@ class MyUser extends MatrixUser implements Contextual<MyUser> {
       );
 
   Stream<Update> get updates => context.updater.updates;
+
+  Stream<ErrorWithStackTraceString> get outError => context.updater.outError;
 
   bool get isSyncing => context.updater.syncer.isSyncing;
 

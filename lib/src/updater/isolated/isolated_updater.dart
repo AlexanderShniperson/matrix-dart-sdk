@@ -20,6 +20,7 @@ import '../../room/room.dart';
 import '../../room/rooms.dart';
 import '../../store/store.dart';
 import '../../room/timeline.dart';
+import '../../model/error_with_stacktrace.dart';
 
 import '../updater.dart';
 import 'instruction.dart';
@@ -87,14 +88,7 @@ class IsolatedUpdater implements Updater {
       }
 
       if (message is ErrorWithStackTraceString) {
-        final stackTrace = StackTrace.fromString(message.stackTraceString);
-
-        // Throw the error if there are no listeners (yet)
-        if (!_hasListeners) {
-          await Future.error(message.error, stackTrace);
-        } else {
-          _controller.addError(message.error, stackTrace);
-        }
+        _errorSubject.add(message);
       }
     });
 
@@ -111,6 +105,10 @@ class IsolatedUpdater implements Updater {
   Stream<dynamic> __messageStream;
   Stream<dynamic> get _messageStream =>
       __messageStream ??= _receivePort.asBroadcastStream();
+
+  final _errorSubject = StreamController<ErrorWithStackTraceString>.broadcast();
+  @override
+  Stream<ErrorWithStackTraceString> get outError => _errorSubject.stream;
 
   final _requestUpdatesBasedOnOthers =
       StreamController<RequestUpdate>.broadcast();
@@ -329,12 +327,4 @@ class MinimizedRequestUpdate<T extends Contextual<T>>
       basedOnUpdate: basedOnUpdate,
     );
   }
-}
-
-class ErrorWithStackTraceString {
-  final dynamic error;
-  final String stackTraceString;
-
-  ErrorWithStackTraceString(this.error, StackTrace stackTrace)
-      : stackTraceString = stackTrace.toString();
 }

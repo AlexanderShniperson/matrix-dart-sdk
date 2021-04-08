@@ -47,6 +47,7 @@ export 'src/room/member/member_timeline.dart';
 
 export 'src/store/store.dart';
 export 'src/store/moor/moor_store.dart';
+export 'src/model/error_with_stacktrace.dart';
 
 export 'src/util/mxc_url.dart' show MatrixUrl;
 

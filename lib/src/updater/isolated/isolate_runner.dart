@@ -9,7 +9,7 @@ import 'dart:isolate';
 
 import 'package:meta/meta.dart';
 
-import 'isolated_updater.dart';
+import '../../model/error_with_stacktrace.dart';
 import '../../homeserver.dart';
 import '../../my_user.dart';
 import '../updater.dart';
@@ -79,7 +79,7 @@ abstract class IsolateRunner {
         sendPort.send(
           ErrorWithStackTraceString(
             error,
-            stackTrace,
+            stackTrace?.toString() ?? "",
           ),
         );
       },

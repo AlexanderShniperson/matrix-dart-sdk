@@ -34,6 +34,7 @@ import '../store/store.dart';
 import '../room/timeline.dart';
 import 'isolated/isolated_updater.dart';
 import '../util/random.dart';
+import '../model/error_with_stacktrace.dart';
 
 /// Manages updates to [MyUser].
 class Updater {
@@ -55,10 +56,13 @@ class Updater {
   Syncer _syncer;
   Syncer get syncer => _syncer ??= Syncer(this);
 
-  final _subject = StreamController<Update>.broadcast();
-  Stream<Update> get updates => _subject.stream;
+  final _updatesSubject = StreamController<Update>.broadcast();
+  Stream<Update> get updates => _updatesSubject.stream;
 
-  bool get isReady => _store.isOpen && !_subject.isClosed;
+  final _errorSubject = StreamController<ErrorWithStackTraceString>.broadcast();
+  Stream<ErrorWithStackTraceString> get outError => _errorSubject.stream;
+
+  bool get isReady => _store.isOpen && !_updatesSubject.isClosed;
 
   /// Initializes the [myUser] with a valid [Context], and will also
   /// initialize it's properties that need the context, such as [Rooms].
@@ -106,7 +110,7 @@ class Updater {
       await _store.setMyUserDelta(delta.copyWith(id: _user.id));
 
       final update = createUpdate(_user, delta);
-      _subject.add(update);
+      _updatesSubject.add(update);
       return update;
     });
   }
@@ -536,7 +540,11 @@ class Updater {
             ?.typerIds
             ?.contains(_user.id);
 
-        return containsMe == null ? false : isTyping ? containsMe : !containsMe;
+        return containsMe == null
+            ? false
+            : isTyping
+                ? containsMe
+                : !containsMe;
       }),
       data: (u) => u.rooms[roomId].ephemeral,
       deltaData: (u) => u.rooms[roomId]?.ephemeral,
@@ -599,7 +607,10 @@ class Updater {
   }
 
   void _addError(dynamic error, [StackTrace stackTrace]) {
-    _subject.addError(error, stackTrace);
+    _errorSubject.add(ErrorWithStackTraceString(
+      error,
+      stackTrace?.toString() ?? "",
+    ));
   }
 
   Future<void> _processSync(Map<String, dynamic> body) async {
