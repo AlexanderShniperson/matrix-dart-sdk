@@ -361,8 +361,8 @@ class MyUserRecordWithDeviceRecord {
   final DeviceRecord deviceRecord;
 
   MyUserRecordWithDeviceRecord({
-    @required this.myUserRecord,
-    @required this.deviceRecord,
+    required this.myUserRecord,
+    required this.deviceRecord,
   });
 }
 
@@ -379,7 +379,7 @@ class RoomRecordWithStateRecords {
   final RoomEventRecord upgradeRecord;
 
   RoomRecordWithStateRecords({
-    @required this.roomRecord,
+    required this.roomRecord,
     this.nameChangeRecord,
     this.avatarChangeRecord,
     this.topicChangeRecord,

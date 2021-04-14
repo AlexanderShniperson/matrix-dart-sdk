@@ -44,7 +44,10 @@ abstract class MatrixException implements Exception {
 
 /// Unknown error occured. Check the [message] for details.
 class UnknownException extends MatrixException {
-  UnknownException({this.message, this.body});
+  UnknownException({
+    this.message = "",
+    this.body = const {},
+  });
 
   @override
   final String message;
@@ -56,7 +59,10 @@ class UnknownException extends MatrixException {
 /// Denied access. For example, wrong password, or not allowed
 /// to join a room.
 class ForbiddenException extends MatrixException {
-  ForbiddenException({this.message, this.body});
+  ForbiddenException({
+    this.message = "",
+    this.body = const {},
+  });
 
   @override
   final String message;
@@ -67,7 +73,10 @@ class ForbiddenException extends MatrixException {
 
 /// Username is already in use.
 class UsernameInUseException extends MatrixException {
-  UsernameInUseException({this.message, this.body});
+  UsernameInUseException({
+    this.message = "",
+    this.body = const {},
+  });
 
   @override
   final String message;
@@ -78,7 +87,10 @@ class UsernameInUseException extends MatrixException {
 
 /// Invalid username.
 class InvalidUsernameException extends MatrixException {
-  InvalidUsernameException({this.message, this.body});
+  InvalidUsernameException({
+    this.message = "",
+    this.body = const {},
+  });
 
   @override
   final String message;
@@ -89,7 +101,10 @@ class InvalidUsernameException extends MatrixException {
 
 /// The requested resource is reserved by an application service.
 class ExclusiveException extends MatrixException {
-  ExclusiveException({this.message, this.body});
+  ExclusiveException({
+    this.message = "",
+    this.body = const {},
+  });
 
   @override
   final String message;

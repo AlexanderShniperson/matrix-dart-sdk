@@ -20,16 +20,16 @@ class ReceiptEvent extends EphemeralEvent {
   final String type = matrixType;
 
   ReceiptEvent({
-    @required RoomId roomId,
-    @required this.content,
+    required RoomId roomId,
+    required this.content,
   }) : super(roomId);
 
   @override
   final Receipts content;
 
   ReceiptEvent copyWith({
-    RoomId roomId,
-    Receipts content,
+    RoomId? roomId,
+    Receipts? content,
   }) {
     return ReceiptEvent(
       roomId: roomId ?? this.roomId,
@@ -37,7 +37,7 @@ class ReceiptEvent extends EphemeralEvent {
     );
   }
 
-  ReceiptEvent merge(ReceiptEvent other) {
+  ReceiptEvent merge(ReceiptEvent? other) {
     if (other == null) return this;
 
     return copyWith(
@@ -114,14 +114,14 @@ class Receipts extends EventContent {
   }
 
   Receipts copyWith({
-    List<Receipt> receipts,
+    List<Receipt>? receipts,
   }) {
     return Receipts(
       receipts ?? this.receipts,
     );
   }
 
-  Receipts merge(Receipts other) {
+  Receipts merge(Receipts? other) {
     if (other == null) return this;
 
     final set = HashSet<Receipt>(
@@ -144,10 +144,10 @@ class Receipt {
   final DateTime time;
 
   Receipt({
-    @required this.type,
-    @required this.userId,
-    @required this.eventId,
-    @required this.time,
+    required this.type,
+    required this.userId,
+    required this.eventId,
+    required this.time,
   });
 
   @override

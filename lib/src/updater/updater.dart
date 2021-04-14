@@ -115,7 +115,9 @@ class Updater {
     });
   }
 
-  Future<RequestUpdate<MyUser>> setName({@required String name}) async {
+  Future<RequestUpdate<MyUser>> setName({
+    required String name,
+  }) async {
     await homeserver.api.profile.putDisplayName(
       accessToken: _user.accessToken,
       userId: _user.id.toString(),
@@ -136,7 +138,7 @@ class Updater {
 
   Future<RequestUpdate<MemberTimeline>> kick(
     UserId id, {
-    @required RoomId from,
+    required RoomId from,
   }) async {
     if (_user.rooms[from].members[id]?.membership == Membership.kicked) {
       return RequestUpdate.fromUpdate(
@@ -302,8 +304,8 @@ class Updater {
   }
 
   Future<RequestUpdate<ReadReceipts>> markRead({
-    @required RoomId roomId,
-    @required EventId until,
+    required RoomId roomId,
+    required EventId until,
     bool receipt = true,
   }) async {
     if (receipt) {
@@ -373,8 +375,8 @@ class Updater {
     final rooms = await _store.getRooms(
       roomIds,
       timelineLimit: timelineLimit,
-      context: _user.context,
-      memberIds: [_user.id],
+      context: _user.context!,
+      memberIds: [_user.id!],
     );
 
     return await _update(
@@ -382,15 +384,15 @@ class Updater {
       (user, delta) => RequestUpdate(
         user,
         delta,
-        data: user.rooms,
-        deltaData: delta.rooms,
+        data: user.rooms!,
+        deltaData: delta.rooms!,
         type: RequestType.loadRooms,
       ),
     );
   }
 
   Future<RequestUpdate<Timeline>> loadRoomEvents({
-    @required RoomId roomId,
+    required RoomId roomId,
     int count = 20,
   }) async {
     final currentRoom = _user.rooms[roomId];
@@ -465,7 +467,7 @@ class Updater {
   }
 
   Future<RequestUpdate<MemberTimeline>> loadMembers({
-    @required RoomId roomId,
+    required RoomId roomId,
     int count = 10,
   }) async {
     final currentRoom = _user.rooms[roomId];
@@ -520,8 +522,8 @@ class Updater {
   }
 
   Future<RequestUpdate<Ephemeral>> setIsTyping({
-    @required RoomId roomId,
-    @required bool isTyping,
+    required RoomId roomId,
+    required bool isTyping,
     Duration timeout = const Duration(seconds: 30),
   }) async {
     await homeserver.api.rooms.typing(
@@ -638,7 +640,7 @@ class Updater {
 
     Future<List<Room>> process(
       Map<String, dynamic> rooms, {
-      @required String type,
+      required String type,
     }) async {
       final roomDeltas = <Room>[];
 
@@ -801,9 +803,9 @@ class RequestUpdate<T extends Contextual<T>> extends Update {
   RequestUpdate(
     MyUser user,
     MyUser deltaUser, {
-    @required this.data,
-    @required this.deltaData,
-    @required this.type,
+    required this.data,
+    required this.deltaData,
+    required this.type,
     // Must not be set to true in most cases.
     this.basedOnUpdate = false,
   }) : super._(user, deltaUser);
@@ -812,9 +814,9 @@ class RequestUpdate<T extends Contextual<T>> extends Update {
   /// have `basedOnSyncUpdate` set to true.
   RequestUpdate.fromUpdate(
     Update update, {
-    @required T Function(MyUser user) data,
-    @required T Function(MyUser delta) deltaData,
-    @required RequestType type,
+    required T Function(MyUser user) data,
+    required T Function(MyUser delta) deltaData,
+    required RequestType type,
   }) : this(
           update.user,
           update.delta,

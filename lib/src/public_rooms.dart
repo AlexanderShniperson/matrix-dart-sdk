@@ -75,7 +75,7 @@ class PublicRooms extends DelegatingIterable<RoomResult> {
   ///
   /// Returns a new [PublicRooms] with possibly more rooms loaded.
   Future<PublicRooms> load({
-    @required MyUser as,
+    required MyUser as,
     int limit = 30,
     String searchTerm,
   }) async {
@@ -188,7 +188,9 @@ class RoomResult with Identifiable<RoomId> {
     );
   }
 
-  Future<RequestUpdate<Room>> join({@required MyUser as}) =>
+  Future<RequestUpdate<Room>> join({
+    required MyUser as,
+  }) =>
       as.rooms.enter(id: id);
 
   @override

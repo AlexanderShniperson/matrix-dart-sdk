@@ -174,10 +174,10 @@ class UpdaterArgs {
   final bool saveMyUserToStore;
 
   UpdaterArgs({
-    @required this.myUser,
-    @required this.homeserverUrl,
-    @required this.storeLocation,
-    @required this.saveMyUserToStore,
+    required this.myUser,
+    required this.homeserverUrl,
+    required this.storeLocation,
+    required this.saveMyUserToStore,
   });
 }
 

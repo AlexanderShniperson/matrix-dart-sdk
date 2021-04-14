@@ -27,7 +27,7 @@ class RoomUpgradeEvent extends StateEvent {
 
   RoomUpgradeEvent(
     RoomEventArgs args, {
-    @required this.content,
+    required this.content,
     this.previousContent,
   }) : super(args, stateKey: '');
 }
@@ -39,8 +39,8 @@ class RoomUpgrade extends EventContent {
   final RoomId replacementRoomId;
 
   RoomUpgrade({
-    @required this.body,
-    @required this.replacementRoomId,
+    required this.body,
+    required this.replacementRoomId,
   });
 
   @override

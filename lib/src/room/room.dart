@@ -137,8 +137,8 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
   bool get isDirect => directUserId != null;
 
   Room({
-    @required Context context,
-    @required this.id,
+    required Context context,
+    required this.id,
     this.stateEvents,
     this.timeline,
     this.memberTimeline,
@@ -166,8 +166,8 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
 
   /// Creates a room with default values.
   Room.base({
-    @required Context context,
-    @required RoomId id,
+    required Context context,
+    required RoomId id,
   }) : this(
           context: context,
           id: id,
@@ -188,7 +188,7 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
   /// Create a room (delta) from json, specifically from a sync's response.
   factory Room.fromJson(
     Map<String, dynamic> body, {
-    @required RoomContext context,
+    required RoomContext context,
   }) {
     final responseTimeline = body['timeline'];
 
@@ -500,7 +500,10 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
   ///
   /// Returns the [Update] when the power level change is processed, if
   /// successful.
-  Future<Update> changePowerLevelOf(UserId id, {@required int to}) async {
+  Future<Update> changePowerLevelOf(
+    UserId id, {
+    required int to,
+  }) async {
     final userLevels = Map<UserId, int>.from(
       stateEvents.powerLevelsChange.content.userLevels,
     );
@@ -550,7 +553,7 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
   Future<Update> setTopic(String topic) => send(TopicChange(topic: topic)).last;
 
   Future<Update> upgrade({
-    @required RoomId replacementRoomId,
+    required RoomId replacementRoomId,
     String message,
   }) =>
       send(RoomUpgrade(
@@ -581,7 +584,7 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
   /// is true, this will just return the next update with an
   /// the current read receipt list for `data` it's delta for `deltaData`.
   Future<RequestUpdate<ReadReceipts>> markRead({
-    @required EventId until,
+    required EventId until,
     bool receipt = true,
   }) =>
       context.updater.markRead(roomId: id, until: until, receipt: receipt);
@@ -589,7 +592,9 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
   /// Join this room, if not joined already.
   ///
   /// Use [through] to specify the server to join through.
-  Future<RequestUpdate<Room>> join({Homeserver through}) {
+  Future<RequestUpdate<Room>> join({
+    Homeserver through,
+  }) {
     assert(!me.hasJoined);
     return context.updater.joinRoom(
       id: id,
@@ -873,7 +878,7 @@ class RoomContext extends Context {
 
   RoomContext.inherit(
     Context context, {
-    @required this.roomId,
+    required this.roomId,
   }) : super(myId: context.myId);
 }
 

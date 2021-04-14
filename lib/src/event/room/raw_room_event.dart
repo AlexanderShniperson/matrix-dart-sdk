@@ -14,8 +14,8 @@ import 'state/state_event.dart';
 class RawRoomEvent extends RoomEvent {
   RawRoomEvent(
     RoomEventArgs args, {
-    @required this.type,
-    @required this.content,
+    required this.type,
+    required this.content,
   }) : super(args);
 
   @override
@@ -97,8 +97,8 @@ class RawStateEvent extends RawRoomEvent implements StateEvent {
 
   RawStateEvent(
     RoomEventArgs args, {
-    @required String type,
-    @required RawEventContent content,
+    required String type,
+    required RawEventContent content,
     this.previousContent,
     this.stateKey,
   }) : super(args, type: type, content: content);

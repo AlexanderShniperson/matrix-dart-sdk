@@ -24,7 +24,7 @@ class TopicChangeEvent extends StateEvent {
 
   TopicChangeEvent(
     RoomEventArgs args, {
-    @required this.content,
+    required this.content,
     this.previousContent,
   }) : super(args, stateKey: '');
 }
@@ -33,7 +33,9 @@ class TopicChangeEvent extends StateEvent {
 class TopicChange extends EventContent {
   final String topic;
 
-  TopicChange({@required this.topic});
+  TopicChange({
+    required this.topic,
+  });
 
   @override
   bool operator ==(dynamic other) =>

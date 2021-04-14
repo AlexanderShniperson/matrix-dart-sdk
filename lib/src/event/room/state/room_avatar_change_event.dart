@@ -26,7 +26,7 @@ class RoomAvatarChangeEvent extends StateEvent {
 
   RoomAvatarChangeEvent(
     RoomEventArgs args, {
-    @required this.content,
+    required this.content,
     this.previousContent,
   }) : super(args, stateKey: '');
 }
@@ -36,7 +36,9 @@ class RoomAvatarChange extends EventContent {
   /// An `mxc` url pointing to the avatar.
   final Uri url;
 
-  RoomAvatarChange({@required this.url});
+  RoomAvatarChange({
+    required this.url,
+  });
 
   @override
   bool operator ==(dynamic other) =>

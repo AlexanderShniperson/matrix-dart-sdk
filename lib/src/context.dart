@@ -15,12 +15,20 @@ import 'updater/updater.dart';
 /// [Homeserver] or [MyUser] they're associated with.
 @immutable
 class Context {
-  final UserId myId;
+  final UserId? myId;
 
-  Updater get updater => Updater.get(myId);
-  Homeserver get homeserver => updater.homeserver;
+  Updater? get updater {
+    if (myId == null) {
+      return null;
+    }
+    return Updater.get(myId!);
+  }
 
-  const Context({@required this.myId});
+  Homeserver? get homeserver => updater?.homeserver;
+
+  const Context({
+    required this.myId,
+  });
 
   @override
   bool operator ==(dynamic other) => other is Context && myId == other.myId;
@@ -37,7 +45,7 @@ class Context {
 abstract class Contextual<T> {
   /// A [Context] to which this object relates to, necessary for certain
   /// operations.
-  Context get context;
+  Context? get context;
 
   /// Create a delta of this object.
   ///

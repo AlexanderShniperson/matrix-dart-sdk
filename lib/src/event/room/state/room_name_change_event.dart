@@ -24,7 +24,7 @@ class RoomNameChangeEvent extends StateEvent {
 
   RoomNameChangeEvent(
     RoomEventArgs args, {
-    @required this.content,
+    required this.content,
     this.previousContent,
   }) : super(args, stateKey: '');
 }
@@ -33,7 +33,9 @@ class RoomNameChangeEvent extends StateEvent {
 class RoomNameChange extends EventContent {
   final String name;
 
-  RoomNameChange({@required this.name});
+  RoomNameChange({
+    required this.name,
+  });
 
   @override
   bool operator ==(dynamic other) =>

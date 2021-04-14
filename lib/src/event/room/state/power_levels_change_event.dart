@@ -36,7 +36,7 @@ class PowerLevelsChangeEvent extends StateEvent implements HasDiff {
 
   factory PowerLevelsChangeEvent(
     RoomEventArgs args, {
-    @required PowerLevelsChange content,
+    required PowerLevelsChange content,
     PowerLevelsChange previousContent,
   }) {
     final diff = PowerLevelsChangeDiff(previousContent, content);
@@ -303,7 +303,7 @@ class PowerLevelsChangeDiff extends Diff {
 
 extension _ChangeMapExtension<K, V> on Map<K, Change<V>> {
   /// Handle removals and additions as changes to or from a [defaultValue].
-  Map<K, Change<V>> toEdited({@required V defaultValue}) {
+  Map<K, Change<V>> toEdited({required V defaultValue}) {
     return map((key, change) => change is Removed
         ? MapEntry(key, Edited(change.value, defaultValue))
         : change is Added

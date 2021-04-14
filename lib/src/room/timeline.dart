@@ -28,7 +28,7 @@ class Timeline extends DelegatingIterable<RoomEvent>
 
   Timeline(
     Iterable<RoomEvent> iterable, {
-    @required this.context,
+    required this.context,
     this.previousBatch,
     this.previousBatchSetBySync,
   }) : super(
@@ -40,8 +40,8 @@ class Timeline extends DelegatingIterable<RoomEvent>
         );
 
   Timeline.empty({
-    @required this.context,
-  })  : previousBatch = null,
+    required this.context,
+  })   : previousBatch = null,
         previousBatchSetBySync = null,
         super([]);
 
@@ -51,7 +51,7 @@ class Timeline extends DelegatingIterable<RoomEvent>
   /// Otherwise [roomId] must be provided.
   factory Timeline.fromJson(
     List<Map<String, dynamic>> json, {
-    @required RoomContext context,
+    required RoomContext context,
     String previousBatch,
     bool previousBatchSetBySync,
   }) {
@@ -76,7 +76,9 @@ class Timeline extends DelegatingIterable<RoomEvent>
 
   /// Load more events, returning the [Update] where [MyUser] has a room
   /// with a timeline containing more events.
-  Future<RequestUpdate<Timeline>> load({int count = 20}) =>
+  Future<RequestUpdate<Timeline>> load({
+    int count = 20,
+  }) =>
       context.updater.loadRoomEvents(
         roomId: context.roomId,
         count: count,

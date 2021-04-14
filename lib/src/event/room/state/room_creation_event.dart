@@ -28,7 +28,7 @@ class RoomCreationEvent extends StateEvent {
 
   RoomCreationEvent(
     RoomEventArgs args, {
-    @required this.content,
+    required this.content,
     this.previousContent,
   }) : super(args, stateKey: '');
 }
@@ -44,10 +44,10 @@ class RoomCreation extends EventContent {
   final EventId previousRoomLastEventId;
 
   RoomCreation({
-    @required this.federate,
-    @required this.roomVersion,
-    @required this.previousRoomId,
-    @required this.previousRoomLastEventId,
+    required this.federate,
+    required this.roomVersion,
+    required this.previousRoomId,
+    required this.previousRoomLastEventId,
   });
 
   @override

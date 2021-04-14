@@ -159,7 +159,7 @@ class IsolatedUpdater implements Updater {
 
   Stream<T> _executeStream<T>(
     Instruction<T> instruction, {
-    @required updateCount,
+    required updateCount,
   }) {
     _sendPort.send(instruction);
 
@@ -176,7 +176,10 @@ class IsolatedUpdater implements Updater {
   }
 
   @override
-  Future<RequestUpdate<MemberTimeline>> kick(UserId id, {RoomId from}) =>
+  Future<RequestUpdate<MemberTimeline>> kick(
+    UserId id, {
+    RoomId from,
+  }) =>
       _execute(KickInstruction(id, from));
 
   @override
@@ -295,7 +298,9 @@ abstract class MinimizedUpdate<T extends Update> {
 }
 
 class MinimizedSyncUpdate extends MinimizedUpdate<SyncUpdate> {
-  MinimizedSyncUpdate({@required MyUser delta}) : super(delta);
+  MinimizedSyncUpdate({
+    required MyUser delta,
+  }) : super(delta);
 
   @override
   SyncUpdate deminimize(MyUser user) => SyncUpdate(user, delta);
@@ -308,10 +313,10 @@ class MinimizedRequestUpdate<T extends Contextual<T>>
   final bool basedOnUpdate;
 
   MinimizedRequestUpdate({
-    @required MyUser delta,
-    @required this.deltaData,
-    @required this.type,
-    @required this.basedOnUpdate,
+    required MyUser delta,
+    required this.deltaData,
+    required this.type,
+    required this.basedOnUpdate,
   }) : super(delta);
 
   @override

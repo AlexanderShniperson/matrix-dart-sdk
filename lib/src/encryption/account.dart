@@ -20,8 +20,8 @@ class IdentityKeys {
   final String ed25519;
 
   IdentityKeys({
-    @required this.curve25519,
-    @required this.ed25519,
+    required this.curve25519,
+    required this.ed25519,
   });
 
   factory IdentityKeys.fromJson(Map<String, dynamic> json) {

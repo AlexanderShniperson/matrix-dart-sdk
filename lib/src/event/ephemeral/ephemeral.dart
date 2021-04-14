@@ -30,7 +30,7 @@ class Ephemeral extends DelegatingIterable<EphemeralEvent>
   /// Either [context] or [roomId] is required.
   factory Ephemeral.fromJson(
     Map<String, dynamic> json, {
-    @required RoomContext context,
+    required RoomContext context,
   }) {
     if (json['events'] == null) {
       return Ephemeral([]);

@@ -36,8 +36,10 @@ class Api {
   Rooms _rooms;
   Rooms get rooms => _rooms;
 
-  Api({@required Uri url, http.Client httpClient})
-      : _chopper = ChopperClient(
+  Api({
+    required Uri url,
+    http.Client httpClient,
+  }) : _chopper = ChopperClient(
           client: httpClient,
           baseUrl: url.toString(),
           services: [ClientService.create(), MediaService.create()],
@@ -59,7 +61,9 @@ class Api {
     return response.body != null ? json.decode(response.body) : null;
   }
 
-  Future<void> logout({@required String accessToken}) async {
+  Future<void> logout({
+    required String accessToken,
+  }) async {
     final response = await _clientService.logout(
       authorization: accessToken.toHeader(),
     );
@@ -98,7 +102,7 @@ class Api {
   }
 
   Future<Map<String, dynamic>> sync({
-    @required String accessToken,
+    required String accessToken,
     String since,
     bool fullState = false,
     Map<String, dynamic> filter,
@@ -118,8 +122,8 @@ class Api {
   }
 
   Future<Map<String, dynamic>> join({
-    @required String accessToken,
-    @required String roomIdOrAlias,
+    required String accessToken,
+    required String roomIdOrAlias,
     String serverName,
   }) async {
     final response = await _clientService.join(
@@ -134,7 +138,7 @@ class Api {
   }
 
   Future<Map<String, dynamic>> publicRooms({
-    @required String accessToken,
+    required String accessToken,
     String server,
     int limit = 30,
     String since,
@@ -166,8 +170,8 @@ class Media {
   const Media._(this._service);
 
   Future<Stream<List<int>>> download({
-    @required String server,
-    @required String mediaId,
+    required String server,
+    required String mediaId,
   }) async {
     final response = await _service.download(server, mediaId);
 
@@ -177,11 +181,11 @@ class Media {
   }
 
   Future<Stream<List<int>>> thumbnail({
-    @required String server,
-    @required String mediaId,
-    @required int width,
-    @required int height,
-    @required String resizeMethod,
+    required String server,
+    required String mediaId,
+    required int width,
+    required int height,
+    required String resizeMethod,
   }) async {
     final response = await _service.thumbnail(
       server,
@@ -197,11 +201,11 @@ class Media {
   }
 
   Future<Map<String, dynamic>> upload({
-    @required String accessToken,
-    @required Stream<List<int>> bytes,
-    @required int bytesLength,
-    @required String contentType,
-    @required String fileName,
+    required String accessToken,
+    required Stream<List<int>> bytes,
+    required int bytesLength,
+    required String contentType,
+    required String fileName,
   }) async {
     final response = await _service.upload(
       accessToken.toHeader(),
@@ -224,8 +228,8 @@ class Profile {
   const Profile._(this._service);
 
   Future<Map<String, dynamic>> get({
-    @required String accessToken,
-    @required String userId,
+    required String accessToken,
+    required String userId,
   }) async {
     final response = await _service.profile(
       authorization: accessToken.toHeader(),
@@ -238,8 +242,8 @@ class Profile {
   }
 
   Future<void> putDisplayName({
-    @required String accessToken,
-    @required String userId,
+    required String accessToken,
+    required String userId,
     String value,
   }) async {
     final response = await _service.profileSetDisplayName(
@@ -261,8 +265,8 @@ class Rooms {
   const Rooms._(this._service);
 
   Future<Map<String, dynamic>> messages({
-    @required String accessToken,
-    @required String roomId,
+    required String accessToken,
+    required String roomId,
     int limit,
     String from,
     Map<String, dynamic> filter,
@@ -281,8 +285,8 @@ class Rooms {
   }
 
   Future<Map<String, dynamic>> members({
-    @required String accessToken,
-    @required String roomId,
+    required String accessToken,
+    required String roomId,
     String at,
     String membership,
   }) async {
@@ -299,9 +303,9 @@ class Rooms {
   }
 
   Future<Map<String, dynamic>> send({
-    @required String accessToken,
-    @required String roomId,
-    @required String eventType,
+    required String accessToken,
+    required String roomId,
+    required String eventType,
     String transactionId,
     Map<String, dynamic> content,
   }) async {
@@ -319,9 +323,9 @@ class Rooms {
   }
 
   Future<Map<String, dynamic>> sendState({
-    @required String accessToken,
-    @required String roomId,
-    @required String eventType,
+    required String accessToken,
+    required String roomId,
+    required String eventType,
     String stateKey,
     Map<String, dynamic> content,
   }) async {
@@ -339,10 +343,10 @@ class Rooms {
   }
 
   Future<void> typing({
-    @required String accessToken,
-    @required String roomId,
-    @required String userId,
-    @required bool typing,
+    required String accessToken,
+    required String roomId,
+    required String userId,
+    required bool typing,
     int timeout,
   }) async {
     final response = await _service.typing(
@@ -359,9 +363,9 @@ class Rooms {
   }
 
   Future<void> kick({
-    @required String accessToken,
-    @required String roomId,
-    @required String userId,
+    required String accessToken,
+    required String roomId,
+    required String userId,
   }) async {
     final response = await _service.kick(
       authorization: accessToken.toHeader(),
@@ -375,10 +379,10 @@ class Rooms {
   }
 
   Future<void> readMarkers({
-    @required String accessToken,
-    @required String roomId,
-    @required String fullyRead,
-    String read,
+    required String accessToken,
+    required String roomId,
+    required String fullyRead,
+    String? read,
   }) async {
     final body = {
       'm.fully_read': fullyRead,
@@ -398,8 +402,8 @@ class Rooms {
   }
 
   Future<void> leave({
-    @required String accessToken,
-    @required String roomId,
+    required String accessToken,
+    required String roomId,
   }) async {
     final response = await _service.leave(
       authorization: accessToken.toHeader(),
@@ -417,8 +421,8 @@ class Pushers {
   const Pushers._(this._service);
 
   Future<bool> set({
-    @required String accessToken,
-    @required Map<String, dynamic> body,
+    required String accessToken,
+    required Map<String, dynamic> body,
   }) async {
     final response = await _service.setPusher(
       authorization: accessToken.toHeader(),

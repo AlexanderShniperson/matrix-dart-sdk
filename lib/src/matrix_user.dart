@@ -13,10 +13,10 @@ import 'identifier.dart';
 @immutable
 abstract class MatrixUser with Identifiable<UserId> {
   @override
-  UserId get id;
+  UserId? get id;
 
   String get name;
-  Uri get avatarUrl;
+  Uri? get avatarUrl;
 
   @override
   bool operator ==(dynamic other) =>

@@ -42,7 +42,7 @@ abstract class Store {
     Iterable<RoomId> roomIds,
     int timelineLimit = 15,
     bool isolated = false,
-    @required StoreLocation storeLocation,
+    required StoreLocation storeLocation,
   });
 
   /// Save [MyUser] and all it's data completely.

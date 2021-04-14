@@ -17,8 +17,8 @@ class TypingEvent extends EphemeralEvent {
   final String type = matrixType;
 
   TypingEvent({
-    @required RoomId roomId,
-    @required this.content,
+    required RoomId roomId,
+    required this.content,
   }) : super(roomId);
 
   @override
@@ -27,7 +27,9 @@ class TypingEvent extends EphemeralEvent {
 
 @immutable
 class Typers extends EventContent {
-  Typers({@required this.typerIds});
+  Typers({
+    required this.typerIds,
+  });
 
   @override
   bool operator ==(dynamic other) =>

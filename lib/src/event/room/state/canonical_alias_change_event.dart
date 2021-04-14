@@ -25,7 +25,7 @@ class CanonicalAliasChangeEvent extends StateEvent {
 
   CanonicalAliasChangeEvent(
     RoomEventArgs args, {
-    @required this.content,
+    required this.content,
     this.previousContent,
   }) : super(args, stateKey: '');
 }
@@ -36,7 +36,7 @@ class CanonicalAliasChange extends EventContent {
   final List<RoomAlias> alternativeAliases;
 
   CanonicalAliasChange({
-    @required this.canonicalAlias,
+    required this.canonicalAlias,
     this.alternativeAliases = const [],
   });
 

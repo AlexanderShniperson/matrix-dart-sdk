@@ -22,26 +22,26 @@ import 'model/error_with_stacktrace.dart';
 @immutable
 class MyUser extends MatrixUser implements Contextual<MyUser> {
   @override
-  final Context context;
+  final Context? context;
 
   @override
-  final UserId id;
+  final UserId? id;
 
   @override
   final String name;
 
   @override
-  final Uri avatarUrl;
+  final Uri? avatarUrl;
 
-  final String accessToken;
+  final String? accessToken;
 
   final String syncToken;
 
-  final Device currentDevice;
+  final Device? currentDevice;
 
-  final Rooms rooms;
+  final Rooms? rooms;
 
-  final Pushers pushers;
+  final Pushers? pushers;
 
   /// Whether this user has been synchronized fully at least once.
   final bool hasSynced;
@@ -49,27 +49,27 @@ class MyUser extends MatrixUser implements Contextual<MyUser> {
   final bool isLoggedOut;
 
   MyUser({
-    @required this.id,
-    this.name,
+    required this.id,
+    this.name = "",
     this.avatarUrl,
-    this.accessToken,
-    this.syncToken,
+    this.accessToken ="",
+    this.syncToken="",
     this.currentDevice,
     this.rooms,
-    this.hasSynced,
-    this.isLoggedOut,
+    this.hasSynced=false,
+    this.isLoggedOut=false,
   })  : context = id != null ? Context(myId: id) : null,
         pushers = id != null ? Pushers(Context(myId: id)) : null;
 
   MyUser.base({
-    @required UserId id,
-    String name,
-    Uri avatarUrl,
-    String accessToken,
-    String syncToken,
-    Device currentDevice,
-    bool hasSynced,
-    bool isLoggedOut,
+    required UserId id,
+    String name = "",
+    Uri? avatarUrl,
+    String accessToken = "",
+    String syncToken = "",
+    Device? currentDevice,
+    bool hasSynced=false,
+    bool isLoggedOut=false,
   }) : this(
           id: id,
           name: name,
@@ -93,7 +93,7 @@ class MyUser extends MatrixUser implements Contextual<MyUser> {
   /// different [Isolate].
   static Future<MyUser> fromStore(
     StoreLocation storeLocation, {
-    Iterable<RoomId> roomIds,
+    Iterable<RoomId> roomIds = const [],
     int timelineLimit = 15,
     bool isolated = false,
   }) async {
@@ -110,15 +110,15 @@ class MyUser extends MatrixUser implements Contextual<MyUser> {
   }
 
   MyUser copyWith({
-    UserId id,
-    String name,
-    Uri avatarUrl,
-    String accessToken,
-    String syncToken,
-    Device currentDevice,
-    Rooms rooms,
-    bool hasSynced,
-    bool isLoggedOut,
+    UserId? id,
+    String? name,
+    Uri? avatarUrl,
+    String? accessToken,
+    String? syncToken,
+    Device? currentDevice,
+    Rooms? rooms,
+    bool? hasSynced,
+    bool? isLoggedOut,
   }) {
     rooms ??= this.rooms;
 
@@ -139,7 +139,7 @@ class MyUser extends MatrixUser implements Contextual<MyUser> {
     );
   }
 
-  MyUser merge(MyUser other) {
+  MyUser merge(MyUser? other) {
     if (other == null) return this;
 
     return copyWith(
@@ -241,9 +241,9 @@ class MyUser extends MatrixUser implements Contextual<MyUser> {
   /// Unlike other contextual methods, depends on the current [accessToken] and
   /// [isLoggedOut].
   Future<Uri> upload({
-    @required Stream<List<int>> bytes,
-    @required int length,
-    @required String contentType,
+    required Stream<List<int>> bytes,
+    required int length,
+    required String contentType,
     String fileName,
   }) =>
       context.homeserver.upload(

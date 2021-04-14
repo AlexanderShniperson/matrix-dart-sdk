@@ -25,7 +25,7 @@ class JoinRulesChangeEvent extends StateEvent {
 
   JoinRulesChangeEvent(
     RoomEventArgs args, {
-    @required this.content,
+    required this.content,
     this.previousContent,
   }) : super(args, stateKey: '');
 }
@@ -34,7 +34,9 @@ class JoinRulesChangeEvent extends StateEvent {
 class JoinRules extends EventContent {
   final JoinRule rule;
 
-  JoinRules({@required this.rule});
+  JoinRules({
+    required this.rule,
+  });
 
   @override
   bool operator ==(dynamic other) => other is JoinRules && rule == other.rule;

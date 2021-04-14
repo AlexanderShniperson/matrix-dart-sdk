@@ -119,8 +119,8 @@ class Homeserver {
 
   Uri resolveThumbnailUrl(
     Uri url, {
-    @required int width,
-    @required int height,
+    required int width,
+    required int height,
     ResizeMethod resizeMethod = ResizeMethod.scale,
   }) {
     if (url == null) {
@@ -151,7 +151,7 @@ class Homeserver {
     Map<String, dynamic> body, {
     bool isolated = false,
     Device device,
-    @required StoreLocation store,
+    required StoreLocation store,
   }) async {
     String accessToken = body['access_token'];
     final userId = UserId(body['user_id']);
@@ -216,9 +216,9 @@ class Homeserver {
   ///
   /// Once registration is complete, will return a logged in [MyUser].
   Future<AuthenticationSession<MyUser>> register({
-    @required Username username,
-    @required String password,
-    @required StoreLocation store,
+    required Username username,
+    required String password,
+    required StoreLocation store,
     Device device,
     bool isolated = false,
   }) async {
@@ -266,8 +266,8 @@ class Homeserver {
   Future<MyUser> login(
     UserIdentifier user,
     String password, {
-    @required StoreLocation store,
-    Device device,
+    required StoreLocation store,
+    Device? device,
     bool isolated = false,
   }) async {
     final body = await api.login({
@@ -305,8 +305,8 @@ class Homeserver {
   /// Download a thumbnail via this [Homeserver].
   Future<Stream<List<int>>> downloadThumbnail(
     Uri url, {
-    @required int width,
-    @required int height,
+    required int width,
+    required int height,
     ResizeMethod resizeMethod = ResizeMethod.scale,
   }) async {
     if (url == null) {
@@ -330,11 +330,11 @@ class Homeserver {
   }
 
   Future<Uri> upload({
-    @required MyUser as,
-    @required Stream<List<int>> bytes,
-    @required int length,
-    @required String contentType,
-    String fileName,
+    required MyUser as,
+    required Stream<List<int>> bytes,
+    required int length,
+    required String contentType,
+    String fileName="",
   }) async {
     if (as.accessToken == null || as.isLoggedOut) {
       throw StateError('User is logged out or has no access token');
@@ -349,7 +349,7 @@ class Homeserver {
     }
 
     final body = await api.media.upload(
-      accessToken: as.accessToken,
+      accessToken: as.accessToken!,
       bytes: bytes,
       bytesLength: length,
       contentType: contentType,

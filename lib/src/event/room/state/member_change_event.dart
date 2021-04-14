@@ -32,17 +32,17 @@ class MemberChangeEvent extends StateEvent {
 
   MemberChangeEvent._(
     RoomEventArgs args, {
-    @required this.content,
+    required this.content,
+    required String stateKey,
     this.previousContent,
-    @required String stateKey,
   })  : subjectId = UserId(stateKey),
         super(args, stateKey: stateKey);
 
   factory MemberChangeEvent(
     RoomEventArgs args, {
-    @required MemberChange content,
+    required MemberChange content,
+    required String stateKey,
     MemberChange previousContent,
-    @required String stateKey,
   }) {
     if (content == null) {
       return MemberChangeEvent._(args, content: null, stateKey: stateKey);
@@ -126,9 +126,9 @@ class MemberChange extends EventContent {
   final Membership membership;
 
   MemberChange({
-    @required this.membership,
-    @required this.displayName,
-    @required this.avatarUrl,
+    required this.membership,
+    required this.displayName,
+    required this.avatarUrl,
     this.isDirect = false,
   });
 
@@ -192,9 +192,9 @@ class MemberChange extends EventContent {
 class JoinEvent extends MemberChangeEvent {
   JoinEvent._(
     RoomEventArgs args, {
-    @required MemberChange content,
+    required MemberChange content,
     MemberChange previousContent,
-    @required String stateKey,
+    required String stateKey,
   }) : super._(
           args,
           content: content,
@@ -206,9 +206,9 @@ class JoinEvent extends MemberChangeEvent {
 class LeaveEvent extends MemberChangeEvent {
   LeaveEvent._(
     RoomEventArgs args, {
-    @required MemberChange content,
+    required MemberChange content,
     MemberChange previousContent,
-    @required String stateKey,
+    required String stateKey,
   }) : super._(
           args,
           content: content,
@@ -223,9 +223,9 @@ class KickEvent extends LeaveEvent {
 
   KickEvent._(
     RoomEventArgs args, {
-    @required MemberChange content,
+    required MemberChange content,
     MemberChange previousContent,
-    @required String stateKey,
+    required String stateKey,
   }) : super._(
           args,
           content: content,
@@ -237,9 +237,9 @@ class KickEvent extends LeaveEvent {
 class BanEvent extends MemberChangeEvent {
   BanEvent._(
     RoomEventArgs args, {
-    @required MemberChange content,
+    required MemberChange content,
     MemberChange previousContent,
-    @required String stateKey,
+    required String stateKey,
   }) : super._(
           args,
           content: content,
@@ -252,9 +252,9 @@ class BanEvent extends MemberChangeEvent {
 class InviteEvent extends MemberChangeEvent {
   InviteEvent._(
     RoomEventArgs args, {
-    @required MemberChange content,
+    required MemberChange content,
     MemberChange previousContent,
-    @required String stateKey,
+    required String stateKey,
   }) : super._(
           args,
           content: content,
@@ -266,9 +266,9 @@ class InviteEvent extends MemberChangeEvent {
 class KnockEvent extends MemberChangeEvent {
   KnockEvent._(
     RoomEventArgs args, {
-    @required MemberChange content,
+    required MemberChange content,
     MemberChange previousContent,
-    @required String stateKey,
+    required String stateKey,
   }) : super._(
           args,
           content: content,
@@ -283,9 +283,9 @@ class DisplayNameChangeEvent extends JoinEvent {
 
   DisplayNameChangeEvent._(
     RoomEventArgs args, {
-    @required MemberChange content,
+    required MemberChange content,
     MemberChange previousContent,
-    @required String stateKey,
+    required String stateKey,
   }) : super._(
           args,
           content: content,
@@ -300,9 +300,9 @@ class AvatarChangeEvent extends JoinEvent {
 
   AvatarChangeEvent._(
     RoomEventArgs args, {
-    @required MemberChange content,
+    required MemberChange content,
     MemberChange previousContent,
-    @required String stateKey,
+    required String stateKey,
   }) : super._(
           args,
           content: content,

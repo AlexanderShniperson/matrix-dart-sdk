@@ -15,7 +15,7 @@ import '../updater/updater.dart';
 
 class Rooms extends DelegatingIterable<Room> implements Contextual<Rooms> {
   @override
-  final Context context;
+  final Context? context;
 
   Rooms(
     Iterable<Room> iterable, {
@@ -39,8 +39,8 @@ class Rooms extends DelegatingIterable<Room> implements Contextual<Rooms> {
       context.updater.loadRooms(roomIds, timelineLimit);
 
   Rooms copyWith({
-    Iterable<Room> rooms,
-    Context context,
+    Iterable<Room>? rooms,
+    Context? context,
   }) {
     rooms ??= this;
 
@@ -55,7 +55,7 @@ class Rooms extends DelegatingIterable<Room> implements Contextual<Rooms> {
     );
   }
 
-  Rooms merge(Rooms other) {
+  Rooms merge(Rooms? other) {
     if (other == null) return this;
 
     return copyWith(

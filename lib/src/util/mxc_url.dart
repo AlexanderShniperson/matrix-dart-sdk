@@ -17,8 +17,8 @@ extension MatrixUrl on Uri {
 
   Uri resolveThumbnailUrl(
     Homeserver homeserver, {
-    @required int width,
-    @required int height,
+    required int width,
+    required int height,
     ResizeMethod resizeMethod = ResizeMethod.scale,
   }) =>
       homeserver.resolveThumbnailUrl(

@@ -80,7 +80,7 @@ class MoorStore extends Store {
     Iterable<RoomId> roomIds,
     int timelineLimit = 15,
     bool isolated = false,
-    @required StoreLocation storeLocation,
+    required StoreLocation storeLocation,
   }) async {
     final myUserWithDeviceRecord = await _db.getMyUserRecord();
 
@@ -514,7 +514,9 @@ extension on Room {
 }
 
 extension on RoomEvent {
-  RoomEventRecord toRecord({@required bool inTimeline}) {
+  RoomEventRecord toRecord({
+    required bool inTimeline,
+  }) {
     String stateKey, previousContent;
     if (this is StateEvent) {
       final it = (this as StateEvent);

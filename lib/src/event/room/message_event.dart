@@ -24,12 +24,12 @@ class MessageEvent extends RoomEvent {
 
   MessageEvent._(
     RoomEventArgs args, {
-    @required this.content,
+    required this.content,
   }) : super(args);
 
   factory MessageEvent(
     RoomEventArgs args, {
-    @required MessageEventContent content,
+    required MessageEventContent content,
   }) {
     if (content is TextMessage) {
       return TextMessageEvent(args, content: content);
@@ -198,7 +198,7 @@ class TextMessage extends MessageEventContent {
   final EventId inReplyToId;
 
   TextMessage({
-    @required this.body,
+    required this.body,
     this.format,
     this.formattedBody,
     this.inReplyToId,
@@ -225,7 +225,7 @@ class TextMessageEvent extends MessageEvent {
 
   TextMessageEvent(
     RoomEventArgs args, {
-    @required this.content,
+    required this.content,
   }) : super._(args, content: content);
 }
 
@@ -236,7 +236,7 @@ class EmoteMessage extends TextMessage {
   final String type = matrixMessageType;
 
   EmoteMessage({
-    @required String body,
+    required String body,
     String format,
     String formattedBody,
     EventId inReplyToId,
@@ -254,7 +254,7 @@ class EmoteMessageEvent extends TextMessageEvent {
 
   EmoteMessageEvent(
     RoomEventArgs args, {
-    @required this.content,
+    required this.content,
   }) : super(args, content: content);
 }
 
@@ -272,7 +272,7 @@ class ImageMessage extends MessageEventContent {
   final EventId inReplyToId;
 
   ImageMessage({
-    @required this.body,
+    required this.body,
     this.url,
     this.info,
     this.inReplyToId,
@@ -326,7 +326,7 @@ class ImageMessageEvent extends MessageEvent {
 
   ImageMessageEvent(
     RoomEventArgs args, {
-    @required this.content,
+    required this.content,
   }) : super._(args, content: content);
 }
 
@@ -344,7 +344,7 @@ class VideoMessage extends MessageEventContent {
   final EventId inReplyToId;
 
   VideoMessage({
-    @required this.body,
+    required this.body,
     this.url,
     this.info,
     this.inReplyToId,
@@ -465,7 +465,7 @@ class ThumbnailInfo {
   final String mimeType;
 
   ThumbnailInfo({
-    @required this.url,
+    required this.url,
     this.width,
     this.height,
     this.size,
@@ -494,7 +494,7 @@ class ThumbnailInfo {
 
   factory ThumbnailInfo.fromJson(
     Map<String, dynamic> json, {
-    @required String url,
+    required String url,
   }) {
     final parsedUrl = url != null ? Uri.tryParse(url) : null;
     if (parsedUrl == null) {
@@ -517,7 +517,7 @@ class VideoMessageEvent extends MessageEvent {
 
   VideoMessageEvent(
     RoomEventArgs args, {
-    @required this.content,
+    required this.content,
   }) : super._(args, content: content);
 }
 
@@ -535,7 +535,7 @@ class AudioMessage extends MessageEventContent {
   final EventId inReplyToId;
 
   AudioMessage({
-    @required this.body,
+    required this.body,
     this.url,
     this.info,
     this.inReplyToId,
@@ -576,7 +576,11 @@ class AudioInfo {
   final String mimetype;
   final int size;
 
-  AudioInfo({this.duration, this.mimetype, this.size});
+  AudioInfo({
+    this.duration,
+    this.mimetype,
+    this.size,
+  });
 
   @override
   bool operator ==(dynamic other) =>
@@ -595,6 +599,6 @@ class AudioMessageEvent extends MessageEvent {
 
   AudioMessageEvent(
     RoomEventArgs args, {
-    @required this.content,
+    required this.content,
   }) : super._(args, content: content);
 }

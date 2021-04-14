@@ -26,10 +26,12 @@ class MemberTimeline extends DelegatingIterable<Member>
 
   MemberTimeline(
     Iterable<Member> iterable, {
-    @required this.context,
+    required this.context,
   }) : super(iterable.toList());
 
-  MemberTimeline.empty({@required this.context}) : super([]);
+  MemberTimeline.empty({
+    required this.context,
+  }) : super([]);
 
   /// Create a member list from events received from a homeserver.
   ///

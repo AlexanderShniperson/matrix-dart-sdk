@@ -20,8 +20,8 @@ class RedactionEvent extends RoomEvent {
 
   RedactionEvent(
     RoomEventArgs args, {
-    @required this.content,
-    @required this.redacts,
+    required this.content,
+    required this.redacts,
   }) : super(args);
 
   @override
@@ -53,7 +53,9 @@ class RedactionEvent extends RoomEvent {
 class Redaction extends EventContent {
   final String reason;
 
-  Redaction({@required this.reason});
+  Redaction({
+    required this.reason,
+  });
 
   @override
   bool operator ==(dynamic other) =>
@@ -79,8 +81,8 @@ class Redaction extends EventContent {
 
 class RedactedEvent extends RoomEvent {
   factory RedactedEvent.fromRedaction({
-    @required RedactionEvent redaction,
-    @required RoomEvent original,
+    required RedactionEvent redaction,
+    required RoomEvent original,
   }) {
     if (original is StateEvent) {
       return RedactedStateEvent(redaction, original);
