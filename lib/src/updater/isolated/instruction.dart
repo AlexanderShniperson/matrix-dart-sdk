@@ -103,6 +103,20 @@ class SendInstruction extends RequestInstruction<Timeline> {
   );
 }
 
+class DeleteEventInstruction extends Instruction<void> {
+  final RoomId roomId;
+  final EventId eventId;
+  final String transactionId;
+  final String reason;
+
+  DeleteEventInstruction(
+      this.roomId,
+      this.eventId,
+      this.transactionId,
+      this.reason,
+      );
+}
+
 class SetIsTypingInstruction extends RequestInstruction<Ephemeral> {
   final RoomId roomId;
   final bool isTyping;

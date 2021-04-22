@@ -301,6 +301,31 @@ class Updater {
     );
   }
 
+  Future<String> delete(
+    RoomId roomId,
+    EventId eventId, {
+    String transactionId,
+    String reason = 'Deleted by author',
+  }) async {
+    final currentRoom = _user.rooms
+        .firstWhere((element) => element.id == roomId, orElse: () => null);
+
+    if (currentRoom == null) {
+      throw ArgumentError('Room not found in users list');
+    }
+
+    transactionId ??= randomString();
+
+    final response = await homeserver.api.rooms.redact(
+        accessToken: _user.accessToken,
+        roomId: roomId.value,
+        eventId: eventId.value,
+        transactionId: transactionId,
+        reason: reason);
+
+    return response['event_id'];
+  }
+
   Future<RequestUpdate<ReadReceipts>> markRead({
     @required RoomId roomId,
     @required EventId until,

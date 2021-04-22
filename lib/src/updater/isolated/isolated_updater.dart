@@ -258,6 +258,19 @@ class IsolatedUpdater implements Updater {
   @override
   Future<RequestUpdate<MyUser>> setPusher(Map<String, dynamic> pusher) =>
       _execute(SetPusherInstruction(pusher));
+
+  @override
+  Future<String> delete(
+    RoomId roomId,
+    EventId eventId, {
+    String transactionId,
+    String reason = 'Deleted by author',
+  }) async {
+    await _execute(
+        DeleteEventInstruction(roomId, eventId, transactionId, reason));
+
+    return Future.value(eventId.value);
+  }
 }
 
 class IsolatedSyncer implements Syncer {
