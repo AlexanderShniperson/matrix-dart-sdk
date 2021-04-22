@@ -260,16 +260,14 @@ class IsolatedUpdater implements Updater {
       _execute(SetPusherInstruction(pusher));
 
   @override
-  Future<String> delete(
+  Future<RequestUpdate<Timeline>> delete(
     RoomId roomId,
     EventId eventId, {
     String transactionId,
     String reason = 'Deleted by author',
   }) async {
-    await _execute(
+    return _execute(
         DeleteEventInstruction(roomId, eventId, transactionId, reason));
-
-    return Future.value(eventId.value);
   }
 }
 

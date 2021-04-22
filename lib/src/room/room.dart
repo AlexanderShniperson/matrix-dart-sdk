@@ -542,7 +542,7 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
         type: type,
       );
 
-  Future<String> delete(
+  Future<RequestUpdate<Timeline>> delete(
     EventId eventId, {
     String transactionId,
     String reason,

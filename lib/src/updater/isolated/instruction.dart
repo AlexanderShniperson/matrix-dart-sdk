@@ -103,7 +103,7 @@ class SendInstruction extends RequestInstruction<Timeline> {
   );
 }
 
-class DeleteEventInstruction extends Instruction<void> {
+class DeleteEventInstruction extends RequestInstruction<Timeline> {
   final RoomId roomId;
   final EventId eventId;
   final String transactionId;

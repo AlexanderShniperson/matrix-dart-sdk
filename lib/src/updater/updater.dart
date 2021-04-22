@@ -301,7 +301,7 @@ class Updater {
     );
   }
 
-  Future<String> delete(
+  Future<RequestUpdate<Timeline>> delete(
     RoomId roomId,
     EventId eventId, {
     String transactionId,
@@ -316,14 +316,20 @@ class Updater {
 
     transactionId ??= randomString();
 
-    final response = await homeserver.api.rooms.redact(
+    await homeserver.api.rooms.redact(
         accessToken: _user.accessToken,
         roomId: roomId.value,
         eventId: eventId.value,
         transactionId: transactionId,
         reason: reason);
 
-    return response['event_id'];
+    final relevantUpdate = updates.firstWhere(
+            (update) => update.delta.rooms[roomId]?.timeline?.toList()?.any(
+                (element) =>
+                    element is RedactionEvent && element.redacts == eventId),
+            orElse: () => null) ??
+        await updates.first;
+    return relevantUpdate;
   }
 
   Future<RequestUpdate<ReadReceipts>> markRead({
