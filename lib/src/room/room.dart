@@ -542,6 +542,14 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
         type: type,
       );
 
+  Future<RequestUpdate<Timeline>> delete(
+    EventId eventId, {
+    String transactionId,
+    String reason,
+  }) =>
+      context.updater
+          .delete(id, eventId, transactionId: transactionId, reason: reason);
+
   Future<Update> setName(String name) => send(RoomNameChange(name: name)).last;
 
   Future<Update> setAvatarUri(Uri avatarUrl) =>

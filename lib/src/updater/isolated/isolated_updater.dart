@@ -151,7 +151,8 @@ class IsolatedUpdater implements Updater {
               : updates
           : _messageStream;
 
-      return (await stream.firstWhere((event) => event is T)) as T;
+      return (await stream.firstWhere((event) => event is T,
+          orElse: () => null)) as T;
     }
 
     return null;
@@ -258,6 +259,17 @@ class IsolatedUpdater implements Updater {
   @override
   Future<RequestUpdate<MyUser>> setPusher(Map<String, dynamic> pusher) =>
       _execute(SetPusherInstruction(pusher));
+
+  @override
+  Future<RequestUpdate<Timeline>> delete(
+    RoomId roomId,
+    EventId eventId, {
+    String transactionId,
+    String reason = 'Deleted by author',
+  }) async {
+    return _execute(
+        DeleteEventInstruction(roomId, eventId, transactionId, reason));
+  }
 }
 
 class IsolatedSyncer implements Syncer {
