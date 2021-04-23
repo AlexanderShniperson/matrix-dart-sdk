@@ -30,7 +30,7 @@ class Member extends MatrixUser {
   Uri? get avatarUrl => event.content?.avatarUrl;
 
   @override
-  String get name => event.content?.displayName ?? '';
+  String? get name => event.content?.displayName;
 
   bool get hasJoined => membership == Membership.joined;
 
