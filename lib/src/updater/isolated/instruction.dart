@@ -115,6 +115,9 @@ class DeleteEventInstruction extends RequestInstruction<Timeline> {
       this.transactionId,
       this.reason,
       );
+
+  @override
+  final bool basedOnUpdate = true;
 }
 
 class SetIsTypingInstruction extends RequestInstruction<Ephemeral> {

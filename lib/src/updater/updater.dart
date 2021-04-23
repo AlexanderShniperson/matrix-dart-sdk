@@ -323,13 +323,23 @@ class Updater {
         transactionId: transactionId,
         reason: reason);
 
-    final relevantUpdate = updates.firstWhere(
+    final relevantUpdate = await updates.firstWhere(
             (update) => update.delta.rooms[roomId]?.timeline?.toList()?.any(
                 (element) =>
-                    element is RedactionEvent && element.redacts == eventId),
-            orElse: () => null) ??
+            element is RedactionEvent && element.redacts == eventId),
+        orElse: () => null) ??
         await updates.first;
-    return relevantUpdate;
+
+    return _update(
+      relevantUpdate.delta,
+          (user, delta) => RequestUpdate(
+        user,
+        delta,
+        data: user.rooms[roomId].timeline,
+        deltaData: delta.rooms[roomId].timeline,
+        type: RequestType.sendRoomEvent,
+      ),
+    );
   }
 
   Future<RequestUpdate<ReadReceipts>> markRead({

@@ -151,7 +151,8 @@ class IsolatedUpdater implements Updater {
               : updates
           : _messageStream;
 
-      return (await stream.firstWhere((event) => event is T)) as T;
+      return (await stream.firstWhere((event) => event is T,
+          orElse: () => null)) as T;
     }
 
     return null;
