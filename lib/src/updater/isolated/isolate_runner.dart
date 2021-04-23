@@ -154,6 +154,13 @@ abstract class IsolateRunner {
       operation = () => updater.setName(name: instruction.name);
     } else if (instruction is SetPusherInstruction) {
       operation = () => updater.setPusher(instruction.pusher);
+    } else if (instruction is DeleteEventInstruction) {
+      operation = () => updater.delete(
+        instruction.roomId,
+        instruction.eventId,
+        transactionId: instruction.transactionId,
+        reason: instruction.reason,
+      );
     } else {
       throw UnsupportedError(
         'Unsupported instruction: ${instruction.runtimeType}',

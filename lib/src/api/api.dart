@@ -322,6 +322,26 @@ class Rooms {
     return json.decode(response.body);
   }
 
+  Future<Map<String, dynamic>> redact({
+    required String accessToken,
+    required String roomId,
+    required String eventId,
+    String transactionId = '',
+    String reason = '',
+  }) async {
+    final response = await _service.redact(
+      authorization: accessToken.toHeader(),
+      roomId: roomId.toString(),
+      eventId: eventId.toString(),
+      txnId: transactionId,
+      reason: json.encode({'reason': reason}),
+    );
+
+    response.throwIfNeeded();
+
+    return json.decode(response.body);
+  }
+
   Future<Map<String, dynamic>> sendState({
     required String accessToken,
     required String roomId,

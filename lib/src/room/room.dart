@@ -580,6 +580,22 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
     );
   }
 
+  Future<RequestUpdate<Timeline>?> delete(
+    EventId eventId, {
+    String? transactionId,
+    required String reason,
+  }) {
+    final result = context?.updater.let((value) {
+      return value.delete(
+        id,
+        eventId,
+        transactionId: transactionId,
+        reason: reason,
+      );
+    });
+    return result ?? Future.value(null);
+  }
+
   Future<Update?> setName(String name) => send(RoomNameChange(name: name)).last;
 
   Future<Update?> setAvatarUri(Uri avatarUrl) =>
