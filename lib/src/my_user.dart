@@ -17,6 +17,7 @@ import 'store/store.dart';
 import 'updater/updater.dart';
 import 'matrix_user.dart';
 import 'model/error_with_stacktrace.dart';
+import 'util/nullable_extension.dart';
 
 /// A user which is authenticated and can send messages, join rooms etc.
 @immutable
@@ -25,7 +26,7 @@ class MyUser extends MatrixUser implements Contextual<MyUser> {
   final Context? context;
 
   @override
-  final UserId? id;
+  final UserId id;
 
   @override
   final String name;
@@ -35,7 +36,7 @@ class MyUser extends MatrixUser implements Contextual<MyUser> {
 
   final String? accessToken;
 
-  final String syncToken;
+  final String? syncToken;
 
   final Device? currentDevice;
 
@@ -44,22 +45,22 @@ class MyUser extends MatrixUser implements Contextual<MyUser> {
   final Pushers? pushers;
 
   /// Whether this user has been synchronized fully at least once.
-  final bool hasSynced;
+  final bool? hasSynced;
 
-  final bool isLoggedOut;
+  final bool? isLoggedOut;
 
   MyUser({
     required this.id,
     this.name = "",
     this.avatarUrl,
-    this.accessToken ="",
-    this.syncToken="",
+    this.accessToken = "",
+    this.syncToken = "",
     this.currentDevice,
     this.rooms,
-    this.hasSynced=false,
-    this.isLoggedOut=false,
-  })  : context = id != null ? Context(myId: id) : null,
-        pushers = id != null ? Pushers(Context(myId: id)) : null;
+    this.hasSynced,
+    this.isLoggedOut,
+  })  : context = Context(myId: id),
+        pushers = Pushers(Context(myId: id));
 
   MyUser.base({
     required UserId id,
@@ -68,8 +69,8 @@ class MyUser extends MatrixUser implements Contextual<MyUser> {
     String accessToken = "",
     String syncToken = "",
     Device? currentDevice,
-    bool hasSynced=false,
-    bool isLoggedOut=false,
+    bool hasSynced = false,
+    bool isLoggedOut = false,
   }) : this(
           id: id,
           name: name,
@@ -91,7 +92,7 @@ class MyUser extends MatrixUser implements Contextual<MyUser> {
   ///
   /// If [isolated] is true, sync and other requests are processed in a
   /// different [Isolate].
-  static Future<MyUser> fromStore(
+  static Future<MyUser?> fromStore(
     StoreLocation storeLocation, {
     Iterable<RoomId> roomIds = const [],
     int timelineLimit = 15,
@@ -101,7 +102,7 @@ class MyUser extends MatrixUser implements Contextual<MyUser> {
 
     store.open();
 
-    return await store.getMyUser(
+    return store.getMyUser(
       roomIds: roomIds,
       timelineLimit: timelineLimit,
       isolated: isolated,
@@ -140,7 +141,9 @@ class MyUser extends MatrixUser implements Contextual<MyUser> {
   }
 
   MyUser merge(MyUser? other) {
-    if (other == null) return this;
+    if (other == null) {
+      return this;
+    }
 
     return copyWith(
       id: other.id,
@@ -157,26 +160,26 @@ class MyUser extends MatrixUser implements Contextual<MyUser> {
   }
 
   @override
-  MyUser delta({
-    String name,
-    Uri avatarUrl,
-    String accessToken,
-    String syncToken,
-    Device currentDevice,
-    Iterable<Room> rooms,
-    bool hasSynced,
-    bool isLoggedOut,
+  MyUser? delta({
+    String? name,
+    Uri? avatarUrl,
+    String? accessToken,
+    String? syncToken,
+    Device? currentDevice,
+    Iterable<Room>? rooms,
+    bool? hasSynced,
+    bool? isLoggedOut,
   }) {
     return MyUser(
       id: id,
-      name: name,
+      name: name ?? this.name,
       avatarUrl: avatarUrl,
       accessToken: accessToken,
-      syncToken: syncToken,
+      syncToken: syncToken ?? this.syncToken,
       currentDevice: currentDevice,
-      rooms: this.rooms?.delta(rooms: rooms),
-      hasSynced: hasSynced,
-      isLoggedOut: isLoggedOut,
+      rooms: (rooms == null) ? this.rooms : this.rooms?.delta(rooms: rooms),
+      hasSynced: hasSynced ?? this.hasSynced,
+      isLoggedOut: isLoggedOut ?? this.isLoggedOut,
     );
   }
 
@@ -215,14 +218,23 @@ class MyUser extends MatrixUser implements Contextual<MyUser> {
   ///
   /// Returns the [Update] where [MyUser] has it's name set to [name]`,
   /// if successful.
-  Future<RequestUpdate<MyUser>> setName(String name) async =>
-      context.updater.setName(name: name);
+  Future<RequestUpdate<MyUser>?> setName(String name) {
+    final result = context?.updater.let((value) {
+      return value.setName(name: name);
+    });
+    return result ?? Future.value(null);
+  }
 
   /// Invalidates the access token of the user. Makes all
   /// [MyUser] calls unusable.
   ///
   /// Returns the [Update] where [MyUser] has logged out, if successful.
-  Future<RequestUpdate<MyUser>> logout() => context.updater.logout();
+  Future<RequestUpdate<MyUser>?> logout() {
+    final result = context?.updater.let((value) {
+      return value.logout();
+    });
+    return result ?? Future.value(null);
+  }
 
   /// Send all unsent messages still in the [Store].
   /*Future<void> sendAllUnsent() async {
@@ -240,30 +252,42 @@ class MyUser extends MatrixUser implements Contextual<MyUser> {
 
   /// Unlike other contextual methods, depends on the current [accessToken] and
   /// [isLoggedOut].
-  Future<Uri> upload({
+  Future<Uri?> upload({
     required Stream<List<int>> bytes,
     required int length,
     required String contentType,
-    String fileName,
-  }) =>
-      context.homeserver.upload(
+    required String fileName,
+  }) {
+    final result = context?.homeServer.let((value) {
+      return value.upload(
         as: this,
         bytes: bytes,
         length: length,
         contentType: contentType,
         fileName: fileName,
       );
+    });
+    return result ?? Future.value(null);
+  }
 
-  Stream<Update> get updates => context.updater.updates;
+  Stream<Update>? get updates => context?.updater?.updates;
 
-  Stream<ErrorWithStackTraceString> get outError => context.updater.outError;
+  Stream<ErrorWithStackTraceString>? get outError => context?.updater?.outError;
 
-  bool get isSyncing => context.updater.syncer.isSyncing;
+  bool get isSyncing => context?.updater?.syncer.isSyncing ?? false;
 
-  void startSync({Duration maxRetryAfter}) =>
-      context.updater.syncer.start(maxRetryAfter: maxRetryAfter);
+  void startSync({
+    Duration maxRetryAfter = const Duration(seconds: 30),
+  }) {
+    context?.updater?.syncer.start(maxRetryAfter: maxRetryAfter);
+  }
 
-  Future<void> stopSync() => context.updater.syncer.stop();
+  Future<void> stopSync() {
+    final result = context?.updater.let((value) {
+      return value.syncer.stop();
+    });
+    return result ?? Future.value();
+  }
 
   @override
   MyUser propertyOf(MyUser user) => user;

@@ -20,7 +20,7 @@ class OlmFFI implements Olm {
 
   /// Will look for a appropriate file (e.g. `libolm.so` on Linux,
   /// but `olm.dll` on Windows) in [libraryPath].
-  OlmFFI({String libraryPath}) : olm = OlmBindings(path: libraryPath);
+  OlmFFI({String libraryPath = ''}) : olm = OlmBindings(path: libraryPath);
 
   void _throwIfError(int result) {
     if (result != olm.error()) {
@@ -31,12 +31,11 @@ class OlmFFI implements Olm {
   }
 
   String _pointerToString(Pointer<Uint8> pointer, int length) {
-    var str = '';
+    final str = StringBuffer();
     for (var i = 0; i < length; i++) {
-      str += String.fromCharCode(pointer.elementAt(i).value);
+      str.write(String.fromCharCode(pointer.elementAt(i).value));
     }
-
-    return str;
+    return str.toString();
   }
 
   @override
@@ -45,12 +44,12 @@ class OlmFFI implements Olm {
     int result;
     // Create pointer.
     final accountSize = olm.accountSize();
-    final memory = allocate<Uint8>(count: accountSize);
+    final memory = malloc.allocate<Uint8>(accountSize);
     final accountPointer = olm.account(memory);
 
     // Initialize random memory.
     final randomMemorySize = olm.createAccountRandomLength(accountPointer);
-    final randomMemory = allocate<Uint8>(count: randomMemorySize);
+    final randomMemory = malloc.allocate<Uint8>(randomMemorySize);
 
     // Create account.
     // TODO: Check result for errors
@@ -59,7 +58,7 @@ class OlmFFI implements Olm {
 
     // Create identity keys pointer.
     final identityKeysSize = olm.accountIdentityKeysLength(accountPointer);
-    final identityKeysPointer = allocate<Uint8>(count: identityKeysSize);
+    final identityKeysPointer = calloc.allocate<Uint8>(identityKeysSize);
 
     result = olm.accountIdentityKeys(
       accountPointer,

@@ -39,50 +39,51 @@ class RawRoomEvent extends RoomEvent {
 
 /// You can use `content['some_key']` to get any value.
 class RawEventContent extends EventContent {
-  final Map<String, dynamic> _content;
+  final Map<String, dynamic>? _content;
 
   RawEventContent(this._content);
 
-  factory RawEventContent.fromJson(Map<String, dynamic> json) =>
+  factory RawEventContent.fromJson(Map<String, dynamic>? json) =>
       RawEventContent(json);
 
   @override
-  Map<String, dynamic> toJson() => _content == null ? null : Map.of(_content);
+  Map<String, dynamic> toJson() =>
+      _content == null ? super.toJson() : Map.of(_content!);
 
-  dynamic operator [](String key) => _content[key];
+  dynamic? operator [](String key) => _content?[key];
 
-  bool containsKey(String key) => _content.containsKey(key);
+  bool containsKey(String key) => _content?.containsKey(key) ?? false;
 
-  bool containsValue(dynamic value) => _content.containsValue(value);
+  bool containsValue(dynamic value) => _content?.containsValue(value) ?? false;
 
-  Iterable<MapEntry<String, dynamic>> get entries => _content.entries;
+  Iterable<MapEntry<String, dynamic>>? get entries => _content?.entries;
 
   void forEach(void Function(String key, dynamic value) f) =>
-      _content.forEach(f);
+      _content?.forEach(f);
 
-  bool get isEmpty => _content.isEmpty;
+  bool get isEmpty => _content?.isEmpty ?? true;
 
   /// Whether this content has any non-typed properties.
-  bool get isNotEmpty => _content.isNotEmpty;
+  bool get isNotEmpty => _content?.isNotEmpty ?? false;
 
-  Iterable<String> get keys => _content.keys;
+  Iterable<String>? get keys => _content?.keys;
 
-  Iterable<dynamic> get values => _content.values;
+  Iterable<dynamic>? get values => _content?.values;
 
-  int get length => _content.length;
+  int get length => _content?.length ?? -1;
 
-  Map<K, V> map<K, V>(
+  Map<K, V>? map<K, V>(
     MapEntry<K, V> Function(String key, dynamic value) transform,
   ) =>
-      _content.map(transform);
+      _content?.map(transform);
 
   @override
   String toString() => _content.toString();
 
   @override
   bool operator ==(dynamic other) =>
-      other is RawEventContent &&
-      _content == other._content; // TODO: Use built_collections
+      // TODO: Use built_collections
+      other is RawEventContent && _content == other._content;
 
   @override
   int get hashCode => _content.hashCode;
@@ -90,10 +91,10 @@ class RawEventContent extends EventContent {
 
 class RawStateEvent extends RawRoomEvent implements StateEvent {
   @override
-  final RawEventContent previousContent;
+  final RawEventContent? previousContent;
 
   @override
-  final String stateKey;
+  final String? stateKey;
 
   RawStateEvent(
     RoomEventArgs args, {

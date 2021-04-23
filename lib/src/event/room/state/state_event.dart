@@ -11,11 +11,14 @@ import '../../event.dart';
 import '../room_event.dart';
 
 abstract class StateEvent extends RoomEvent {
-  EventContent get previousContent;
+  EventContent? get previousContent;
 
-  final String stateKey;
+  final String? stateKey;
 
-  StateEvent(RoomEventArgs args, {this.stateKey = ''}) : super(args);
+  StateEvent(
+    RoomEventArgs args, {
+    this.stateKey = '',
+  }) : super(args);
 
   @override
   bool operator ==(dynamic other) =>
@@ -58,7 +61,9 @@ abstract class Diff {
           p is! Unchanged &&
           (p is Map<dynamic, Change>
               ? p.hasChanges
-              : p is List<Change> ? p.hasChanges : true))
+              : p is List<Change>
+                  ? p.hasChanges
+                  : true))
       .toList(growable: false);
 }
 
@@ -68,11 +73,11 @@ abstract class HasDiff {
 
 @immutable
 abstract class Change<T> {
-  T get value;
+  T? get value;
 
   Change._();
 
-  factory Change._inIterable(T previous, T current) {
+  factory Change._inIterable(T? previous, T? current) {
     if (previous == current) {
       return Unchanged(current);
     } else if (previous == null && current != null) {
@@ -84,22 +89,26 @@ abstract class Change<T> {
     }
   }
 
-  factory Change(T previous, T current) =>
+  factory Change(T? previous, T? current) =>
       previous != current ? Edited(previous, current) : Unchanged(current);
 
-  static Map<K, Change<V>> map<K, V>(Map<K, V> previous, Map<K, V> current) =>
-      previous == null || previous.isEmpty
-          ? current.map((key, value) => MapEntry(key, Added(value)))
-          : Map.fromEntries(
-              previous.keys.followedBy(current.keys).toSet().map(
-                    (key) => MapEntry(
-                      key,
-                      Change._inIterable(previous[key], current[key]),
-                    ),
+  static Map<K, Change<V>>? map<K, V>(Map<K, V>? previous, Map<K, V>? current) {
+    if (current == null) {
+      return null;
+    }
+    previous == null || previous.isEmpty
+        ? current.map((key, value) => MapEntry(key, Added(value)))
+        : Map.fromEntries(
+            previous.keys.followedBy(current.keys).toSet().map(
+                  (key) => MapEntry(
+                    key,
+                    Change._inIterable(previous[key]!, current[key]!),
                   ),
-            );
+                ),
+          );
+  }
 
-  static List<Change<T>> list<T>(List<T> previous, List<T> current) {
+  static List<Change<T>> list<T>(List<T>? previous, List<T> current) {
     if (previous == null || previous.isEmpty) {
       return current.map((e) => Added(e)).toList(growable: false);
     }
@@ -134,30 +143,30 @@ abstract class Change<T> {
 
 class Unchanged<T> extends Change<T> {
   @override
-  final T value;
+  final T? value;
 
   Unchanged(this.value) : super._();
 }
 
 class Added<T> extends Change<T> {
   @override
-  final T value;
+  final T? value;
 
   Added(this.value) : super._();
 }
 
 class Removed<T> extends Change<T> {
   @override
-  final T value;
+  final T? value;
 
   Removed(this.value) : super._();
 }
 
 class Edited<T> extends Change<T> {
-  final T previousValue;
+  final T? previousValue;
 
   @override
-  final T value;
+  final T? value;
 
   Edited(this.previousValue, this.value) : super._();
 
@@ -187,7 +196,7 @@ extension ChangeMapExtension<K, V> on Map<K, Change<V>> {
 extension ChangeListExtension<K, V> on List<Change<V>> {
   bool get hasChanges => any((c) => c is! Unchanged);
 
-  List<Change<V>> get changes => where((c) => c is! Unchanged);
+  List<Change<V>> get changes => where((c) => c is! Unchanged).toList();
 }
 
 /// @internal

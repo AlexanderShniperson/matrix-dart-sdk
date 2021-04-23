@@ -19,16 +19,16 @@ class RoomCreationEvent extends StateEvent {
   final String type = matrixType;
 
   @override
-  final RoomCreation content;
+  final RoomCreation? content;
 
   @override
-  final RoomCreation previousContent;
+  final RoomCreation? previousContent;
 
   UserId get creatorId => senderId;
 
   RoomCreationEvent(
     RoomEventArgs args, {
-    required this.content,
+    this.content,
     this.previousContent,
   }) : super(args, stateKey: '');
 }
@@ -40,14 +40,14 @@ class RoomCreation extends EventContent {
 
   final String roomVersion;
 
-  final RoomId previousRoomId;
-  final EventId previousRoomLastEventId;
+  final RoomId? previousRoomId;
+  final EventId? previousRoomLastEventId;
 
   RoomCreation({
     required this.federate,
     required this.roomVersion,
-    required this.previousRoomId,
-    required this.previousRoomLastEventId,
+    this.previousRoomId,
+    this.previousRoomLastEventId,
   });
 
   @override
@@ -66,8 +66,10 @@ class RoomCreation extends EventContent {
         previousRoomLastEventId,
       ]);
 
-  factory RoomCreation.fromJson(Map<String, dynamic> content) {
-    if (content == null) return null;
+  static RoomCreation? fromJson(Map<String, dynamic>? content) {
+    if (content == null) {
+      return null;
+    }
 
     final federate = content['m.federate'] ?? true;
     final roomVersion = content['room_version'] ?? '1';

@@ -12,6 +12,7 @@ import '../identifier.dart';
 import '../my_user.dart';
 import 'room.dart';
 import '../updater/updater.dart';
+import '../util/nullable_extension.dart';
 
 class Rooms extends DelegatingIterable<Room> implements Contextual<Rooms> {
   @override
@@ -26,17 +27,20 @@ class Rooms extends DelegatingIterable<Room> implements Contextual<Rooms> {
     this.context,
   }) : super([]);
 
-  Room operator [](RoomId id) =>
-      firstWhere((s) => s.id == id, orElse: () => null);
+  Room? operator [](RoomId id) => firstWhereOrNull((s) => s.id == id);
 
   bool containsWithId(RoomId id) => any((r) => r.id == id);
 
   /// Load more rooms, returning the [Update] where [MyUser] has more rooms.
-  Future<RequestUpdate<Rooms>> load({
-    Iterable<RoomId> roomIds,
+  Future<RequestUpdate<Rooms>?> load({
+    required Iterable<RoomId> roomIds,
     int timelineLimit = 10,
-  }) async =>
-      context.updater.loadRooms(roomIds, timelineLimit);
+  }) {
+    final result = context?.updater.let((value) {
+      return value.loadRooms(roomIds, timelineLimit);
+    });
+    return result ?? Future.value(null);
+  }
 
   Rooms copyWith({
     Iterable<Room>? rooms,
@@ -46,23 +50,25 @@ class Rooms extends DelegatingIterable<Room> implements Contextual<Rooms> {
 
     // Make sure all contexts are changed
     if (context != null && context != this.context) {
-      rooms = rooms?.map((r) => r.copyWith(context: context));
+      rooms = rooms.map((r) => r.copyWith(context: context));
     }
 
     return Rooms(
-      rooms ?? this,
+      rooms,
       context: context ?? this.context,
     );
   }
 
   Rooms merge(Rooms? other) {
-    if (other == null) return this;
+    if (other == null) {
+      return this;
+    }
 
     return copyWith(
       rooms: List.of([
         // Merge all rooms that are present in this as well as in other
         ...map((room) {
-          Room otherRoom;
+          Room? otherRoom;
 
           final otherRooms = other.where(
             (otherRoom) => otherRoom.equals(room),
@@ -78,7 +84,7 @@ class Rooms extends DelegatingIterable<Room> implements Contextual<Rooms> {
             }
           }
 
-          return room.merge(otherRoom);
+          return room.merge(otherRoom!);
         }),
         // All other rooms that were not merged, they're new
         ...other.where(
@@ -90,7 +96,7 @@ class Rooms extends DelegatingIterable<Room> implements Contextual<Rooms> {
   }
 
   @override
-  Rooms delta({Iterable<Room> rooms}) {
+  Rooms? delta({Iterable<Room>? rooms}) {
     if (rooms == null) {
       return null;
     }
@@ -102,7 +108,7 @@ class Rooms extends DelegatingIterable<Room> implements Contextual<Rooms> {
   }
 
   @override
-  Rooms propertyOf(MyUser user) => user.rooms;
+  Rooms? propertyOf(MyUser user) => user.rooms;
 
   /// Join a room with the given [id] or [alias].
   ///
@@ -116,16 +122,19 @@ class Rooms extends DelegatingIterable<Room> implements Contextual<Rooms> {
   ///
   /// [through] is the server which will be used to join through. Can be
   /// left `null`.
-  Future<RequestUpdate<Room>> enter({
-    RoomId id,
-    RoomAlias alias,
-    Homeserver through,
+  Future<RequestUpdate<Room>?> enter({
+    RoomId? id,
+    RoomAlias? alias,
+    Homeserver? through,
   }) {
     assert((id != null && alias == null) || (id == null && alias != null));
-    return context.updater.joinRoom(
-      id: id,
-      alias: alias,
-      serverUrl: through?.wellKnownUrl ?? through?.url,
-    );
+    final result = context?.updater.let((value) {
+      return value.joinRoom(
+        id: id,
+        alias: alias,
+        serverUrl: through?.wellKnownUrl ?? through?.url ?? Uri(),
+      );
+    });
+    return result ?? Future.value(null);
   }
 }

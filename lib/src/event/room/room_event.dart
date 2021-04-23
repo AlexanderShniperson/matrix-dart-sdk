@@ -31,13 +31,13 @@ abstract class RoomEvent extends Event with Identifiable<EventId> {
   @override
   final EventId id;
 
-  final RoomId roomId;
+  final RoomId? roomId;
   final UserId senderId;
-  final DateTime time;
+  final DateTime? time;
 
-  final SentState sentState;
+  final SentState? sentState;
 
-  final String transactionId;
+  final String? transactionId;
 
   RoomEvent(RoomEventArgs args)
       : id = args.id,
@@ -70,19 +70,19 @@ abstract class RoomEvent extends Event with Identifiable<EventId> {
     ..addAll({
       'event_id': id.toJson(),
       'sender': senderId.toString(),
-      'origin_server_ts': time.millisecondsSinceEpoch,
+      'origin_server_ts': time?.millisecondsSinceEpoch,
       'unsigned': transactionId != null ? {'transaction_id': transactionId} : {}
     });
 
   /// Create event from the given [json].
-  factory RoomEvent.fromJson(Map<String, dynamic> json, {RoomId roomId}) {
+  static RoomEvent? fromJson(Map<String, dynamic> json, {RoomId? roomId}) {
     final type = Event.typeOf(json['type']);
 
     final args = RoomEventArgs.fromJson(json).copyWith(
       roomId: roomId,
     );
 
-    RoomEvent event;
+    RoomEvent? event;
 
     // Only process state events if a state_key is present
     final stateKey = json['state_key'];
@@ -134,7 +134,7 @@ abstract class RoomEvent extends Event with Identifiable<EventId> {
           );
           break;
         case PowerLevelsChangeEvent:
-          event = PowerLevelsChangeEvent(
+          event = PowerLevelsChangeEvent.instance(
             args,
             content: PowerLevelsChange.fromJson(json['content']),
             previousContent: PowerLevelsChange.fromJson(prevContent),
@@ -161,7 +161,7 @@ abstract class RoomEvent extends Event with Identifiable<EventId> {
     } else {
       switch (type) {
         case MessageEvent:
-          event = MessageEvent(
+          event = MessageEvent.instance(
             args,
             content: MessageEventContent.fromJson(json['content']),
           );
@@ -199,11 +199,11 @@ abstract class RoomEvent extends Event with Identifiable<EventId> {
 
   /// [type] and [isState] must not be null if the [content] is a
   /// [RawEventContent].
-  factory RoomEvent.fromContent(
+  static RoomEvent? fromContent(
     EventContent content,
     RoomEventArgs args, {
-    String type,
-    bool isState,
+    String type = '',
+    bool isState = false,
   }) {
     if (content is TextMessage) {
       return TextMessageEvent(args, content: content);
@@ -216,18 +216,16 @@ abstract class RoomEvent extends Event with Identifiable<EventId> {
     } else if (content is RoomNameChange) {
       return RoomNameChangeEvent(args, content: content);
     } else if (content is RoomAvatarChangeEvent) {
-      return RoomAvatarChangeEvent(args, content: content);
+      return RoomAvatarChangeEvent(args,
+          content: (content as RoomAvatarChangeEvent).content);
     } else if (content is RoomUpgrade) {
       return RoomUpgradeEvent(args, content: content);
     } else if (content is PowerLevelsChange) {
-      return PowerLevelsChangeEvent(args, content: content);
+      return PowerLevelsChangeEvent.instance(args, content: content);
     } else if (content is RoomCreation) {
       return RoomCreationEvent(args, content: content);
       // TODO: Handle MemberChangeEvent
     } else {
-      assert(type != null);
-      assert(isState != null);
-
       return isState
           ? RawStateEvent(args, type: type, content: content as RawEventContent)
           : RawRoomEvent(args, type: type, content: content as RawEventContent);
@@ -252,16 +250,16 @@ abstract class RoomEvent extends Event with Identifiable<EventId> {
 
 class RoomEventArgs {
   final EventId id;
-  final RoomId roomId;
+  final RoomId? roomId;
   final UserId senderId;
-  final DateTime time;
-  final SentState sentState;
-  final String transactionId;
+  final DateTime? time;
+  final SentState? sentState;
+  final String? transactionId;
 
   RoomEventArgs({
-    this.id,
+    required this.id,
     this.roomId,
-    this.senderId,
+    required this.senderId,
     this.time,
     this.transactionId,
     this.sentState,
@@ -290,14 +288,14 @@ class RoomEventArgs {
       senderId = UserId(senderId);
     }
 
-    DateTime time;
+    late DateTime time;
     final originServerTs = json['origin_server_ts'];
     if (originServerTs != null) {
       time = DateTime.fromMillisecondsSinceEpoch(originServerTs);
     }
 
-    String transactionId;
-    var unsignedJson = json['unsigned'];
+    String? transactionId;
+    final unsignedJson = json['unsigned'];
     if (unsignedJson != null) {
       transactionId = json['unsigned']['transaction_id'];
     }
@@ -311,12 +309,12 @@ class RoomEventArgs {
   }
 
   RoomEventArgs copyWith({
-    EventId id,
-    RoomId roomId,
-    UserId senderId,
-    DateTime time,
-    SentState sentState,
-    String transactionId,
+    EventId? id,
+    RoomId? roomId,
+    UserId? senderId,
+    DateTime? time,
+    SentState? sentState,
+    String? transactionId,
   }) {
     return RoomEventArgs(
       id: id ?? this.id,
@@ -328,8 +326,10 @@ class RoomEventArgs {
     );
   }
 
-  RoomEventArgs merge(RoomEventArgs other) {
-    if (other == null) return this;
+  RoomEventArgs merge(RoomEventArgs? other) {
+    if (other == null) {
+      return this;
+    }
 
     return copyWith(
       id: other.id,

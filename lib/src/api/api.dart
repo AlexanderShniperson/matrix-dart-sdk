@@ -21,24 +21,24 @@ class Api {
 
   final ChopperClient _chopper;
 
-  ClientService _clientService;
-  MediaService _mediaService;
+  late ClientService _clientService;
+  late MediaService _mediaService;
 
-  Media _media;
+  late Media _media;
   Media get media => _media;
 
-  Profile _profile;
+  late Profile _profile;
   Profile get profile => _profile;
 
-  Pushers _pushers;
+  late Pushers _pushers;
   Pushers get pushers => _pushers;
 
-  Rooms _rooms;
+  late Rooms _rooms;
   Rooms get rooms => _rooms;
 
   Api({
     required Uri url,
-    http.Client httpClient,
+    http.Client? httpClient,
   }) : _chopper = ChopperClient(
           client: httpClient,
           baseUrl: url.toString(),
@@ -72,13 +72,13 @@ class Api {
   }
 
   Future<Map<String, dynamic>> register({
-    String kind,
-    Map<String, dynamic> auth,
-    String username,
-    String password,
-    String deviceId,
-    String deviceName,
-    bool preventLogin,
+    required String kind,
+    Map<String, dynamic>? auth,
+    required String username,
+    required String password,
+    required String deviceId,
+    required String deviceName,
+    required bool preventLogin,
   }) async {
     final response = await _clientService.register(
       kind: kind,
@@ -93,7 +93,7 @@ class Api {
     );
 
     if (response.statusCode == 401) {
-      return json.decode(response.error);
+      return json.decode(response.error?.toString() ?? '');
     }
 
     response.throwIfNeeded();
@@ -103,10 +103,10 @@ class Api {
 
   Future<Map<String, dynamic>> sync({
     required String accessToken,
-    String since,
+    required String since,
     bool fullState = false,
-    Map<String, dynamic> filter,
-    int timeout,
+    required Map<String, dynamic> filter,
+    required int timeout,
   }) async {
     final response = await _clientService.sync(
       authorization: accessToken.toHeader(),
@@ -124,7 +124,7 @@ class Api {
   Future<Map<String, dynamic>> join({
     required String accessToken,
     required String roomIdOrAlias,
-    String serverName,
+    required String serverName,
   }) async {
     final response = await _clientService.join(
       authorization: accessToken.toHeader(),
@@ -139,10 +139,10 @@ class Api {
 
   Future<Map<String, dynamic>> publicRooms({
     required String accessToken,
-    String server,
+    required String server,
     int limit = 30,
-    String since,
-    String genericSearchTerm,
+    String since = '',
+    String? genericSearchTerm,
   }) async {
     final response = await _clientService.publicRooms(
       authorization: accessToken.toHeader(),
@@ -177,7 +177,7 @@ class Media {
 
     response.throwIfNeeded();
 
-    return response.body;
+    return response.body!;
   }
 
   Future<Stream<List<int>>> thumbnail({
@@ -197,7 +197,7 @@ class Media {
 
     response.throwIfNeeded();
 
-    return response.body;
+    return response.body!;
   }
 
   Future<Map<String, dynamic>> upload({
@@ -244,7 +244,7 @@ class Profile {
   Future<void> putDisplayName({
     required String accessToken,
     required String userId,
-    String value,
+    required String value,
   }) async {
     final response = await _service.profileSetDisplayName(
       authorization: accessToken.toHeader(),
@@ -267,9 +267,9 @@ class Rooms {
   Future<Map<String, dynamic>> messages({
     required String accessToken,
     required String roomId,
-    int limit,
-    String from,
-    Map<String, dynamic> filter,
+    required int limit,
+    required String from,
+    required Map<String, dynamic> filter,
   }) async {
     final response = await _service.roomMessages(
       authorization: accessToken.toHeader(),
@@ -287,8 +287,8 @@ class Rooms {
   Future<Map<String, dynamic>> members({
     required String accessToken,
     required String roomId,
-    String at,
-    String membership,
+    required String at,
+    String membership = '',
   }) async {
     final response = await _service.members(
       authorization: accessToken.toHeader(),
@@ -306,8 +306,8 @@ class Rooms {
     required String accessToken,
     required String roomId,
     required String eventType,
-    String transactionId,
-    Map<String, dynamic> content,
+    required String transactionId,
+    required Map<String, dynamic> content,
   }) async {
     final response = await _service.send(
       authorization: accessToken.toHeader(),
@@ -326,8 +326,8 @@ class Rooms {
     required String accessToken,
     required String roomId,
     required String eventType,
-    String stateKey,
-    Map<String, dynamic> content,
+    required String stateKey,
+    required Map<String, dynamic> content,
   }) async {
     final response = await _service.sendState(
       authorization: accessToken.toHeader(),
@@ -347,7 +347,7 @@ class Rooms {
     required String roomId,
     required String userId,
     required bool typing,
-    int timeout,
+    int timeout = 0,
   }) async {
     final response = await _service.typing(
       authorization: accessToken.toHeader(),
@@ -451,6 +451,6 @@ extension on Response {
       return;
     }
 
-    throw MatrixException.fromJson(json.decode(error));
+    throw MatrixException.fromJson(json.decode(error?.toString() ?? "{}"));
   }
 }

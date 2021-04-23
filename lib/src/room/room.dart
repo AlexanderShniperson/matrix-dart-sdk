@@ -40,22 +40,23 @@ import 'member/membership.dart';
 import '../my_user.dart';
 import 'timeline.dart';
 import '../updater/updater.dart';
+import '../util/nullable_extension.dart';
 
 @immutable
 class Room with Identifiable<RoomId> implements Contextual<Room> {
   @override
-  final RoomContext context;
+  final RoomContext? context;
 
   /// Most recent state of the associated [MyUser] (via [context]) in this room.
-  final Member me;
+  final Member? me;
 
   @override
   final RoomId id;
 
   /// Events timeline.
-  final Timeline timeline;
+  final Timeline? timeline;
 
-  final MemberTimeline memberTimeline;
+  final MemberTimeline? memberTimeline;
 
   /// Most recent user states of currently loaded members.
   ///
@@ -66,35 +67,35 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
   /// If [members.joined.length] matches [summary.joinedMembersCount], all
   /// joined members are loaded. Same goes for [members.invited.length] and
   /// [summary.invitedMembersCount].
-  final Iterable<Member> members;
+  final Iterable<Member>? members;
 
-  final RoomSummary summary;
+  final RoomSummary? summary;
 
   /// The latest [StateEvent]s of this room.
-  final RoomStateEvents stateEvents;
+  final RoomStateEvents? stateEvents;
 
-  String get name => stateEvents.nameChange?.content?.name;
+  String? get name => stateEvents?.nameChange?.content?.name;
 
-  Uri get avatarUrl => stateEvents.avatarChange?.content?.url;
+  Uri? get avatarUrl => stateEvents?.avatarChange?.content?.url;
 
-  String get topic => stateEvents.topicChange?.content?.topic;
+  String? get topic => stateEvents?.topicChange?.content?.topic;
 
   /// Power levels for this room to do a certain action or send
   /// certain events.
   ///
   /// Also defaults and info of which user has which power level.
-  final PowerLevels powerLevels;
+  final PowerLevels? powerLevels;
 
-  JoinRule get joinRule => stateEvents.joinRulesChange?.content?.rule;
+  JoinRule? get joinRule => stateEvents?.joinRulesChange?.content?.rule;
 
-  RoomAlias get canonicalAlias =>
-      stateEvents.canonicalAliasChange?.content?.canonicalAlias;
+  RoomAlias? get canonicalAlias =>
+      stateEvents?.canonicalAliasChange?.content?.canonicalAlias;
 
-  Iterable<RoomAlias> get alternativeAliases =>
-      stateEvents.canonicalAliasChange?.content?.alternativeAliases;
+  Iterable<RoomAlias>? get alternativeAliases =>
+      stateEvents?.canonicalAliasChange?.content?.alternativeAliases;
 
   /// [MatrixUser] that created this room.
-  UserId get creatorId => stateEvents.creation?.creatorId;
+  UserId? get creatorId => stateEvents?.creation?.creatorId;
 
   /// Whether this room is a replacement for another room.
   ///
@@ -102,7 +103,7 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
   bool get isReplacement => replacesId != null;
 
   /// The [RoomId] of the room that was replaced by this room.
-  RoomId get replacesId => stateEvents.creation.content.previousRoomId;
+  RoomId? get replacesId => stateEvents?.creation?.content?.previousRoomId;
 
   /// Whether this room is upgraded to another room.
   ///
@@ -110,34 +111,34 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
   bool get isUpgraded => replacementId != null;
 
   /// The [RoomId] of the room that replaced this room.
-  RoomId get replacementId => stateEvents.upgrade?.content?.replacementRoomId;
+  RoomId? get replacementId => stateEvents?.upgrade?.content?.replacementRoomId;
 
-  final Ephemeral ephemeral;
+  final Ephemeral? ephemeral;
 
   Iterable<UserId> get typingUserIds =>
       ephemeral?.typingEvent?.content?.typerIds ?? [];
 
   // TODO: Make not-lazy?
-  Iterable<Receipt> get readReceipts => ReadReceipts(
-        ephemeral?.receiptEvent?.content?.receipts?.whereReceiptType(
+  ReadReceipts get readReceipts => ReadReceipts(
+        ephemeral?.receiptEvent?.content?.receipts.whereReceiptType(
               ReceiptType.read,
             ) ??
             [],
         context: context,
       );
 
-  final int highlightedUnreadNotificationCount;
+  final int? highlightedUnreadNotificationCount;
 
-  final int totalUnreadNotificationCount;
+  final int? totalUnreadNotificationCount;
 
   /// If this room is direct, this is the id of the user the conversation is
   /// with.
-  final UserId directUserId;
+  final UserId? directUserId;
 
   bool get isDirect => directUserId != null;
 
   Room({
-    required Context context,
+    Context? context,
     required this.id,
     this.stateEvents,
     this.timeline,
@@ -147,21 +148,19 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
     this.highlightedUnreadNotificationCount,
     this.totalUnreadNotificationCount,
     this.ephemeral,
-  })  : context = context != null && id != null
-            ? RoomContext.inherit(context, roomId: id)
-            : null,
+  })  : context =
+            context != null ? RoomContext.inherit(context, roomId: id) : null,
         powerLevels = stateEvents?.powerLevelsChange != null
-            ? PowerLevels._(stateEvents.powerLevelsChange)
+            ? PowerLevels._(stateEvents?.powerLevelsChange)
             : null,
-        members = memberTimeline != null
-            ? memberTimeline
-                .map((m) => m.id)
-                .toSet()
-                .map(memberTimeline.get)
-                .toList(growable: false)
-            : null,
+        members = memberTimeline
+            ?.map((m) => m.id)
+            .toSet()
+            .map(memberTimeline.get)
+            .whereNotNull()
+            .toList(growable: false),
         me = context != null && memberTimeline != null
-            ? memberTimeline.get(context.myId)
+            ? memberTimeline.get(context.myId!)
             : null;
 
   /// Creates a room with default values.
@@ -194,22 +193,24 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
 
     final notifications = body['unread_notifications'];
 
-    int highlightedUnreadNotificationCount, totalUnreadNotificationCount;
+    int? highlightedUnreadNotificationCount, totalUnreadNotificationCount;
     if (notifications != null) {
       highlightedUnreadNotificationCount = notifications['highlight_count'];
       totalUnreadNotificationCount = notifications['notification_count'];
     }
 
-    var responseState = body['state'] ?? body['invite_state'];
+    final responseState = body['state'] ?? body['invite_state'];
 
-    var stateEvents = (responseState['events'] as List<dynamic>).map(
-      (json) => RoomEvent.fromJson(json, roomId: context.roomId),
-    );
-    if (stateEvents.isEmpty) {
+    var stateEvents = (responseState['events'] as List<dynamic>?)
+        ?.map(
+          (json) => RoomEvent.fromJson(json, roomId: context.roomId),
+        )
+        .whereNotNull();
+    if (stateEvents?.isEmpty == true) {
       stateEvents = null;
     }
 
-    var timeline = responseTimeline != null
+    final timeline = responseTimeline != null
         ? Timeline.fromJson(
             (responseTimeline['events'] as List<dynamic>).cast(),
             context: context,
@@ -218,7 +219,7 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
           )
         : Timeline.empty(context: context);
 
-    var state = RoomStateEvents.fromEvents(stateEvents);
+    RoomStateEvents? state = RoomStateEvents.fromEvents(stateEvents);
     state = state.merge(RoomStateEvents.fromEvents(timeline));
     if (state.nameChange == null &&
         state.avatarChange == null &&
@@ -231,9 +232,9 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
       state = null;
     }
 
-    var members = MemberTimeline.fromEvents([
+    MemberTimeline? members = MemberTimeline.fromEvents([
       ...stateEvents ?? [],
-      ...timeline ?? [],
+      ...timeline,
     ]);
     if (members.isEmpty) {
       members = null;
@@ -246,7 +247,7 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
           )
         : null;
 
-    var summary = body['summary'] != null
+    RoomSummary? summary = body['summary'] != null
         ? RoomSummary.fromJson(body['summary'])
         : RoomSummary();
     if (summary.joinedMembersCount == null &&
@@ -268,24 +269,24 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
   }
 
   Room copyWith({
-    Context context,
-    RoomId id,
-    Membership myMembership,
-    RoomStateEvents stateEvents,
-    Timeline timeline,
-    RoomSummary summary,
-    MemberTimeline memberTimeline,
-    UserId directUserId,
-    int highlightedUnreadNotificationCount,
-    int totalUnreadNotificationCount,
-    Ephemeral ephemeral,
+    Context? context,
+    RoomId? id,
+    Membership? myMembership,
+    RoomStateEvents? stateEvents,
+    Timeline? timeline,
+    RoomSummary? summary,
+    MemberTimeline? memberTimeline,
+    UserId? directUserId,
+    int? highlightedUnreadNotificationCount,
+    int? totalUnreadNotificationCount,
+    Ephemeral? ephemeral,
   }) {
     id ??= this.id;
     timeline ??= this.timeline;
     memberTimeline ??= this.memberTimeline;
 
     // Make sure all contexts are changed
-    if (context != null && id != null && context != this.context) {
+    if (context != null && context != this.context) {
       final roomContext = RoomContext.inherit(context, roomId: id);
 
       timeline = timeline?.copyWith(
@@ -313,11 +314,13 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
     );
   }
 
-  Room merge(Room other) {
-    if (other == null) return this;
+  Room merge(Room? other) {
+    if (other == null) {
+      return this;
+    }
 
-    RoomStateEvents stateEvents;
-    MemberTimeline memberTimeline;
+    RoomStateEvents? stateEvents;
+    MemberTimeline? memberTimeline;
 
     // If we joined a room, don't keep previous state
     if (me?.membership == Membership.invited &&
@@ -347,16 +350,16 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
   }
 
   @override
-  Room delta({
-    Membership myMembership,
-    RoomStateEvents stateEvents,
-    Timeline timeline,
-    RoomSummary summary,
-    Iterable<Member> memberTimeline,
-    UserId directUserId,
-    int highlightedUnreadNotificationCount,
-    int totalUnreadNotificationCount,
-    Iterable<EphemeralEvent> ephemeral,
+  Room? delta({
+    Membership? myMembership,
+    RoomStateEvents? stateEvents,
+    Timeline? timeline,
+    RoomSummary? summary,
+    Iterable<Member>? memberTimeline,
+    UserId? directUserId,
+    int? highlightedUnreadNotificationCount,
+    int? totalUnreadNotificationCount,
+    Iterable<EphemeralEvent>? ephemeral,
   }) {
     return Room(
       context: context,
@@ -368,11 +371,11 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
             previousBatchSetBySync: timeline?.previousBatchSetBySync,
           ),
       summary: summary,
-      memberTimeline: this?.memberTimeline?.delta(members: memberTimeline),
+      memberTimeline: this.memberTimeline?.delta(members: memberTimeline),
       directUserId: directUserId,
       highlightedUnreadNotificationCount: highlightedUnreadNotificationCount,
       totalUnreadNotificationCount: totalUnreadNotificationCount,
-      ephemeral: this?.ephemeral?.delta(events: ephemeral),
+      ephemeral: this.ephemeral?.delta(events: ephemeral),
     );
   }
 
@@ -380,17 +383,21 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
   ///
   /// If [kickeeId] is null, returns true if user with [kickerId]
   /// can kick someone with a default power level.
-  bool canKick(UserId kickerId, {UserId kickeeId}) {
-    if (me.membership is! Joined) {
+  bool canKick(
+    UserId kickerId, {
+    UserId? kickeeId,
+  }) {
+    if (me?.membership is! Joined) {
       return false;
     }
 
-    final kickerLevel = powerLevels.of(kickerId);
-    final kickeeLevel = kickeeId != null
-        ? powerLevels.of(kickeeId)
-        : powerLevels.defaults.users;
+    final kickerLevel = (powerLevels?.of(kickerId)) ?? 0;
+    final kickeeLevel = (kickeeId != null
+            ? powerLevels?.of(kickeeId)
+            : powerLevels?.defaults.users) ??
+        0;
 
-    return kickerLevel > kickeeLevel && kickerLevel >= powerLevels.kick;
+    return kickerLevel > kickeeLevel && kickerLevel >= (powerLevels?.kick ?? 0);
   }
 
   /// Kicks the user with [kickeeId] from this room, if you ([context.user])
@@ -402,61 +409,80 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
   ///
   /// If the user with [kickeeeId] has already been kicked, does nothing and
   /// just returns the next update.
-  Future<RequestUpdate<MemberTimeline>> kick(UserId kickeeId) =>
-      context.updater.kick(kickeeId, from: id);
+  Future<RequestUpdate<MemberTimeline>?> kick(UserId kickeeId) {
+    if (context?.updater != null) {
+      return context!.updater!.kick(kickeeId, from: id);
+    } else {
+      return Future.value(null);
+    }
+  }
 
   /// Whether the user can ban a user with [banneeId].
   ///
   /// If [banneeId] is null, returns true if user with [bannerId]
   /// can ban someone with a default power level.
-  bool canBan(UserId bannerId, {UserId banneeId}) {
-    if (me.membership is! Joined) {
+  bool canBan(
+    UserId bannerId, {
+    UserId? banneeId,
+  }) {
+    if (me?.membership is! Joined) {
       return false;
     }
 
-    final bannerLevel = powerLevels.of(bannerId);
-    final banneeLevel = banneeId != null
-        ? powerLevels.of(banneeId)
-        : powerLevels.defaults.users;
+    final bannerLevel = (powerLevels?.of(bannerId)) ?? 0;
+    final banneeLevel = (banneeId != null
+            ? powerLevels?.of(banneeId)
+            : powerLevels?.defaults.users) ??
+        0;
 
-    return bannerLevel > banneeLevel && bannerLevel >= powerLevels.ban;
+    return bannerLevel > banneeLevel && bannerLevel >= (powerLevels?.ban ?? 0);
   }
 
   /// Whether the user can invite a user with [inviteeId].
   ///
   /// If [inviteeId] is null, returns true if user with [inviterId]
   /// can invite someone with a default power level.
-  bool canInvite(UserId inviterId, {UserId inviteeId}) {
-    final inviterLevel = powerLevels.of(inviterId);
-    final inviteeLevel = inviteeId != null
-        ? powerLevels.of(inviteeId)
-        : powerLevels.defaults.users;
+  bool canInvite(
+    UserId inviterId, {
+    UserId? inviteeId,
+  }) {
+    final inviterLevel = (powerLevels?.of(inviterId)) ?? 0;
+    final inviteeLevel = (inviteeId != null
+            ? powerLevels?.of(inviteeId)
+            : powerLevels?.defaults.users) ??
+        0;
 
-    return inviterLevel > inviteeLevel && inviterLevel >= powerLevels.invite;
+    return inviterLevel > inviteeLevel &&
+        inviterLevel >= (powerLevels?.invite ?? 0);
   }
 
   /// Whether the user can redact a message of a user with [eventSenderId].
   ///
   /// If [eventSenderId] is null, returns true if user with [redacterId] can
   /// redact a message of someone with a default power level.
-  bool canRedact(UserId redacterId, {UserId eventSenderId}) {
-    final redacterLevel = powerLevels.of(redacterId);
-    final eventSenderLevel = eventSenderId != null
-        ? powerLevels.of(eventSenderId)
-        : powerLevels.defaults.users;
+  bool canRedact(
+    UserId redacterId, {
+    UserId? eventSenderId,
+  }) {
+    final redacterLevel = (powerLevels?.of(redacterId)) ?? 0;
+    final eventSenderLevel = (eventSenderId != null
+            ? powerLevels?.of(eventSenderId)
+            : powerLevels?.defaults.users) ??
+        0;
 
     return redacterLevel > eventSenderLevel &&
-        redacterLevel >= powerLevels.redact;
+        redacterLevel >= (powerLevels?.redact ?? 0);
   }
 
   /// Whether the user can send the event of type [E].
   bool canSend<E extends RoomEvent>(UserId senderId) {
-    final senderLevel = powerLevels.of(senderId);
-    final defaultLevel = RoomEvent.isState(E)
-        ? powerLevels.defaults.stateEvents
-        : powerLevels.defaults.events;
+    final senderLevel = (powerLevels?.of(senderId)) ?? 0;
+    final defaultLevel = (RoomEvent.isState(E)
+            ? powerLevels?.defaults.stateEvents
+            : powerLevels?.defaults.events) ??
+        0;
 
-    return senderLevel >= (powerLevels.events[E] ?? defaultLevel);
+    return senderLevel >= (powerLevels?.events?[E] ?? defaultLevel);
   }
 
   /// Whether the user with [senderId] can change the name of this room.
@@ -473,9 +499,12 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
   ///
   /// If [userId] is provided, returns whether the user with [senderId] can
   /// change the power level of [userId].
-  bool canChangePowerLevels(UserId senderId, {UserId userId}) =>
+  bool canChangePowerLevels(
+    UserId senderId, {
+    UserId? userId,
+  }) =>
       canSend<PowerLevelsChangeEvent>(senderId) && userId != null
-          ? powerLevels.of(userId) < powerLevels.of(senderId)
+          ? (powerLevels?.of(userId) ?? 0) < (powerLevels?.of(senderId) ?? 0)
           : true;
 
   /// Whether the user with [senderId] can upgrade this room.
@@ -488,7 +517,7 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
   bool get isSomeoneElseTyping =>
       typingUserIds.isNotEmpty &&
       !typingUserIds.any(
-        (id) => id == context.updater.user.id,
+        (id) => id == context?.updater?.user.id,
       );
 
   /// Whether someone is typing.
@@ -500,17 +529,19 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
   ///
   /// Returns the [Update] when the power level change is processed, if
   /// successful.
-  Future<Update> changePowerLevelOf(
+  Future<Update?> changePowerLevelOf(
     UserId id, {
     required int to,
   }) async {
+    if (stateEvents?.powerLevelsChange?.content == null) {
+      return Future.value(null);
+    }
     final userLevels = Map<UserId, int>.from(
-      stateEvents.powerLevelsChange.content.userLevels,
+      stateEvents!.powerLevelsChange!.content!.userLevels ?? {},
     );
     userLevels[id] = to;
-
-    return await send(
-      stateEvents.powerLevelsChange.content.copyWith(
+    return send(
+      stateEvents!.powerLevelsChange!.content!.copyWith(
         userLevels: userLevels,
       ),
     ).last;
@@ -531,30 +562,35 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
   ///
   /// If a [RawEventContent] is being send, [type] must not be null. Unused
   /// otherwise.
-  Stream<RequestUpdate<Timeline>> send(
+  Stream<RequestUpdate<Timeline>?> send(
     EventContent content, {
-    String transactionId,
+    String? transactionId,
     String stateKey = '',
-    String type,
-  }) =>
-      context.updater.send(
-        id,
-        content,
-        transactionId: transactionId,
-        stateKey: stateKey,
-        type: type,
-      );
+    String type = '',
+  }) {
+    if (context?.updater == null) {
+      return Future.value(null).asStream();
+    }
+    return context!.updater!.send(
+      id,
+      content,
+      transactionId: transactionId,
+      stateKey: stateKey,
+      type: type,
+    );
+  }
 
-  Future<Update> setName(String name) => send(RoomNameChange(name: name)).last;
+  Future<Update?> setName(String name) => send(RoomNameChange(name: name)).last;
 
-  Future<Update> setAvatarUri(Uri avatarUrl) =>
+  Future<Update?> setAvatarUri(Uri avatarUrl) =>
       send(RoomAvatarChange(url: avatarUrl)).last;
 
-  Future<Update> setTopic(String topic) => send(TopicChange(topic: topic)).last;
+  Future<Update?> setTopic(String topic) =>
+      send(TopicChange(topic: topic)).last;
 
-  Future<Update> upgrade({
+  Future<Update?> upgrade({
     required RoomId replacementRoomId,
-    String message,
+    required String message,
   }) =>
       send(RoomUpgrade(
         replacementRoomId: replacementRoomId,
@@ -566,16 +602,20 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
   /// If [isTyping] is true, a [timeout] can be specified
   /// to notify how long the server should assume that the user is
   /// typing.
-  Future<RequestUpdate<Ephemeral>> setIsTyping(
+  Future<RequestUpdate<Ephemeral>?> setIsTyping(
     // ignore: avoid_positional_boolean_parameters
     bool isTyping, {
     Duration timeout = const Duration(seconds: 30),
-  }) =>
-      context.updater.setIsTyping(
-        roomId: id,
-        isTyping: isTyping,
-        timeout: timeout,
-      );
+  }) {
+    if (context?.updater == null) {
+      return Future.value(null);
+    }
+    return context!.updater!.setIsTyping(
+      roomId: id,
+      isTyping: isTyping,
+      timeout: timeout,
+    );
+  }
 
   /// Will mark all messages as read until [until]. Will also
   /// send a read receipt, if [receipt] is true (default).
@@ -583,37 +623,50 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
   /// If the event with [until] id is already marked as read and [receipt]
   /// is true, this will just return the next update with an
   /// the current read receipt list for `data` it's delta for `deltaData`.
-  Future<RequestUpdate<ReadReceipts>> markRead({
+  Future<RequestUpdate<ReadReceipts>?> markRead({
     required EventId until,
     bool receipt = true,
-  }) =>
-      context.updater.markRead(roomId: id, until: until, receipt: receipt);
+  }) {
+    if (context?.updater == null) {
+      return Future.value(null);
+    }
+    return context!.updater!.markRead(
+      roomId: id,
+      until: until,
+      receipt: receipt,
+    );
+  }
 
   /// Join this room, if not joined already.
   ///
   /// Use [through] to specify the server to join through.
-  Future<RequestUpdate<Room>> join({
-    Homeserver through,
+  Future<RequestUpdate<Room>?> join({
+    Homeserver? through,
   }) {
-    assert(!me.hasJoined);
-    return context.updater.joinRoom(
+    assert(!(me?.hasJoined ?? false));
+    if (context?.updater == null) {
+      return Future.value(null);
+    }
+    return context!.updater!.joinRoom(
       id: id,
-      serverUrl: through?.wellKnownUrl ?? through?.url,
+      serverUrl: through?.wellKnownUrl ?? through?.url ?? Uri(),
     );
   }
 
   /// Leave this room, if not left already.
-  Future<RequestUpdate<Room>> leave() {
-    assert(!me.hasLeft);
-    return context.updater.leaveRoom(id);
+  Future<RequestUpdate<Room>?> leave() {
+    assert(!(me?.hasLeft ?? false));
+    final result = context?.updater.let((value) => value.leaveRoom(id));
+    return result ?? Future.value(null);
   }
 
   /// Receive updates that contain a change to this room.
-  Stream<Update> get updates =>
-      context.updater.updates.where((u) => u.delta.rooms.containsWithId(id));
+  Stream<Update>? get updates => context?.updater.let((value) =>
+      value.updates.where((u) => u.delta.rooms?.containsWithId(id) == true));
 
   @override
-  Room propertyOf(MyUser user) => user.rooms[context.roomId];
+  Room? propertyOf(MyUser user) =>
+      context?.roomId.let((value) => user.rooms?[value]);
 }
 
 /// Class that contains the most recent state events of each type.
@@ -641,14 +694,14 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
 /// throws.
 @immutable
 class RoomStateEvents {
-  final RoomNameChangeEvent nameChange;
-  final RoomAvatarChangeEvent avatarChange;
-  final TopicChangeEvent topicChange;
-  final PowerLevelsChangeEvent powerLevelsChange;
-  final JoinRulesChangeEvent joinRulesChange;
-  final CanonicalAliasChangeEvent canonicalAliasChange;
-  final RoomCreationEvent creation;
-  final RoomUpgradeEvent upgrade;
+  final RoomNameChangeEvent? nameChange;
+  final RoomAvatarChangeEvent? avatarChange;
+  final TopicChangeEvent? topicChange;
+  final PowerLevelsChangeEvent? powerLevelsChange;
+  final JoinRulesChangeEvent? joinRulesChange;
+  final CanonicalAliasChangeEvent? canonicalAliasChange;
+  final RoomCreationEvent? creation;
+  final RoomUpgradeEvent? upgrade;
 
   /// Custom state events by type, and then by state key.
   ///
@@ -668,9 +721,9 @@ class RoomStateEvents {
   /// throws.
   ///
   /// Will be null if there are no custom state events.
-  final Map<String, Map<String, RawStateEvent>> custom;
+  final Map<String, Map<String, RawStateEvent>>? custom;
 
-  Map<String, RawStateEvent> operator [](String type) => custom[type];
+  Map<String, RawStateEvent>? operator [](String type) => custom?[type];
 
   const RoomStateEvents({
     this.nameChange,
@@ -684,19 +737,19 @@ class RoomStateEvents {
     this.custom,
   });
 
-  factory RoomStateEvents.fromEvents(Iterable<RoomEvent> events) {
+  factory RoomStateEvents.fromEvents(Iterable<RoomEvent>? events) {
     events ??= [];
 
-    RoomNameChangeEvent nameChange;
-    RoomAvatarChangeEvent avatarChange;
-    TopicChangeEvent topicChange;
-    PowerLevelsChangeEvent powerLevelsChange;
-    JoinRulesChangeEvent joinRulesChange;
-    CanonicalAliasChangeEvent canonicalAliasChange;
-    RoomCreationEvent creation;
-    RoomUpgradeEvent upgrade;
+    RoomNameChangeEvent? nameChange;
+    RoomAvatarChangeEvent? avatarChange;
+    TopicChangeEvent? topicChange;
+    PowerLevelsChangeEvent? powerLevelsChange;
+    JoinRulesChangeEvent? joinRulesChange;
+    CanonicalAliasChangeEvent? canonicalAliasChange;
+    RoomCreationEvent? creation;
+    RoomUpgradeEvent? upgrade;
 
-    var custom = <String, Map<String, RawStateEvent>>{};
+    Map<String, Map<String, RawStateEvent>>? custom = {};
 
     for (final event in events) {
       if (event is RoomNameChangeEvent) {
@@ -717,8 +770,7 @@ class RoomStateEvents {
         upgrade = event;
       } else if (event is RawStateEvent) {
         custom[event.type] ??= {};
-
-        custom[event.type][event.stateKey] = event;
+        custom[event.type]![event.stateKey!] = event;
       }
     }
 
@@ -740,15 +792,15 @@ class RoomStateEvents {
   }
 
   RoomStateEvents copyWith({
-    RoomNameChangeEvent nameChange,
-    RoomAvatarChangeEvent avatarChange,
-    TopicChangeEvent topicChange,
-    PowerLevelsChangeEvent powerLevelsChange,
-    JoinRulesChangeEvent joinRulesChange,
-    CanonicalAliasChangeEvent canonicalAliasChange,
-    RoomCreationEvent creation,
-    RoomUpgradeEvent upgrade,
-    Map<String, Map<String, RawStateEvent>> custom,
+    RoomNameChangeEvent? nameChange,
+    RoomAvatarChangeEvent? avatarChange,
+    TopicChangeEvent? topicChange,
+    PowerLevelsChangeEvent? powerLevelsChange,
+    JoinRulesChangeEvent? joinRulesChange,
+    CanonicalAliasChangeEvent? canonicalAliasChange,
+    RoomCreationEvent? creation,
+    RoomUpgradeEvent? upgrade,
+    Map<String, Map<String, RawStateEvent>>? custom,
   }) {
     return RoomStateEvents(
       nameChange: nameChange ?? this.nameChange,
@@ -763,8 +815,10 @@ class RoomStateEvents {
     );
   }
 
-  RoomStateEvents merge(RoomStateEvents other) {
-    if (other == null) return this;
+  RoomStateEvents merge(RoomStateEvents? other) {
+    if (other == null) {
+      return this;
+    }
 
     return copyWith(
       nameChange: other.nameChange,
@@ -782,8 +836,8 @@ class RoomStateEvents {
 
 @immutable
 class RoomSummary {
-  final int joinedMembersCount;
-  final int invitedMembersCount;
+  final int? joinedMembersCount;
+  final int? invitedMembersCount;
 
   const RoomSummary({
     this.joinedMembersCount,
@@ -798,8 +852,8 @@ class RoomSummary {
   }
 
   RoomSummary copyWith({
-    int joinedMembersCount,
-    int invitedMembersCount,
+    int? joinedMembersCount,
+    int? invitedMembersCount,
   }) {
     return RoomSummary(
       joinedMembersCount: joinedMembersCount ?? this.joinedMembersCount,
@@ -807,8 +861,10 @@ class RoomSummary {
     );
   }
 
-  RoomSummary merge(RoomSummary other) {
-    if (other == null) return this;
+  RoomSummary merge(RoomSummary? other) {
+    if (other == null) {
+      return this;
+    }
 
     return copyWith(
       joinedMembersCount: other.joinedMembersCount,
@@ -819,38 +875,38 @@ class RoomSummary {
 
 @immutable
 class PowerLevels {
-  int get ban => _content?.banLevel;
-  int get invite => _content?.inviteLevel;
-  int get kick => _content?.kickLevel;
-  int get redact => _content?.redactLevel;
+  int? get ban => _content?.banLevel;
+  int? get invite => _content?.inviteLevel;
+  int? get kick => _content?.kickLevel;
+  int? get redact => _content?.redactLevel;
 
-  int get roomNotification => _content?.roomNotificationLevel;
+  int? get roomNotification => _content?.roomNotificationLevel;
 
-  Map<Type, int> get events => _content?.eventLevels;
+  Map<Type, int>? get events => _content?.eventLevels;
 
-  Map<UserId, int> get users => _content?.userLevels;
+  Map<UserId, int>? get users => _content?.userLevels;
 
   final PowerLevelDefaults defaults;
 
-  final PowerLevelsChange _content;
+  final PowerLevelsChange? _content;
 
-  PowerLevels._(PowerLevelsChangeEvent event)
+  PowerLevels._(PowerLevelsChangeEvent? event)
       : _content = event?.content,
         defaults = PowerLevelDefaults(event);
 
-  int of(UserId userId) => users[userId] ?? defaults.users;
+  int of(UserId userId) => users?[userId] ?? defaults.users ?? 0;
 }
 
 @immutable
 class PowerLevelDefaults {
-  int get stateEvents => _content?.stateEventsDefaultLevel;
-  int get events => _content?.eventsDefaultLevel;
+  int? get stateEvents => _content?.stateEventsDefaultLevel;
+  int? get events => _content?.eventsDefaultLevel;
 
-  int get users => _content?.userDefaultLevel;
+  int? get users => _content?.userDefaultLevel;
 
-  final PowerLevelsChange _content;
+  final PowerLevelsChange? _content;
 
-  PowerLevelDefaults(PowerLevelsChangeEvent event) : _content = event?.content;
+  PowerLevelDefaults(PowerLevelsChangeEvent? event) : _content = event?.content;
 }
 
 class ReadReceipts extends DelegatingIterable<Receipt>
@@ -858,10 +914,10 @@ class ReadReceipts extends DelegatingIterable<Receipt>
   ReadReceipts(Iterable<Receipt> base, {this.context}) : super(base);
 
   @override
-  final RoomContext context;
+  final RoomContext? context;
 
   @override
-  ReadReceipts delta({Iterable<Receipt> receipts}) {
+  ReadReceipts? delta({Iterable<Receipt>? receipts}) {
     return ReadReceipts(
       receipts ?? [],
       context: context,
@@ -869,8 +925,9 @@ class ReadReceipts extends DelegatingIterable<Receipt>
   }
 
   @override
-  ReadReceipts propertyOf(MyUser user) =>
-      user.rooms[context.roomId]?.readReceipts;
+  ReadReceipts? propertyOf(MyUser user) {
+    return context?.roomId.let((value) => user.rooms?[value]?.readReceipts);
+  }
 }
 
 class RoomContext extends Context {
@@ -883,8 +940,10 @@ class RoomContext extends Context {
 }
 
 extension _MapMerge<K, V> on Map<K, V> {
-  Map<K, V> merge(Map<K, V> other) {
-    if (other == null) return this;
+  Map<K, V> merge(Map<K, V>? other) {
+    if (other == null) {
+      return this;
+    }
 
     return {...this, ...other};
   }

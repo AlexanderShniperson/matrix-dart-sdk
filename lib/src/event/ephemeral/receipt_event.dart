@@ -20,12 +20,12 @@ class ReceiptEvent extends EphemeralEvent {
   final String type = matrixType;
 
   ReceiptEvent({
-    required RoomId roomId,
-    required this.content,
+    RoomId? roomId,
+    this.content,
   }) : super(roomId);
 
   @override
-  final Receipts content;
+  final Receipts? content;
 
   ReceiptEvent copyWith({
     RoomId? roomId,
@@ -37,12 +37,14 @@ class ReceiptEvent extends EphemeralEvent {
     );
   }
 
-  ReceiptEvent merge(ReceiptEvent? other) {
-    if (other == null) return this;
+  ReceiptEvent? merge(ReceiptEvent? other) {
+    if (other == null) {
+      return this;
+    }
 
     return copyWith(
       roomId: other.roomId,
-      content: content?.merge(other?.content) ?? other.content,
+      content: content?.merge(other.content) ?? other.content,
     );
   }
 }
@@ -97,7 +99,7 @@ class Receipts extends EventContent {
 
     for (final receipt in receipts) {
       final byEventId =
-          json[receipt.eventId.toString()] as Map<String, dynamic> ??
+          (json[receipt.eventId.toString()] as Map<String, dynamic>?) ??
               <String, dynamic>{};
 
       final byType = byEventId[receipt.type.toString()] ??
@@ -121,8 +123,10 @@ class Receipts extends EventContent {
     );
   }
 
-  Receipts merge(Receipts? other) {
-    if (other == null) return this;
+  Receipts? merge(Receipts? other) {
+    if (other == null) {
+      return this;
+    }
 
     final set = HashSet<Receipt>(
       equals: (a, b) => a.type == b.type && a.userId == b.userId,

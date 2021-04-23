@@ -26,16 +26,16 @@ abstract class MatrixId extends Id {
   MatrixId._(this.sigil, String value) : super(value);
 
   final String sigil;
-  static final String seperator = ':';
+  static const String seperator = ':';
 
   @override
   String toString() => value;
 
-  List<String?> get _split => value.split(seperator);
+  List<String> get _split => value.split(seperator);
 
   /// Local part of the id (without [sigil]), is null if the id is
   /// not valid.
-  String? get localPart => _split.length == 2 ? _split[0]?.substring(1) : null;
+  String? get localPart => _split.length == 2 ? _split[0].substring(1) : null;
 
   /// Server part of the id, is null if the id is
   /// not valid, or an event id.
@@ -81,7 +81,7 @@ abstract class MatrixId extends Id {
     if (input.startsWith(sigil) && input.contains(seperator)) {
       String local, server;
 
-      var seperatorIndex = input.indexOf(seperator);
+      final seperatorIndex = input.indexOf(seperator);
       server = input.substring(seperatorIndex + 1);
       local = input.split(seperator)[0].substring(1);
 

@@ -24,7 +24,7 @@ class Context {
     return Updater.get(myId!);
   }
 
-  Homeserver? get homeserver => updater?.homeserver;
+  Homeserver? get homeServer => updater?.homeserver;
 
   const Context({
     required this.myId,
@@ -51,8 +51,8 @@ abstract class Contextual<T> {
   ///
   /// Implementers should set the [context] and possible `id` in the delta
   /// and its children.
-  T delta();
+  T? delta();
 
   /// Get this data as a property from [MyUser].
-  T propertyOf(MyUser user);
+  T? propertyOf(MyUser user);
 }

@@ -25,7 +25,7 @@ class RedactionEvent extends RoomEvent {
   }) : super(args);
 
   @override
-  final Redaction content;
+  final Redaction? content;
 
   final EventId redacts;
 
@@ -64,10 +64,12 @@ class Redaction extends EventContent {
   @override
   int get hashCode => reason.hashCode;
 
-  factory Redaction.fromJson(Map<String, dynamic> content) {
-    if (content == null) return null;
+  static Redaction? fromJson(Map<String, dynamic>? content) {
+    if (content == null) {
+      return null;
+    }
 
-    String reason;
+    String reason = '';
     if (content.containsKey('reason')) {
       reason = content['reason'];
     }
@@ -95,7 +97,7 @@ class RedactedEvent extends RoomEvent {
   final String type;
 
   @override
-  final EventContent content = null;
+  final EventContent? content = null;
 
   final RedactionEvent redaction;
 
@@ -116,10 +118,10 @@ class RedactedEvent extends RoomEvent {
 
 class RedactedStateEvent extends StateEvent implements RedactedEvent {
   @override
-  final EventContent content = null;
+  final EventContent? content = null;
 
   @override
-  final EventContent previousContent = null;
+  final EventContent? previousContent = null;
 
   @override
   final String type;

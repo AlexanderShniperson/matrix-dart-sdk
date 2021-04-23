@@ -19,10 +19,10 @@ class RoomAvatarChangeEvent extends StateEvent {
   final String type = matrixType;
 
   @override
-  final RoomAvatarChange content;
+  final RoomAvatarChange? content;
 
   @override
-  final RoomAvatarChange previousContent;
+  final RoomAvatarChange? previousContent;
 
   RoomAvatarChangeEvent(
     RoomEventArgs args, {
@@ -47,8 +47,10 @@ class RoomAvatarChange extends EventContent {
   @override
   int get hashCode => url.hashCode;
 
-  factory RoomAvatarChange.fromJson(Map<String, dynamic> content) {
-    if (content == null) return null;
+  static RoomAvatarChange? fromJson(Map<String, dynamic>? content) {
+    if (content == null) {
+      return null;
+    }
 
     var url = content['url'];
     if (url != null) {
@@ -61,6 +63,6 @@ class RoomAvatarChange extends EventContent {
   @override
   Map<String, dynamic> toJson() => super.toJson()
     ..addAll({
-      'url': url?.toString(),
+      'url': url.toString(),
     });
 }

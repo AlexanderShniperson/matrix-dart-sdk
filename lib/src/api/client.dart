@@ -6,10 +6,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import 'dart:async';
-
 import 'package:chopper/chopper.dart';
-import 'package:meta/meta.dart';
-
 import 'api.dart';
 
 part 'client.chopper.dart';
@@ -38,13 +35,13 @@ abstract class ClientService extends ChopperService {
   @Post(path: 'pushers/set')
   Future<Response> setPusher({
     @Header('Authorization') required String authorization,
-    @Body() String body,
+    @Body() required String body,
   });
 
   @Post(path: 'register')
   Future<Response> register({
-    @Query('kind') String kind,
-    @Body() String body,
+    @Query('kind') required String kind,
+    @Body() required String body,
   });
 
   @Get(path: 'sync')
@@ -52,7 +49,7 @@ abstract class ClientService extends ChopperService {
     @Header('Authorization') required String authorization,
     @Query('since') required String since,
     @Query('full_state') bool fullState = false,
-    @Query('filter') String filter,
+    @Query('filter') required String filter,
     @Query('timeout') int timeout = 0,
   });
 
@@ -61,9 +58,9 @@ abstract class ClientService extends ChopperService {
     @Header('Authorization') required String authorization,
     @Path('roomId') required String roomId,
     @Query('from') required String from,
-    @Query('limit') int limit,
+    @Query('limit') required int limit,
     @Query('dir') String dir = 'b',
-    @Query('filter') String filter,
+    @Query('filter') required String filter,
   });
 
   @Get(path: 'rooms/{roomId}/members')
@@ -71,7 +68,7 @@ abstract class ClientService extends ChopperService {
     @Header('Authorization') required String authorization,
     @Path('roomId') required String roomId,
     @Query('at') required String at,
-    @Query('membership') String membership,
+    @Query('membership') required String membership,
   });
 
   @Put(path: 'rooms/{roomId}/send/{eventType}/{txnId}')
@@ -130,7 +127,7 @@ abstract class ClientService extends ChopperService {
   Future<Response> join({
     @Header('Authorization') required String authorization,
     @Path('roomIdOrAlias') required String roomIdOrAlias,
-    @Query('server_name') String serverName,
+    @Query('server_name') required String serverName,
   });
 
   @Post(path: 'logout')
@@ -141,7 +138,7 @@ abstract class ClientService extends ChopperService {
   @Post(path: 'publicRooms')
   Future<Response> publicRooms({
     @Header('Authorization') required String authorization,
-    @Query('server') String server,
+    @Query('server') required String server,
     @Body() required String body,
   });
 }

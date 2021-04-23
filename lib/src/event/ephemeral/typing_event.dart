@@ -17,12 +17,12 @@ class TypingEvent extends EphemeralEvent {
   final String type = matrixType;
 
   TypingEvent({
-    required RoomId roomId,
-    required this.content,
+    RoomId? roomId,
+    this.content,
   }) : super(roomId);
 
   @override
-  final Typers content;
+  final Typers? content;
 }
 
 @immutable
@@ -40,8 +40,10 @@ class Typers extends EventContent {
 
   final List<UserId> typerIds;
 
-  factory Typers.fromJson(Map<String, dynamic> content) {
-    if (content == null) return null;
+  static Typers? fromJson(Map<String, dynamic>? content) {
+    if (content == null) {
+      return null;
+    }
 
     final rawIds = content['user_ids'] as List<dynamic>;
     final typerIds = rawIds.map((r) => UserId(r)).toList(growable: false);

@@ -44,7 +44,7 @@ abstract class RequestInstruction<T extends Contextual<T>>
 
 class KickInstruction extends RequestInstruction<MemberTimeline> {
   final UserId id;
-  final RoomId from;
+  final RoomId? from;
 
   KickInstruction(this.id, this.from);
 
@@ -53,14 +53,14 @@ class KickInstruction extends RequestInstruction<MemberTimeline> {
 }
 
 class LoadRoomEventsInstruction extends RequestInstruction<Timeline> {
-  final RoomId roomId;
+  final RoomId? roomId;
   final int count;
 
   LoadRoomEventsInstruction(this.roomId, this.count);
 }
 
 class LoadMembersInstruction extends RequestInstruction<MemberTimeline> {
-  final RoomId roomId;
+  final RoomId? roomId;
   final int count;
 
   LoadMembersInstruction(this.roomId, this.count);
@@ -90,7 +90,7 @@ class MarkReadInstruction extends RequestInstruction<ReadReceipts> {
 class SendInstruction extends RequestInstruction<Timeline> {
   final RoomId roomId;
   final EventContent content;
-  final String transactionId;
+  final String? transactionId;
   final String stateKey;
   final String type;
 
@@ -104,7 +104,7 @@ class SendInstruction extends RequestInstruction<Timeline> {
 }
 
 class SetIsTypingInstruction extends RequestInstruction<Ephemeral> {
-  final RoomId roomId;
+  final RoomId? roomId;
   final bool isTyping;
   final Duration timeout;
 
@@ -116,8 +116,8 @@ class SetIsTypingInstruction extends RequestInstruction<Ephemeral> {
 }
 
 class JoinRoomInstruction extends RequestInstruction<Room> {
-  final RoomId id;
-  final RoomAlias alias;
+  final RoomId? id;
+  final RoomAlias? alias;
   final Uri serverUrl;
 
   JoinRoomInstruction(this.id, this.alias, this.serverUrl);

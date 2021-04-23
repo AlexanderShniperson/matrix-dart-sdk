@@ -14,7 +14,6 @@ import 'package:http/http.dart' as http;
 import 'api/media.dart';
 
 import 'authentication_session.dart';
-import 'public_rooms.dart';
 
 import 'identifier.dart';
 import 'store/store.dart';
@@ -32,7 +31,7 @@ import 'util/mxc_url.dart';
 @immutable
 class Homeserver {
   final Uri url;
-  final Uri wellKnownUrl;
+  final Uri? wellKnownUrl;
 
   final Api api;
 
@@ -44,7 +43,7 @@ class Homeserver {
   /// Throws [WellKnownException] on failure.
   static Future<Homeserver> fromWellKnown(
     Uri url, {
-    http.Client httpClient,
+    http.Client? httpClient,
   }) async {
     final wellKnownUrl = url.resolve('/.well-known/matrix/client');
 
@@ -59,7 +58,7 @@ class Homeserver {
       throw WellKnownFailPromptException('Response status code is not 200');
     }
 
-    if (response.body == null || response.body.isEmpty) {
+    if (response.body.isEmpty) {
       throw WellKnownFailPromptException('Response body is null or empty');
     }
 
@@ -75,7 +74,7 @@ class Homeserver {
       throw WellKnownFailPromptException('m.homeserver key is missing');
     }
 
-    String baseUrl = homeserverInfo['base_url'];
+    String? baseUrl = homeserverInfo['base_url'];
     if (baseUrl == null) {
       throw WellKnownFailPromptException('base_url key is missing or null');
     }
@@ -97,15 +96,10 @@ class Homeserver {
   Homeserver(
     this.url, {
     this.wellKnownUrl,
-    PublicRooms publicRooms,
-    http.Client httpClient,
+    http.Client? httpClient,
   }) : api = Api(url: url, httpClient: httpClient);
 
   Uri resolveDownloadUrl(Uri url) {
-    if (url == null) {
-      throw ArgumentError.value(url, 'url', 'Must not be null');
-    }
-
     if (url.scheme != 'mxc') {
       throw ArgumentError.value(url, 'url', 'Must be an mxc URL');
     }
@@ -123,10 +117,6 @@ class Homeserver {
     required int height,
     ResizeMethod resizeMethod = ResizeMethod.scale,
   }) {
-    if (url == null) {
-      throw ArgumentError.value(url, 'url', 'Must not be null');
-    }
-
     if (url.scheme != 'mxc') {
       throw ArgumentError.value(url, 'url', 'Must be an mxc URL');
     }
@@ -150,10 +140,10 @@ class Homeserver {
   Future<MyUser> _prepareUser(
     Map<String, dynamic> body, {
     bool isolated = false,
-    Device device,
+    Device? device,
     required StoreLocation store,
   }) async {
-    String accessToken = body['access_token'];
+    final accessToken = body['access_token'];
     final userId = UserId(body['user_id']);
 
     // If device was null,
@@ -219,19 +209,20 @@ class Homeserver {
     required Username username,
     required String password,
     required StoreLocation store,
-    Device device,
+    required Device device,
     bool isolated = false,
   }) async {
-    Future<Map<String, dynamic>> request([Map<String, dynamic> auth]) =>
-        api.register(
-          kind: 'user',
-          username: username.toString(),
-          password: password,
-          deviceId: device?.id?.toString(),
-          deviceName: device?.name,
-          preventLogin: false,
-          auth: auth,
-        );
+    Future<Map<String, dynamic>> request([Map<String, dynamic>? auth]) {
+      return api.register(
+        kind: 'user',
+        username: username.toString(),
+        password: password,
+        deviceId: device.id.toString(),
+        deviceName: device.name ?? '',
+        preventLogin: false,
+        auth: auth,
+      );
+    }
 
     final body = await request();
 
@@ -287,11 +278,7 @@ class Homeserver {
   }
 
   /// Download content via this [Homeserver].
-  Future<Stream<List<int>>> download(Uri url) async {
-    if (url == null) {
-      throw ArgumentError.value(url, 'url', 'Must not be null');
-    }
-
+  Future<Stream<List<int>>> download(Uri url) {
     if (url.scheme != 'mxc') {
       throw ArgumentError.value(url, 'url', 'Must be an mxc URL');
     }
@@ -299,7 +286,7 @@ class Homeserver {
     final server = url.authority;
     final mediaId = url.pathSegments[0];
 
-    return await api.media.download(server: server, mediaId: mediaId);
+    return api.media.download(server: server, mediaId: mediaId);
   }
 
   /// Download a thumbnail via this [Homeserver].
@@ -308,11 +295,7 @@ class Homeserver {
     required int width,
     required int height,
     ResizeMethod resizeMethod = ResizeMethod.scale,
-  }) async {
-    if (url == null) {
-      throw ArgumentError.value(url, 'url', 'Must not be null');
-    }
-
+  }) {
     if (url.scheme != 'mxc') {
       throw ArgumentError.value(url, 'url', 'Must be an mxc URL');
     }
@@ -320,7 +303,7 @@ class Homeserver {
     final server = url.authority;
     final mediaId = url.pathSegments[0];
 
-    return await api.media.thumbnail(
+    return api.media.thumbnail(
       server: server,
       mediaId: mediaId,
       width: width,
@@ -329,23 +312,15 @@ class Homeserver {
     );
   }
 
-  Future<Uri> upload({
+  Future<Uri?> upload({
     required MyUser as,
     required Stream<List<int>> bytes,
     required int length,
     required String contentType,
-    String fileName="",
+    String fileName = '',
   }) async {
-    if (as.accessToken == null || as.isLoggedOut) {
+    if (as.accessToken == null || (as.isLoggedOut ?? false)) {
       throw StateError('User is logged out or has no access token');
-    }
-
-    if (bytes == null) {
-      throw ArgumentError.value(
-        bytes,
-        'bytes',
-        'bytes must not be null',
-      );
     }
 
     final body = await api.media.upload(

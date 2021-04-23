@@ -23,12 +23,13 @@ import 'room/state/canonical_alias_change_event.dart';
 
 import 'ephemeral/receipt_event.dart';
 import 'ephemeral/typing_event.dart';
+import 'package:collection/collection.dart';
 
 @immutable
 abstract class Event {
   String get type;
 
-  EventContent get content;
+  EventContent? get content;
 
   Event();
 
@@ -68,12 +69,14 @@ abstract class Event {
 
   /// Get the type name as used by Matrix for an [Event]'s [Type], or of
   /// an [Event] instance, for example: `m.room.message`.
-  static String matrixTypeOf(Type type) => _matrixTypes[type];
+  static String? matrixTypeOf(Type type) => _matrixTypes[type];
 
   /// Get the base [Type] of an [Event] associated by the given [matrixType].
-  static Type typeOf(String matrixType) => _matrixTypes.entries
-      .firstWhere((entry) => entry.value == matrixType, orElse: () => null)
-      ?.key;
+  static Type? typeOf(String matrixType) {
+    return _matrixTypes.entries
+        .firstWhereOrNull((entry) => entry.value == matrixType)
+        ?.key;
+  }
 }
 
 enum SentState { unsent, sent }

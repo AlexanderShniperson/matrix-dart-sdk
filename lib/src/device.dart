@@ -50,7 +50,9 @@ class Device with Identifiable<DeviceId> {
   }
 
   Device merge(Device? other) {
-    if (other == null) return this;
+    if (other == null) {
+      return this;
+    }
 
     return copyWith(
       id: other.id,

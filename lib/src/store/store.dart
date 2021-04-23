@@ -15,6 +15,7 @@ import '../room/room.dart';
 import '../homeserver.dart';
 import '../updater/updater.dart';
 import '../my_user.dart';
+import 'package:collection/collection.dart';
 
 /// Stores all data (rooms, users, events) somewhere.
 abstract class Store {
@@ -38,8 +39,8 @@ abstract class Store {
   ///
   /// The [storeLocation] is required because the [Updater] will recreate
   /// the store.
-  Future<MyUser> getMyUser({
-    Iterable<RoomId> roomIds,
+  Future<MyUser?> getMyUser({
+    required Iterable<RoomId> roomIds,
     int timelineLimit = 15,
     bool isolated = false,
     required StoreLocation storeLocation,
@@ -51,17 +52,17 @@ abstract class Store {
   /// If [memberIds] is not null, the states of the users with those ids will
   /// always be included, if they're in the room.
   Future<Iterable<Room>> getRooms(
-    Iterable<RoomId> roomIds, {
-    Context context,
-    int timelineLimit,
-    Iterable<UserId> memberIds,
+    Iterable<RoomId>? roomIds, {
+    Context? context,
+    required int timelineLimit,
+    Iterable<UserId>? memberIds,
   });
 
-  Future<Room> getRoom(
+  Future<Room?> getRoom(
     RoomId id, {
     int timelineLimit = 15,
-    Context context,
-    Iterable<UserId> memberIds,
+    required Context context,
+    required Iterable<UserId> memberIds,
   }) =>
       getRooms(
         [id],
@@ -69,10 +70,7 @@ abstract class Store {
         context: context,
         memberIds: memberIds,
       ).then(
-        (rooms) => rooms.firstWhere(
-          (r) => r.id == id,
-          orElse: () => null,
-        ),
+        (rooms) => rooms.firstWhereOrNull((r) => r.id == id),
       );
 
   /// Returned sorted based on [RoomEvent.time], newest first.
@@ -88,8 +86,8 @@ abstract class Store {
   Future<Messages> getMessages(
     RoomId roomId, {
     int count = 20,
-    DateTime fromTime,
-    Iterable<UserId> memberIds,
+    DateTime? fromTime,
+    Iterable<UserId>? memberIds,
   });
 
   Future<Iterable<RoomEvent>> getUnsentEvents();
@@ -100,7 +98,7 @@ abstract class Store {
   Future<Iterable<Member>> getMembers(
     RoomId roomId, {
     int count = 20,
-    DateTime fromTime,
+    DateTime? fromTime,
   });
 }
 

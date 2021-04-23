@@ -18,10 +18,10 @@ class CanonicalAliasChangeEvent extends StateEvent {
   final String type = matrixType;
 
   @override
-  final CanonicalAliasChange content;
+  final CanonicalAliasChange? content;
 
   @override
-  final CanonicalAliasChange previousContent;
+  final CanonicalAliasChange? previousContent;
 
   CanonicalAliasChangeEvent(
     RoomEventArgs args, {
@@ -32,12 +32,12 @@ class CanonicalAliasChangeEvent extends StateEvent {
 
 @immutable
 class CanonicalAliasChange extends EventContent {
-  final RoomAlias canonicalAlias;
-  final List<RoomAlias> alternativeAliases;
+  final RoomAlias? canonicalAlias;
+  final List<RoomAlias>? alternativeAliases;
 
   CanonicalAliasChange({
-    required this.canonicalAlias,
-    this.alternativeAliases = const [],
+    this.canonicalAlias,
+    this.alternativeAliases,
   });
 
   @override
@@ -47,11 +47,13 @@ class CanonicalAliasChange extends EventContent {
   @override
   int get hashCode => canonicalAlias.hashCode;
 
-  factory CanonicalAliasChange.fromJson(Map<String, dynamic> content) {
-    if (content == null) return null;
+  static CanonicalAliasChange? fromJson(Map<String, dynamic>? content) {
+    if (content == null) {
+      return null;
+    }
 
-    final canonAlias = content['alias'];
-    final altAliases = content['alt_aliases'];
+    final String? canonAlias = content['alias'];
+    final List<dynamic>? altAliases = content['alt_aliases'];
 
     return CanonicalAliasChange(
       canonicalAlias: canonAlias != null ? RoomAlias(canonAlias) : null,
@@ -65,6 +67,6 @@ class CanonicalAliasChange extends EventContent {
   Map<String, dynamic> toJson() => super.toJson()
     ..addAll({
       'alias': canonicalAlias?.toString(),
-      'alt_aliases': alternativeAliases?.map((a) => a.toString())?.toList(),
+      'alt_aliases': alternativeAliases?.map((a) => a.toString()).toList(),
     });
 }

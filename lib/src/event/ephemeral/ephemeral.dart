@@ -6,8 +6,6 @@
 
 import 'package:collection/collection.dart';
 
-import 'package:meta/meta.dart';
-
 import '../../my_user.dart';
 import '../../context.dart';
 import 'ephemeral_event.dart';
@@ -15,59 +13,70 @@ import '../../room/room.dart';
 
 import 'receipt_event.dart';
 import 'typing_event.dart';
+import '../../util/nullable_extension.dart';
 
 class Ephemeral extends DelegatingIterable<EphemeralEvent>
     implements Contextual<Ephemeral> {
   @override
-  final RoomContext context;
+  final RoomContext? context;
 
   final Map<Type, EphemeralEvent> _map;
 
-  Ephemeral(Iterable<EphemeralEvent> events, {this.context})
-      : _map = {for (final event in events) event.runtimeType: event},
+  Ephemeral(
+    Iterable<EphemeralEvent> events, {
+    this.context,
+  })  : _map = {for (final event in events) event.runtimeType: event},
         super(events.toList());
 
   /// Either [context] or [roomId] is required.
   factory Ephemeral.fromJson(
     Map<String, dynamic> json, {
-    required RoomContext context,
+    RoomContext? context,
   }) {
     if (json['events'] == null) {
       return Ephemeral([]);
     }
 
     final ephemeralEvents = json['events'] as List<dynamic>;
-
+    final List<EphemeralEvent> events =
+        ephemeralEvents.fold(<EphemeralEvent>[], (previousValue, e) {
+      final result = EphemeralEvent.fromJson(e, roomId: context?.roomId);
+      if (result == null) {
+        return previousValue;
+      } else {
+        return previousValue..add(result);
+      }
+    });
     return Ephemeral(
-      ephemeralEvents.map(
-        (e) => EphemeralEvent.fromJson(e, roomId: context.roomId),
-      ),
+      events,
       context: context,
     );
   }
 
-  EphemeralEvent operator [](Type type) => _map[type];
+  EphemeralEvent? operator [](Type type) => _map[type];
 
-  T get<T extends EphemeralEvent>() => this[T];
+  T get<T extends EphemeralEvent>() => this as T;
 
   bool containsType<T extends EphemeralEvent>() => any((e) => e is T);
 
-  ReceiptEvent get receiptEvent => this[ReceiptEvent];
+  ReceiptEvent? get receiptEvent => this as ReceiptEvent;
 
-  TypingEvent get typingEvent => this[TypingEvent];
+  TypingEvent? get typingEvent => this as TypingEvent;
 
   Ephemeral copyWith({
-    Iterable<EphemeralEvent> events,
-    RoomContext context,
+    Iterable<EphemeralEvent>? events,
+    RoomContext? context,
   }) {
     return Ephemeral(
-      events ?? _map,
+      events ?? _map.values,
       context: context ?? this.context,
     );
   }
 
-  Ephemeral merge(Ephemeral other) {
-    if (other == null) return this;
+  Ephemeral? merge(Ephemeral? other) {
+    if (other == null) {
+      return this;
+    }
 
     return copyWith(
       events: mergeMaps<Type, EphemeralEvent>(
@@ -75,7 +84,7 @@ class Ephemeral extends DelegatingIterable<EphemeralEvent>
         other._map,
         value: (thisEvent, otherEvent) =>
             thisEvent is ReceiptEvent && otherEvent is ReceiptEvent
-                ? thisEvent.merge(otherEvent)
+                ? thisEvent.merge(otherEvent)!
                 : otherEvent,
       ).values,
       context: other.context,
@@ -83,17 +92,21 @@ class Ephemeral extends DelegatingIterable<EphemeralEvent>
   }
 
   @override
-  Ephemeral delta({Iterable<EphemeralEvent> events}) {
+  Ephemeral? delta({
+    Iterable<EphemeralEvent>? events,
+  }) {
     if (events == null) {
       return null;
     }
 
     return Ephemeral(
-      events ?? [],
+      events,
       context: context,
     );
   }
 
   @override
-  Ephemeral propertyOf(MyUser user) => user.rooms[context.roomId]?.ephemeral;
+  Ephemeral? propertyOf(MyUser user) {
+    return context?.roomId.let((value) => user.rooms?[value]?.ephemeral);
+  }
 }

@@ -6,6 +6,7 @@
 
 import 'package:meta/meta.dart';
 import 'exception.dart';
+import 'package:collection/collection.dart';
 
 typedef _Submit = Future<AuthenticationSession> Function(
   Map<String, dynamic> json,
@@ -111,43 +112,38 @@ extension FlowSelector on Iterable<Flow> {
       },
     );
 
-    return sortedWithOnlyTypes.firstWhere(
-      (f) => true,
-      orElse: () => null,
-    );
+    return sortedWithOnlyTypes.firstWhereOrNull((f) => true);
   }
 }
 
 @immutable
 class Flow {
   final Iterable<Stage> stages;
-  final Iterable<Stage> completedStages;
+  final Iterable<Stage>? completedStages;
 
   final Stage currentStage;
 
   Flow._({
     required this.stages,
-    required this.completedStages,
+    this.completedStages,
     required this.currentStage,
   });
 
   factory Flow._fromJson(
     Map<String, dynamic> json,
     Map<String, dynamic> paramsJson,
-    List<dynamic> completedJson, {
+    List<dynamic>? completedJson, {
     required _Submit submit,
   }) {
     final stagesJson = json['stages'] as List<dynamic>;
 
     final stages = stagesJson
         .map((s) => Stage._fromJson(s, paramsJson, submit: submit))
-        .where((s) => s != null)
         .toList();
 
     final completed = completedJson
         ?.map((s) => Stage._fromJson(s, paramsJson, submit: submit))
-        ?.where((s) => s != null)
-        ?.toList();
+        .toList();
 
     return Flow._(
       stages: stages,
@@ -224,13 +220,13 @@ class RawStage extends Stage {
   RawStage._({
     required _Submit submit,
     required this.type,
-    required Map<String, dynamic> params,
-  })   : params = params ?? {},
+    Map<String, dynamic>? params,
+  })  : params = params ?? {},
         super._(submit, type);
 
   @override
-  Future<AuthenticationSession> complete([Map<String, dynamic> params]) =>
-      _submit({...super._toSubmitJson(), ...params});
+  Future<AuthenticationSession> complete([Map<String, dynamic>? params]) =>
+      _submit({...super._toSubmitJson(), ...params ?? {}});
 
   @override
   bool operator ==(dynamic other) {
@@ -276,11 +272,13 @@ class RecaptchaStage extends Stage {
     return RecaptchaStage._(submit, publicKey);
   }
 
+  /* TODO: wrong override implementation
   @override
   Future<AuthenticationSession> complete({
     required String response,
   }) =>
       _submit({...super._toSubmitJson(), 'response': response});
+  */
 
   @override
   bool operator ==(dynamic other) {

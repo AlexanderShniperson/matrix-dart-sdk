@@ -18,24 +18,24 @@ class JoinRulesChangeEvent extends StateEvent {
   final String type = matrixType;
 
   @override
-  final JoinRules content;
+  final JoinRules? content;
 
   @override
-  final JoinRules previousContent;
+  final JoinRules? previousContent;
 
   JoinRulesChangeEvent(
     RoomEventArgs args, {
-    required this.content,
+    this.content,
     this.previousContent,
   }) : super(args, stateKey: '');
 }
 
 @immutable
 class JoinRules extends EventContent {
-  final JoinRule rule;
+  final JoinRule? rule;
 
   JoinRules({
-    required this.rule,
+    this.rule,
   });
 
   @override
@@ -44,10 +44,12 @@ class JoinRules extends EventContent {
   @override
   int get hashCode => rule.hashCode;
 
-  factory JoinRules.fromJson(Map<String, dynamic> content) {
-    if (content == null) return null;
+  static JoinRules? fromJson(Map<String, dynamic>? content) {
+    if (content == null) {
+      return null;
+    }
 
-    JoinRule rule;
+    JoinRule? rule;
 
     switch (content['join_rule']) {
       case 'public':
