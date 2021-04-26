@@ -131,17 +131,28 @@ class _$ClientService extends ClientService {
   }
 
   @override
+  Future<Response<dynamic>> edit(
+      {String authorization, String roomId, String txnId, String content}) {
+    final $url = '/_matrix/client/r0/rooms/$roomId/send/m.room.message/$txnId';
+    final $headers = {'Authorization': authorization};
+    final $body = content;
+    final $request =
+        Request('PUT', $url, client.baseUrl, body: $body, headers: $headers);
+    return client.send<dynamic, dynamic>($request);
+  }
+
+  @override
   Future<Response<dynamic>> redact(
       {String authorization,
-        String roomId,
-        String eventId,
-        String txnId,
-        String reason}) {
+      String roomId,
+      String eventId,
+      String txnId,
+      String reason}) {
     final $url = '/_matrix/client/r0/rooms/$roomId/redact/$eventId/$txnId';
+    final $params = <String, dynamic>{'reason': reason};
     final $headers = {'Authorization': authorization};
-    final $body = reason;
-    final $request =
-    Request('PUT', $url, client.baseUrl, body: $body, headers: $headers);
+    final $request = Request('PUT', $url, client.baseUrl,
+        parameters: $params, headers: $headers);
     return client.send<dynamic, dynamic>($request);
   }
 
@@ -242,4 +253,3 @@ class _$ClientService extends ClientService {
     return client.send<dynamic, dynamic>($request);
   }
 }
-// ignore_for_file: avoid_catches_without_on_clauses,type_annotate_public_apis,lines_longer_than_80_chars,avoid_equals_and_hash_code_on_mutable_classes

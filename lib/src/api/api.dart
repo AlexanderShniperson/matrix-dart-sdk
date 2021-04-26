@@ -6,6 +6,7 @@
 
 import 'dart:convert';
 
+import 'package:matrix_sdk/matrix_sdk.dart';
 import 'package:meta/meta.dart';
 import 'package:chopper/chopper.dart';
 import 'package:http/http.dart' as http;
@@ -318,6 +319,32 @@ class Rooms {
     return json.decode(response.body);
   }
 
+  Future<Map<String, dynamic>> edit({
+    @required String accessToken,
+    @required String roomId,
+    @required TextMessageEvent event,
+    @required String newContent,
+    String transactionId,
+  }) async {
+    final body = {
+      'body': ' * $newContent',
+      'msgtype': 'm.text',
+      'm.new_content': {'body': newContent, 'msgtype': 'm.text'},
+      'm.relates_to': {'event_id': event.id.value, 'rel_type': 'm.replace'}
+    };
+
+    final response = await _service.edit(
+      authorization: accessToken.toHeader(),
+      roomId: roomId.toString(),
+      content: json.encode(body),
+      txnId: transactionId,
+    );
+
+    response.throwIfNeeded();
+
+    return json.decode(response.body);
+  }
+
   Future<Map<String, dynamic>> redact({
     @required String accessToken,
     @required String roomId,
@@ -330,7 +357,7 @@ class Rooms {
       roomId: roomId.toString(),
       eventId: eventId.toString(),
       txnId: transactionId,
-      reason: json.encode({'reason': reason}),
+      reason: reason,
     );
 
     response.throwIfNeeded();

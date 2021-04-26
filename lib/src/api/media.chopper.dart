@@ -57,4 +57,3 @@ class _$MediaService extends MediaService {
     return client.send<Stream<List<int>>, int>($request);
   }
 }
-// ignore_for_file: avoid_catches_without_on_clauses,type_annotate_public_apis,lines_longer_than_80_chars,avoid_equals_and_hash_code_on_mutable_classes
