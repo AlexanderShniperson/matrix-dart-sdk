@@ -327,7 +327,7 @@ class Rooms {
     String transactionId,
   }) async {
     final body = {
-      'body': ' * $newContent',
+      'body': '${Homeserver.editedEventPrefix}$newContent',
       'msgtype': 'm.text',
       'm.new_content': {'body': newContent, 'msgtype': 'm.text'},
       'm.relates_to': {'event_id': event.id.value, 'rel_type': 'm.replace'}
