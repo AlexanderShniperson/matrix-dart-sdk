@@ -147,12 +147,12 @@ class _$ClientService extends ClientService {
       String roomId,
       String eventId,
       String txnId,
-      String reason}) {
+      String content}) {
     final $url = '/_matrix/client/r0/rooms/$roomId/redact/$eventId/$txnId';
-    final $params = <String, dynamic>{'reason': reason};
     final $headers = {'Authorization': authorization};
-    final $request = Request('PUT', $url, client.baseUrl,
-        parameters: $params, headers: $headers);
+    final $body = content;
+    final $request =
+        Request('PUT', $url, client.baseUrl, body: $body, headers: $headers);
     return client.send<dynamic, dynamic>($request);
   }
 

@@ -97,7 +97,7 @@ abstract class ClientService extends ChopperService {
     @Path('roomId') @required String roomId,
     @Path('eventId') @required String eventId,
     @Path('txnId') @required String txnId,
-    @Query('reason') @required String reason,
+    @Body() @required String content,
   });
 
   @Put(path: 'rooms/{roomId}/state/{eventType}/{stateKey}')
