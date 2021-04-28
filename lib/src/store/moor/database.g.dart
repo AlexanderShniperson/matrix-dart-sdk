@@ -84,6 +84,34 @@ class MyUserRecord extends DataClass implements Insertable<MyUserRecord> {
     return map;
   }
 
+  MyUsersCompanion toCompanion(bool nullToAbsent) {
+    return MyUsersCompanion(
+      homeserver: homeserver == null && nullToAbsent
+          ? const Value.absent()
+          : Value(homeserver),
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      avatarUrl: avatarUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(avatarUrl),
+      accessToken: accessToken == null && nullToAbsent
+          ? const Value.absent()
+          : Value(accessToken),
+      syncToken: syncToken == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncToken),
+      currentDeviceId: currentDeviceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(currentDeviceId),
+      hasSynced: hasSynced == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hasSynced),
+      isLoggedOut: isLoggedOut == null && nullToAbsent
+          ? const Value.absent()
+          : Value(isLoggedOut),
+    );
+  }
+
   factory MyUserRecord.fromJson(Map<String, dynamic> json,
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
@@ -294,6 +322,22 @@ class MyUsersCompanion extends UpdateCompanion<MyUserRecord> {
       map['is_logged_out'] = Variable<bool>(isLoggedOut.value);
     }
     return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MyUsersCompanion(')
+          ..write('homeserver: $homeserver, ')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('avatarUrl: $avatarUrl, ')
+          ..write('accessToken: $accessToken, ')
+          ..write('syncToken: $syncToken, ')
+          ..write('currentDeviceId: $currentDeviceId, ')
+          ..write('hasSynced: $hasSynced, ')
+          ..write('isLoggedOut: $isLoggedOut')
+          ..write(')'))
+        .toString();
   }
 }
 
@@ -637,6 +681,66 @@ class RoomRecord extends DataClass implements Insertable<RoomRecord> {
       map['direct_user_id'] = Variable<String>(directUserId);
     }
     return map;
+  }
+
+  RoomsCompanion toCompanion(bool nullToAbsent) {
+    return RoomsCompanion(
+      myMembership: myMembership == null && nullToAbsent
+          ? const Value.absent()
+          : Value(myMembership),
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      timelinePreviousBatch: timelinePreviousBatch == null && nullToAbsent
+          ? const Value.absent()
+          : Value(timelinePreviousBatch),
+      timelinePreviousBatchSetBySync:
+          timelinePreviousBatchSetBySync == null && nullToAbsent
+              ? const Value.absent()
+              : Value(timelinePreviousBatchSetBySync),
+      summaryJoinedMembersCount:
+          summaryJoinedMembersCount == null && nullToAbsent
+              ? const Value.absent()
+              : Value(summaryJoinedMembersCount),
+      summaryInvitedMembersCount:
+          summaryInvitedMembersCount == null && nullToAbsent
+              ? const Value.absent()
+              : Value(summaryInvitedMembersCount),
+      nameChangeEventId: nameChangeEventId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nameChangeEventId),
+      avatarChangeEventId: avatarChangeEventId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(avatarChangeEventId),
+      topicChangeEventId: topicChangeEventId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(topicChangeEventId),
+      powerLevelsChangeEventId: powerLevelsChangeEventId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(powerLevelsChangeEventId),
+      joinRulesChangeEventId: joinRulesChangeEventId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(joinRulesChangeEventId),
+      canonicalAliasChangeEventId:
+          canonicalAliasChangeEventId == null && nullToAbsent
+              ? const Value.absent()
+              : Value(canonicalAliasChangeEventId),
+      creationEventId: creationEventId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(creationEventId),
+      upgradeEventId: upgradeEventId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(upgradeEventId),
+      highlightedUnreadNotificationCount:
+          highlightedUnreadNotificationCount == null && nullToAbsent
+              ? const Value.absent()
+              : Value(highlightedUnreadNotificationCount),
+      totalUnreadNotificationCount:
+          totalUnreadNotificationCount == null && nullToAbsent
+              ? const Value.absent()
+              : Value(totalUnreadNotificationCount),
+      directUserId: directUserId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(directUserId),
+    );
   }
 
   factory RoomRecord.fromJson(Map<String, dynamic> json,
@@ -1066,6 +1170,33 @@ class RoomsCompanion extends UpdateCompanion<RoomRecord> {
       map['direct_user_id'] = Variable<String>(directUserId.value);
     }
     return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RoomsCompanion(')
+          ..write('myMembership: $myMembership, ')
+          ..write('id: $id, ')
+          ..write('timelinePreviousBatch: $timelinePreviousBatch, ')
+          ..write(
+              'timelinePreviousBatchSetBySync: $timelinePreviousBatchSetBySync, ')
+          ..write('summaryJoinedMembersCount: $summaryJoinedMembersCount, ')
+          ..write('summaryInvitedMembersCount: $summaryInvitedMembersCount, ')
+          ..write('nameChangeEventId: $nameChangeEventId, ')
+          ..write('avatarChangeEventId: $avatarChangeEventId, ')
+          ..write('topicChangeEventId: $topicChangeEventId, ')
+          ..write('powerLevelsChangeEventId: $powerLevelsChangeEventId, ')
+          ..write('joinRulesChangeEventId: $joinRulesChangeEventId, ')
+          ..write('canonicalAliasChangeEventId: $canonicalAliasChangeEventId, ')
+          ..write('creationEventId: $creationEventId, ')
+          ..write('upgradeEventId: $upgradeEventId, ')
+          ..write(
+              'highlightedUnreadNotificationCount: $highlightedUnreadNotificationCount, ')
+          ..write(
+              'totalUnreadNotificationCount: $totalUnreadNotificationCount, ')
+          ..write('directUserId: $directUserId')
+          ..write(')'))
+        .toString();
   }
 }
 
@@ -1545,6 +1676,40 @@ class RoomEventRecord extends DataClass implements Insertable<RoomEventRecord> {
     return map;
   }
 
+  RoomEventsCompanion toCompanion(bool nullToAbsent) {
+    return RoomEventsCompanion(
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      type: type == null && nullToAbsent ? const Value.absent() : Value(type),
+      roomId:
+          roomId == null && nullToAbsent ? const Value.absent() : Value(roomId),
+      senderId: senderId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(senderId),
+      time: time == null && nullToAbsent ? const Value.absent() : Value(time),
+      content: content == null && nullToAbsent
+          ? const Value.absent()
+          : Value(content),
+      previousContent: previousContent == null && nullToAbsent
+          ? const Value.absent()
+          : Value(previousContent),
+      sentState: sentState == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sentState),
+      transactionId: transactionId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(transactionId),
+      stateKey: stateKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(stateKey),
+      redacts: redacts == null && nullToAbsent
+          ? const Value.absent()
+          : Value(redacts),
+      inTimeline: inTimeline == null && nullToAbsent
+          ? const Value.absent()
+          : Value(inTimeline),
+    );
+  }
+
   factory RoomEventRecord.fromJson(Map<String, dynamic> json,
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
@@ -1813,6 +1978,25 @@ class RoomEventsCompanion extends UpdateCompanion<RoomEventRecord> {
       map['in_timeline'] = Variable<bool>(inTimeline.value);
     }
     return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RoomEventsCompanion(')
+          ..write('id: $id, ')
+          ..write('type: $type, ')
+          ..write('roomId: $roomId, ')
+          ..write('senderId: $senderId, ')
+          ..write('time: $time, ')
+          ..write('content: $content, ')
+          ..write('previousContent: $previousContent, ')
+          ..write('sentState: $sentState, ')
+          ..write('transactionId: $transactionId, ')
+          ..write('stateKey: $stateKey, ')
+          ..write('redacts: $redacts, ')
+          ..write('inTimeline: $inTimeline')
+          ..write(')'))
+        .toString();
   }
 }
 
@@ -2107,6 +2291,17 @@ class EphemeralEventRecord extends DataClass
     return map;
   }
 
+  EphemeralEventsCompanion toCompanion(bool nullToAbsent) {
+    return EphemeralEventsCompanion(
+      type: type == null && nullToAbsent ? const Value.absent() : Value(type),
+      roomId:
+          roomId == null && nullToAbsent ? const Value.absent() : Value(roomId),
+      content: content == null && nullToAbsent
+          ? const Value.absent()
+          : Value(content),
+    );
+  }
+
   factory EphemeralEventRecord.fromJson(Map<String, dynamic> json,
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
@@ -2203,6 +2398,16 @@ class EphemeralEventsCompanion extends UpdateCompanion<EphemeralEventRecord> {
       map['content'] = Variable<String>(content.value);
     }
     return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EphemeralEventsCompanion(')
+          ..write('type: $type, ')
+          ..write('roomId: $roomId, ')
+          ..write('content: $content')
+          ..write(')'))
+        .toString();
   }
 }
 
@@ -2338,6 +2543,21 @@ class DeviceRecord extends DataClass implements Insertable<DeviceRecord> {
       map['last_ip_address'] = Variable<String>(lastIpAddress);
     }
     return map;
+  }
+
+  DevicesCompanion toCompanion(bool nullToAbsent) {
+    return DevicesCompanion(
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      userId:
+          userId == null && nullToAbsent ? const Value.absent() : Value(userId),
+      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      lastSeen: lastSeen == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSeen),
+      lastIpAddress: lastIpAddress == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastIpAddress),
+    );
   }
 
   factory DeviceRecord.fromJson(Map<String, dynamic> json,
@@ -2477,6 +2697,18 @@ class DevicesCompanion extends UpdateCompanion<DeviceRecord> {
       map['last_ip_address'] = Variable<String>(lastIpAddress.value);
     }
     return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DevicesCompanion(')
+          ..write('id: $id, ')
+          ..write('userId: $userId, ')
+          ..write('name: $name, ')
+          ..write('lastSeen: $lastSeen, ')
+          ..write('lastIpAddress: $lastIpAddress')
+          ..write(')'))
+        .toString();
   }
 }
 
@@ -2622,4 +2854,3 @@ abstract class _$Database extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities =>
       [myUsers, rooms, roomEvents, ephemeralEvents, devices];
 }
-// ignore_for_file: avoid_catches_without_on_clauses,type_annotate_public_apis,lines_longer_than_80_chars,avoid_equals_and_hash_code_on_mutable_classes

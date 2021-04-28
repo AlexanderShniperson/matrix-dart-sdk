@@ -542,6 +542,14 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
         type: type,
       );
 
+  Future<RequestUpdate<Timeline>> edit(
+      TextMessageEvent event,
+      String newContent, {
+        String transactionId,
+      }) =>
+      context.updater
+          .edit(id, event, newContent, transactionId: transactionId);
+
   Future<RequestUpdate<Timeline>> delete(
     EventId eventId, {
     String transactionId,
