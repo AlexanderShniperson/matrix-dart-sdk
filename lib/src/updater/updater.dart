@@ -323,23 +323,18 @@ class Updater {
         event: event,
         newContent: newContent);
 
-    final relevantUpdate =
-        /*await updates.firstWhere(
-            (update) => update.delta.rooms[roomId]?.timeline?.toList()?.any(
-                (element) =>
-            element is RedactionEvent && element.redacts == eventId),
-        orElse: () => null) ??*/
+    final relevantUpdate = await updates.firstWhere(
+            (update) => update.delta.rooms[roomId] != null,
+            orElse: () => null) ??
         await updates.first;
 
     return _update(
       relevantUpdate.delta,
-      (user, delta) => RequestUpdate(
-        user,
-        delta,
-        data: user.rooms[roomId].timeline,
-        deltaData: delta.rooms[roomId].timeline,
-        type: RequestType.sendRoomEvent,
-      ),
+      (user, delta) => RequestUpdate(user, delta,
+          data: user.rooms[roomId].timeline,
+          deltaData: delta.rooms[roomId].timeline,
+          type: RequestType.sendRoomEvent,
+          basedOnUpdate: true),
     );
   }
 
@@ -374,13 +369,11 @@ class Updater {
 
     return _update(
       relevantUpdate.delta,
-      (user, delta) => RequestUpdate(
-        user,
-        delta,
-        data: user.rooms[roomId].timeline,
-        deltaData: delta.rooms[roomId].timeline,
-        type: RequestType.sendRoomEvent,
-      ),
+      (user, delta) => RequestUpdate(user, delta,
+          data: user.rooms[roomId].timeline,
+          deltaData: delta.rooms[roomId].timeline,
+          type: RequestType.sendRoomEvent,
+          basedOnUpdate: true),
     );
   }
 
