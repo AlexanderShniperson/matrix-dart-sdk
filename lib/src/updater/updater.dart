@@ -332,11 +332,52 @@ class Updater {
     );
   }
 
+  Future<RequestUpdate<Timeline>?> edit(
+    RoomId roomId,
+    TextMessageEvent event,
+    String newContent, {
+    String? transactionId,
+  }) async {
+    final currentRoom =
+        _user.rooms?.firstWhereOrNull((element) => element.id == roomId);
+
+    if (currentRoom == null) {
+      throw ArgumentError('Room not found in users list');
+    }
+
+    transactionId ??= randomString();
+
+    await homeserver.api.rooms.edit(
+      accessToken: _user.accessToken ?? "",
+      roomId: roomId.value,
+      transactionId: transactionId,
+      event: event,
+      newContent: newContent,
+    );
+
+    final relevantUpdate = await updates.cast<Update?>().firstWhere(
+            (update) => update?.delta.rooms?[roomId] != null,
+            orElse: () => null) ??
+        await updates.first;
+
+    return _update(
+      relevantUpdate.delta,
+      (user, delta) => RequestUpdate(
+        user,
+        delta,
+        data: user.rooms?[roomId]?.timeline,
+        deltaData: delta.rooms?[roomId]?.timeline,
+        type: RequestType.sendRoomEvent,
+        basedOnUpdate: true,
+      ),
+    );
+  }
+
   Future<RequestUpdate<Timeline>?> delete(
     RoomId roomId,
     EventId eventId, {
     String? transactionId,
-    String reason = 'Deleted by author',
+    String? reason,
   }) async {
     final currentRoom =
         _user.rooms?.firstWhereOrNull((element) => element.id == roomId);
@@ -373,6 +414,7 @@ class Updater {
         data: user.rooms?[roomId]?.timeline,
         deltaData: delta.rooms?[roomId]?.timeline,
         type: RequestType.sendRoomEvent,
+        basedOnUpdate: true,
       ),
     );
   }

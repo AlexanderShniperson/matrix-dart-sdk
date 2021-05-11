@@ -30,6 +30,9 @@ import 'util/mxc_url.dart';
 /// of the SDK.
 @immutable
 class Homeserver {
+
+  static const String editedEventPrefix = ' * ';
+
   final Uri url;
   final Uri? wellKnownUrl;
 

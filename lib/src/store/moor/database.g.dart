@@ -1825,7 +1825,7 @@ class RoomEventsCompanion extends UpdateCompanion<RoomEventRecord> {
     this.stateKey = const Value.absent(),
     this.redacts = const Value.absent(),
     required bool inTimeline,
-  })   : id = Value(id),
+  })  : id = Value(id),
         type = Value(type),
         roomId = Value(roomId),
         senderId = Value(senderId),

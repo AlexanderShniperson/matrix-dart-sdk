@@ -160,18 +160,35 @@ class _$ClientService extends ClientService {
   }
 
   @override
+  Future<Response<dynamic>> edit(
+      {required String authorization,
+      required String roomId,
+      required String txnId,
+      required String content}) {
+    final $url = '/_matrix/client/r0/rooms/$roomId/send/m.room.message/$txnId';
+    final $headers = {
+      'Authorization': authorization,
+    };
+
+    final $body = content;
+    final $request =
+        Request('PUT', $url, client.baseUrl, body: $body, headers: $headers);
+    return client.send<dynamic, dynamic>($request);
+  }
+
+  @override
   Future<Response<dynamic>> redact(
       {required String authorization,
       required String roomId,
       required String eventId,
       required String txnId,
-      required String reason}) {
+      required String content}) {
     final $url = '/_matrix/client/r0/rooms/$roomId/send/$eventId/$txnId';
     final $headers = {
       'Authorization': authorization,
     };
 
-    final $body = reason;
+    final $body = content;
     final $request =
         Request('PUT', $url, client.baseUrl, body: $body, headers: $headers);
     return client.send<dynamic, dynamic>($request);

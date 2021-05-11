@@ -80,13 +80,21 @@ abstract class ClientService extends ChopperService {
     @Body() required String content,
   });
 
+  @Put(path: 'rooms/{roomId}/send/m.room.message/{txnId}')
+  Future<Response> edit({
+    @Header('Authorization') required String authorization,
+    @Path('roomId') required String roomId,
+    @Path('txnId') required String txnId,
+    @Body() required String content,
+  });
+
   @Put(path: 'rooms/{roomId}/send/{eventId}/{txnId}')
   Future<Response> redact({
     @Header('Authorization') required String authorization,
     @Path('roomId') required String roomId,
     @Path('eventId') required String eventId,
     @Path('txnId') required String txnId,
-    @Body() required String reason,
+    @Body() required String content,
   });
 
   @Put(path: 'rooms/{roomId}/state/{eventType}/{stateKey}')

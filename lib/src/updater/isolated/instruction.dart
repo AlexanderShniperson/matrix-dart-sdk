@@ -4,6 +4,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import 'package:matrix_sdk/src/event/room/message_event.dart';
+
 import '../../context.dart';
 import '../../event/ephemeral/ephemeral.dart';
 import 'package:meta/meta.dart';
@@ -103,11 +105,28 @@ class SendInstruction extends RequestInstruction<Timeline> {
   );
 }
 
+class EditTextEventInstruction extends RequestInstruction<Timeline> {
+  final RoomId roomId;
+  final TextMessageEvent event;
+  final String? transactionId;
+  final String newContent;
+
+  EditTextEventInstruction(
+    this.roomId,
+    this.event,
+    this.newContent,
+    this.transactionId,
+  );
+
+  @override
+  final bool basedOnUpdate = true;
+}
+
 class DeleteEventInstruction extends RequestInstruction<Timeline> {
   final RoomId roomId;
   final EventId eventId;
   final String? transactionId;
-  final String reason;
+  final String? reason;
 
   DeleteEventInstruction(
     this.roomId,

@@ -7,6 +7,7 @@
 import 'dart:async';
 import 'dart:isolate';
 
+import 'package:matrix_sdk/src/event/room/message_event.dart';
 import 'package:meta/meta.dart';
 
 import '../../context.dart';
@@ -264,11 +265,26 @@ class IsolatedUpdater implements Updater {
       _execute(SetPusherInstruction(pusher));
 
   @override
+  Future<RequestUpdate<Timeline>?> edit(
+    RoomId roomId,
+    TextMessageEvent event,
+    String newContent, {
+    String? transactionId,
+  }) async {
+    return _execute(EditTextEventInstruction(
+      roomId,
+      event,
+      newContent,
+      transactionId,
+    ));
+  }
+
+  @override
   Future<RequestUpdate<Timeline>?> delete(
     RoomId roomId,
     EventId eventId, {
     String? transactionId,
-    String reason = 'Deleted by author',
+    String? reason,
   }) async {
     return _execute(
         DeleteEventInstruction(roomId, eventId, transactionId, reason));

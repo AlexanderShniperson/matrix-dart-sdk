@@ -57,6 +57,8 @@ abstract class MessageEventContent extends EventContent {
 
   EventId? get inReplyToId;
 
+  EventId? get inReplacementToId;
+
   MessageEventContent();
 
   static MessageEventContent? fromJson(Map<String, dynamic>? content) {
@@ -71,6 +73,18 @@ abstract class MessageEventContent extends EventContent {
         content['m.relates_to']?.containsKey('m.in_reply_to') == true) {
       final repliesTo = content['m.relates_to']['m.in_reply_to']['event_id'];
       inReplyTo = EventId(repliesTo);
+    }
+
+    EventId? inReplacementToId;
+    if (content.containsKey('m.relates_to') &&
+        content['m.relates_to'] is Map<String, dynamic>) {
+      final Map<String, dynamic> infoMap = content['m.relates_to'];
+
+      if (infoMap.containsKey('rel_type') &&
+          infoMap['rel_type'] == 'm.replace') {
+        final replacement = infoMap['event_id'];
+        inReplacementToId = EventId(replacement);
+      }
     }
 
     switch (msgtype) {
@@ -105,6 +119,7 @@ abstract class MessageEventContent extends EventContent {
           url: url,
           info: info,
           inReplyToId: inReplyTo,
+          inReplacementToId: inReplacementToId,
         );
       case AudioMessage.matrixMessageType:
         final body = content['body'];
@@ -131,6 +146,7 @@ abstract class MessageEventContent extends EventContent {
           url: url,
           info: info,
           inReplyToId: inReplyTo,
+          inReplacementToId: inReplacementToId,
         );
       case VideoMessage.matrixMessageType:
         return VideoMessage.fromJson(content);
@@ -147,6 +163,7 @@ abstract class MessageEventContent extends EventContent {
             format: format,
             formattedBody: formattedBody,
             inReplyToId: inReplyTo,
+            inReplacementToId: inReplacementToId,
           );
         } else {
           return TextMessage(
@@ -154,6 +171,7 @@ abstract class MessageEventContent extends EventContent {
             format: format,
             formattedBody: formattedBody,
             inReplyToId: inReplyTo,
+            inReplacementToId: inReplacementToId,
           );
         }
     }
@@ -172,14 +190,23 @@ abstract class MessageEventContent extends EventContent {
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{'msgtype': type};
 
+    Map<String, dynamic> relates = {};
+
     if (inReplyToId != null) {
-      json.addAll({
-        'm.relates_to': {
-          'm.in_reply_to': {
-            'event_id': inReplyToId.toString(),
-          }
+      relates.addAll({
+        'm.in_reply_to': {
+          'event_id': inReplyToId.toString(),
         }
       });
+    }
+
+    if (inReplacementToId != null) {
+      relates.addAll(
+          {'event_id': inReplacementToId.toString(), 'rel_type': 'm.replace'});
+    }
+
+    if (relates.isNotEmpty) {
+      json['m.relates_to'] = relates;
     }
 
     return json;
@@ -199,11 +226,15 @@ class TextMessage extends MessageEventContent {
   @override
   final EventId? inReplyToId;
 
+  @override
+  final EventId? inReplacementToId;
+
   TextMessage({
     required this.body,
     this.format,
     this.formattedBody,
     this.inReplyToId,
+    this.inReplacementToId,
   });
 
   @override
@@ -242,11 +273,13 @@ class EmoteMessage extends TextMessage {
     String? format,
     String? formattedBody,
     EventId? inReplyToId,
+    EventId? inReplacementToId,
   }) : super(
           body: body,
           format: format,
           formattedBody: formattedBody,
           inReplyToId: inReplyToId,
+          inReplacementToId: inReplacementToId,
         );
 }
 
@@ -273,11 +306,15 @@ class ImageMessage extends MessageEventContent {
   @override
   final EventId? inReplyToId;
 
+  @override
+  final EventId? inReplacementToId;
+
   ImageMessage({
     required this.body,
     this.url,
     this.info,
     this.inReplyToId,
+    this.inReplacementToId,
   });
 
   @override
@@ -345,11 +382,15 @@ class VideoMessage extends MessageEventContent {
   @override
   final EventId? inReplyToId;
 
+  @override
+  final EventId? inReplacementToId;
+
   VideoMessage({
     required this.body,
     this.url,
     this.info,
     this.inReplyToId,
+    this.inReplacementToId,
   });
 
   static VideoMessage? fromJson(
@@ -529,6 +570,9 @@ class AudioMessage extends MessageEventContent {
   @override
   final String type = matrixMessageType;
 
+  @override
+  final EventId? inReplacementToId;
+
   final String body;
   final Uri? url;
   final AudioInfo? info;
@@ -541,6 +585,7 @@ class AudioMessage extends MessageEventContent {
     this.url,
     this.info,
     this.inReplyToId,
+    this.inReplacementToId,
   });
 
   @override
