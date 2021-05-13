@@ -59,9 +59,9 @@ class Ephemeral extends DelegatingIterable<EphemeralEvent>
 
   bool containsType<T extends EphemeralEvent>() => any((e) => e is T);
 
-  ReceiptEvent? get receiptEvent => this as ReceiptEvent;
+  ReceiptEvent? get receiptEvent => this is ReceiptEvent ? (this as ReceiptEvent) : null;
 
-  TypingEvent? get typingEvent => this as TypingEvent;
+  TypingEvent? get typingEvent => this is TypingEvent ? (this as TypingEvent) : null;
 
   Ephemeral copyWith({
     Iterable<EphemeralEvent>? events,
