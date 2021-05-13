@@ -362,7 +362,7 @@ class Rooms {
       roomId: roomId.toString(),
       eventId: eventId.toString(),
       txnId: transactionId,
-      content: json.encode({'reason': reason ?? 'Deleted by author'}),
+      content: json.encode({'reason': (reason ?? "").isEmpty ? 'Deleted by author' : reason}),
     );
 
     response.throwIfNeeded();

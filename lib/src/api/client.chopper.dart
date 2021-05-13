@@ -183,7 +183,7 @@ class _$ClientService extends ClientService {
       required String eventId,
       required String txnId,
       required String content}) {
-    final $url = '/_matrix/client/r0/rooms/$roomId/send/$eventId/$txnId';
+    final $url = '/_matrix/client/r0/rooms/$roomId/redact/$eventId/$txnId';
     final $headers = {
       'Authorization': authorization,
     };

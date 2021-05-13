@@ -88,7 +88,7 @@ abstract class ClientService extends ChopperService {
     @Body() required String content,
   });
 
-  @Put(path: 'rooms/{roomId}/send/{eventId}/{txnId}')
+  @Put(path: 'rooms/{roomId}/redact/{eventId}/{txnId}')
   Future<Response> redact({
     @Header('Authorization') required String authorization,
     @Path('roomId') required String roomId,
