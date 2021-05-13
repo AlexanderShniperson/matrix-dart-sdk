@@ -78,6 +78,10 @@ abstract class RoomEvent extends Event with Identifiable<EventId> {
   static RoomEvent? fromJson(Map<String, dynamic> json, {RoomId? roomId}) {
     final type = Event.typeOf(json['type']);
 
+    if (!json.containsKey('event_id') || json["event_id"] == null) {
+      return null;
+    }
+
     final args = RoomEventArgs.fromJson(json).copyWith(
       roomId: roomId,
     );
