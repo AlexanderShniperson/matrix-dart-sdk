@@ -150,7 +150,6 @@ class IsolatedUpdater implements Updater {
 
       return await stream.firstWhere(
         (event) => event is T?,
-        orElse: () => null,
       ) as T?;
     }
 
