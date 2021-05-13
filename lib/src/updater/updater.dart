@@ -447,15 +447,19 @@ class Updater {
       read: receipt ? until.toString() : null,
     );
 
-    final relevantUpdate = receipt
-        ? await updates.firstWhere(
-            (update) =>
-                update.delta.rooms?[roomId]?.readReceipts.any(
-                  (receipt) => receipt.eventId == until,
-                ) ??
-                false,
-          )
-        : await updates.first;
+    final relevantUpdate = await updates.first;
+
+    //TODO: firstWhere doesn't work good with streams :(
+    //Would be great to return this code in future, but let's remove it for now
+//    final relevantUpdate = receipt
+//        ? await updates.firstWhere(
+//          (update) =>
+//      update.delta.rooms?[roomId]?.readReceipts.any(
+//            (receipt) => receipt.eventId == until,
+//      ) ??
+//          false,
+//    )
+//        : await updates.first;
 
     return RequestUpdate.fromUpdate(
       relevantUpdate,
