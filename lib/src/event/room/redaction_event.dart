@@ -71,7 +71,7 @@ class Redaction extends EventContent {
 
     String reason = '';
     if (content.containsKey('reason')) {
-      reason = content['reason'];
+      reason = content['reason'] ?? '';
     }
 
     return Redaction(reason: reason);

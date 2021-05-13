@@ -120,7 +120,7 @@ class MemberChangeEvent extends StateEvent {
 class MemberChange extends EventContent {
   final bool isDirect;
 
-  final String displayName;
+  final String? displayName;
   final Uri? avatarUrl;
 
   final Membership membership;

@@ -153,7 +153,7 @@ abstract class MessageEventContent extends EventContent {
       case TextMessage.matrixMessageType:
       case EmoteMessage.matrixMessageType:
       default:
-        final body = content['body'];
+        final body = content['body'] ?? '';
         final formattedBody = content['formatted_body'];
         final format = content['format'];
 

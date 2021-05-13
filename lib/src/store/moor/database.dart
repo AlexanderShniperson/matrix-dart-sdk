@@ -213,14 +213,15 @@ class Database extends _$Database {
         .map(
           (r) => RoomRecordWithStateRecords(
             roomRecord: r.readTable(rooms),
-            nameChangeRecord: r.readTable(nameChangeAlias),
-            avatarChangeRecord: r.readTable(avatarChangeAlias),
-            topicChangeRecord: r.readTable(topicChangeAlias),
-            powerLevelsChangeRecord: r.readTable(powerLevelsChangeAlias),
-            joinRulesChangeRecord: r.readTable(joinRulesChangeAlias),
-            canonicalAliasChangeRecord: r.readTable(canonicalAliasChangeAlias),
-            creationRecord: r.readTable(creationAlias),
-            upgradeRecord: r.readTable(upgradeAlias),
+            nameChangeRecord: r.readTableOrNull(nameChangeAlias),
+            avatarChangeRecord: r.readTableOrNull(avatarChangeAlias),
+            topicChangeRecord: r.readTableOrNull(topicChangeAlias),
+            powerLevelsChangeRecord: r.readTableOrNull(powerLevelsChangeAlias),
+            joinRulesChangeRecord: r.readTableOrNull(joinRulesChangeAlias),
+            canonicalAliasChangeRecord:
+                r.readTableOrNull(canonicalAliasChangeAlias),
+            creationRecord: r.readTableOrNull(creationAlias),
+            upgradeRecord: r.readTableOrNull(upgradeAlias),
           ),
         )
         .get();
@@ -369,14 +370,14 @@ class MyUserRecordWithDeviceRecord {
 class RoomRecordWithStateRecords {
   final RoomRecord roomRecord;
 
-  final RoomEventRecord nameChangeRecord;
-  final RoomEventRecord avatarChangeRecord;
-  final RoomEventRecord topicChangeRecord;
-  final RoomEventRecord powerLevelsChangeRecord;
-  final RoomEventRecord joinRulesChangeRecord;
-  final RoomEventRecord canonicalAliasChangeRecord;
-  final RoomEventRecord creationRecord;
-  final RoomEventRecord upgradeRecord;
+  final RoomEventRecord? nameChangeRecord;
+  final RoomEventRecord? avatarChangeRecord;
+  final RoomEventRecord? topicChangeRecord;
+  final RoomEventRecord? powerLevelsChangeRecord;
+  final RoomEventRecord? joinRulesChangeRecord;
+  final RoomEventRecord? canonicalAliasChangeRecord;
+  final RoomEventRecord? creationRecord;
+  final RoomEventRecord? upgradeRecord;
 
   RoomRecordWithStateRecords({
     required this.roomRecord,
