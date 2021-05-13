@@ -142,8 +142,8 @@ class Timeline extends DelegatingIterable<RoomEvent>
     return Timeline(
       events ?? [],
       context: context,
-      previousBatch: previousBatch!,
-      previousBatchSetBySync: previousBatchSetBySync!,
+      previousBatch: previousBatch,
+      previousBatchSetBySync: previousBatchSetBySync,
     );
   }
 
