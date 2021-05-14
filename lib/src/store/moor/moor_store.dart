@@ -139,7 +139,7 @@ class MoorStore extends Store {
         homeserver: myUser.context?.homeServer != null
             ? Value(myUser.context?.homeServer?.url.toString())
             : Value.absent(),
-        id: myUser.id.value.isEmpty
+        id: myUser.id.value.isNotEmpty
             ? Value(myUser.id.toString())
             : Value.absent(),
         name: Value(myUser.name),
