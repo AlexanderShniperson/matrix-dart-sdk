@@ -138,7 +138,7 @@ class Database extends _$Database {
             deviceRecord: r.readTable(devices),
           ),
         )
-        .getSingle();
+        .getSingleOrNull();
   }
 
   Future<void> setMyUser(MyUsersCompanion companion) async {
