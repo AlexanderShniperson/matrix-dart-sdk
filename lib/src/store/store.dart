@@ -40,7 +40,7 @@ abstract class Store {
   /// The [storeLocation] is required because the [Updater] will recreate
   /// the store.
   Future<MyUser?> getMyUser({
-    required Iterable<RoomId> roomIds,
+    Iterable<RoomId>? roomIds,
     int timelineLimit = 15,
     bool isolated = false,
     required StoreLocation storeLocation,

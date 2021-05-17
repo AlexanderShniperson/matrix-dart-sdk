@@ -94,7 +94,7 @@ class MyUser extends MatrixUser implements Contextual<MyUser> {
   /// different [Isolate].
   static Future<MyUser?> fromStore(
     StoreLocation storeLocation, {
-    Iterable<RoomId> roomIds = const [],
+    Iterable<RoomId>? roomIds,
     int timelineLimit = 15,
     bool isolated = false,
   }) async {

@@ -78,7 +78,7 @@ class MoorStore extends Store {
   /// the user's updates.
   @override
   Future<MyUser?> getMyUser({
-    required Iterable<RoomId> roomIds,
+    Iterable<RoomId>? roomIds,
     int timelineLimit = 15,
     bool isolated = false,
     required StoreLocation storeLocation,
