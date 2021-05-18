@@ -29,6 +29,9 @@ extension MatrixUrl on Uri {
 }
 
 Uri? tryParseMxcUrl(String? input) {
+  if (input == null) {
+    return null;
+  }
   return input.let((it) {
     final uri = Uri.tryParse(it);
     return uri?.isMxc == true ? uri! : null;
