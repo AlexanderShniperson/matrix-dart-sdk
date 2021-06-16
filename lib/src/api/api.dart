@@ -46,8 +46,8 @@ class Api {
           baseUrl: url.toString(),
           services: [ClientService.create(), MediaService.create()],
         ) {
-    _clientService = _chopper.getService();
-    _mediaService = _chopper.getService();
+    _clientService = _chopper.getService<ClientService>();
+    _mediaService = _chopper.getService<MediaService>();
 
     _media = Media._(_mediaService);
     _profile = Profile._(_clientService);
@@ -362,7 +362,9 @@ class Rooms {
       roomId: roomId.toString(),
       eventId: eventId.toString(),
       txnId: transactionId,
-      content: json.encode({'reason': (reason ?? "").isEmpty ? 'Deleted by author' : reason}),
+      content: json.encode({
+        'reason': (reason ?? "").isEmpty ? 'Deleted by author' : reason,
+      }),
     );
 
     response.throwIfNeeded();
@@ -499,6 +501,19 @@ extension on Response {
       return;
     }
 
-    throw MatrixException.fromJson(json.decode(error?.toString() ?? "{}"));
+    late MatrixException errorResult;
+
+    try {
+      final errorMap = json.decode(error.toString());
+      errorResult = MatrixException.fromJson(errorMap);
+    } catch (error) {
+      errorResult = MatrixException.fromJson({
+        "errcode": "HTTP_ERROR",
+        "error": bodyString,
+        "status_code": statusCode,
+      });
+    }
+
+    throw errorResult;
   }
 }
