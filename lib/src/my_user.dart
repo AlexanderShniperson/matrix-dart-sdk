@@ -278,8 +278,12 @@ class MyUser extends MatrixUser implements Contextual<MyUser> {
 
   void startSync({
     Duration maxRetryAfter = const Duration(seconds: 30),
+    int timelineLimit = 30,
   }) {
-    context?.updater?.syncer.start(maxRetryAfter: maxRetryAfter);
+    context?.updater?.syncer.start(
+      maxRetryAfter: maxRetryAfter,
+      timelineLimit: timelineLimit,
+    );
   }
 
   Future<void> stopSync() {

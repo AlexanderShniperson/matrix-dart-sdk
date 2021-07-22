@@ -5,6 +5,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:isolate';
 
 import 'package:matrix_sdk/src/event/room/message_event.dart';
@@ -301,9 +302,12 @@ class IsolatedSyncer implements Syncer {
   bool get isSyncing => _isSyncing;
 
   @override
-  void start({Duration maxRetryAfter = const Duration(seconds: 30)}) {
+  void start({
+    Duration maxRetryAfter = const Duration(seconds: 30),
+    int timelineLimit = 30,
+  }) {
     _updater._execute(
-      StartSyncInstruction(maxRetryAfter),
+      StartSyncInstruction(maxRetryAfter, timelineLimit),
     );
     _isSyncing = true;
   }

@@ -31,8 +31,12 @@ class StartSyncInstruction extends Instruction<void> {
   bool get expectsReturnValue => false;
 
   final Duration maxRetryAfter;
+  final int timelineLimit;
 
-  StartSyncInstruction(this.maxRetryAfter);
+  StartSyncInstruction(
+    this.maxRetryAfter,
+    this.timelineLimit,
+  );
 }
 
 class StopSyncInstruction extends Instruction<void> {}

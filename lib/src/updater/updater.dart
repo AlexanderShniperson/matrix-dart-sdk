@@ -999,18 +999,27 @@ class Syncer {
   /// Syncs data with the user's [_homeserver].
   void start({
     Duration maxRetryAfter = const Duration(seconds: 30),
+    int timelineLimit = 30,
   }) {
     if (_user.isLoggedOut ?? false) {
       throw StateError('The user can not be logged out');
     }
 
-    _syncFuture = _startSync(maxRetryAfter: maxRetryAfter);
+    if (_syncFuture != null) {
+      return;
+    }
+
+    _syncFuture = _startSync(
+      maxRetryAfter: maxRetryAfter,
+      timelineLimit: timelineLimit,
+    );
   }
 
   bool _shouldStopSync = false;
 
   Future<void> _startSync({
     Duration maxRetryAfter = const Duration(seconds: 30),
+    int timelineLimit = 30,
   }) async {
     _shouldStopSync = false;
     _isSyncing = true;
@@ -1022,6 +1031,7 @@ class Syncer {
     while (!_shouldStopSync) {
       final body = await _sync(
         timeout: Duration(seconds: 10),
+        timelineLimit: timelineLimit,
       );
 
       if (_shouldStopSync) {
@@ -1050,6 +1060,7 @@ class Syncer {
 
   Future<Map<String, dynamic>?> _sync({
     timeout = Duration.zero,
+    int timelineLimit = 30,
     bool fullState = false,
   }) async {
     if (_user.isLoggedOut ?? false) {
@@ -1072,7 +1083,7 @@ class Syncer {
                 'lazy_load_members': true,
               },
               'timeline': {
-                'limit': 30,
+                'limit': timelineLimit,
               },
             },
           },
