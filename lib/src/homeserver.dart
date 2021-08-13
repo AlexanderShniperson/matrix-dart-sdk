@@ -30,13 +30,14 @@ import 'util/mxc_url.dart';
 /// of the SDK.
 @immutable
 class Homeserver {
-
   static const String editedEventPrefix = ' * ';
 
   final Uri url;
   final Uri? wellKnownUrl;
 
   final Api api;
+
+  Stream<String> get outApiCallStats => api.outApiCallStats;
 
   /// Returns a homeserver based on `.well-known` info.
   /// If there is no well-known info (404), just uses [url].
