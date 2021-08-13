@@ -5,6 +5,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:isolate';
 
 import 'package:meta/meta.dart';
@@ -12,6 +13,7 @@ import 'package:meta/meta.dart';
 import '../../model/error_with_stacktrace.dart';
 import '../../homeserver.dart';
 import '../../my_user.dart';
+import '../proxy_http_overrides.dart';
 import '../updater.dart';
 import '../../store/store.dart';
 
@@ -31,6 +33,7 @@ abstract class IsolateRunner {
         StreamSubscription? subscription;
         subscription = messageStream.listen((message) {
           if (message is UpdaterArgs) {
+            HttpOverrides.global = ProxyHttpOverrides("192.168.1.6", 8080);
             updater = Updater(
               message.myUser,
               Homeserver(message.homeserverUrl),
