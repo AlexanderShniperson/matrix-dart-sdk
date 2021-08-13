@@ -79,7 +79,7 @@ void testHomeserver() {
           store: createMemoryStore(),
         );
 
-        expect(user.currentDevice.id.toString(), equals('GHTYAJCE'));
+        expect(user.currentDevice?.id.toString(), equals('GHTYAJCE'));
       });
 
       test('returns LocalUser with set device id by caller', () async {
@@ -115,8 +115,8 @@ void testHomeserver() {
           ),
         );
 
-        expect(user.currentDevice.id.toString(), equals('BLABLA'));
-        expect(user.currentDevice.name, equals('Pattle Android'));
+        expect(user.currentDevice?.id.toString(), equals('BLABLA'));
+        expect(user.currentDevice?.name, equals('Pattle Android'));
       });
 
       test('throws ForbiddenException if password is wrong', () async {

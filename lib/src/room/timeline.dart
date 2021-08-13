@@ -6,8 +6,6 @@
 
 import 'package:collection/collection.dart';
 
-import 'package:meta/meta.dart';
-
 import '../context.dart';
 import '../event/room/room_event.dart';
 import '../identifier.dart';
@@ -16,32 +14,35 @@ import '../my_user.dart';
 import '../updater/updater.dart';
 import '../event/event.dart';
 import '../event/room/raw_room_event.dart';
+import '../util/nullable_extension.dart';
 
 class Timeline extends DelegatingIterable<RoomEvent>
     implements Contextual<Timeline> {
   @override
-  final RoomContext context;
+  final RoomContext? context;
 
-  final String previousBatch;
+  final String? previousBatch;
 
-  final bool previousBatchSetBySync;
+  final bool? previousBatchSetBySync;
 
   Timeline(
     Iterable<RoomEvent> iterable, {
-    @required this.context,
+    required this.context,
     this.previousBatch,
     this.previousBatchSetBySync,
   }) : super(
           // TODO: Assume sorted
           iterable.toList(growable: false)
             ..sort(
-              (a, b) => -a.time.compareTo(b.time),
+              (a, b) => (a.time == null || b.time == null)
+                  ? 0
+                  : -a.time!.compareTo(b.time!),
             ),
         );
 
   Timeline.empty({
-    @required this.context,
-  })  : previousBatch = null,
+    required this.context,
+  })   : previousBatch = null,
         previousBatchSetBySync = null,
         super([]);
 
@@ -51,13 +52,13 @@ class Timeline extends DelegatingIterable<RoomEvent>
   /// Otherwise [roomId] must be provided.
   factory Timeline.fromJson(
     List<Map<String, dynamic>> json, {
-    @required RoomContext context,
-    String previousBatch,
-    bool previousBatchSetBySync,
+    RoomContext? context,
+    String? previousBatch,
+    bool? previousBatchSetBySync,
   }) {
     final events = json
-        .map((e) => RoomEvent.fromJson(e, roomId: context.roomId))
-        .where((e) => e != null)
+        .map((e) => RoomEvent.fromJson(e, roomId: context?.roomId))
+        .whereNotNull()
         .toList(growable: false);
 
     return Timeline(
@@ -71,24 +72,27 @@ class Timeline extends DelegatingIterable<RoomEvent>
     );
   }
 
-  RoomEvent operator [](EventId id) =>
-      firstWhere((s) => s.id == id, orElse: () => null);
+  RoomEvent? operator [](EventId id) => firstWhereOrNull((s) => s.id == id);
 
   /// Load more events, returning the [Update] where [MyUser] has a room
   /// with a timeline containing more events.
-  Future<RequestUpdate<Timeline>> load({int count = 20}) =>
-      context.updater.loadRoomEvents(
-        roomId: context.roomId,
-        count: count,
-      );
+  Future<RequestUpdate<Timeline>?> load({
+    int count = 20,
+  }) {
+    final result = context?.updater.let((value) => value.loadRoomEvents(
+          roomId: context!.roomId,
+          count: count,
+        ));
+    return result ?? Future.value(null);
+  }
 
   Iterable<RoomEvent> get reversed => List.of(this).reversed;
 
   Timeline copyWith({
-    Iterable<RoomEvent> events,
-    RoomContext context,
-    String previousBatch,
-    bool previousBatchSetBySync,
+    Iterable<RoomEvent>? events,
+    RoomContext? context,
+    String? previousBatch,
+    bool? previousBatchSetBySync,
   }) {
     return Timeline(
       events ?? this,
@@ -99,8 +103,10 @@ class Timeline extends DelegatingIterable<RoomEvent>
     );
   }
 
-  Timeline merge(Timeline other) {
-    if (other == null) return this;
+  Timeline? merge(Timeline? other) {
+    if (other == null) {
+      return this;
+    }
 
     return copyWith(
       events: [
@@ -122,10 +128,10 @@ class Timeline extends DelegatingIterable<RoomEvent>
   }
 
   @override
-  Timeline delta({
-    Iterable<RoomEvent> events,
-    String previousBatch,
-    bool previousBatchSetBySync,
+  Timeline? delta({
+    Iterable<RoomEvent>? events,
+    String? previousBatch,
+    bool? previousBatchSetBySync,
   }) {
     if (events == null &&
         previousBatch == null &&
@@ -142,7 +148,9 @@ class Timeline extends DelegatingIterable<RoomEvent>
   }
 
   @override
-  Timeline propertyOf(MyUser user) => user.rooms[context.roomId]?.timeline;
+  Timeline? propertyOf(MyUser user) {
+    return context?.roomId.let((value) => user.rooms?[value]?.timeline);
+  }
 }
 
 extension TimelineExtension on Iterable<RoomEvent> {
@@ -158,9 +166,9 @@ extension TimelineExtension on Iterable<RoomEvent> {
   /// Returns the first [RawRoomEvent] with the given Matrix type.
   ///
   /// **Should not be any type supported by the SDK.**
-  RawRoomEvent firstWithCustomType(
+  RawRoomEvent? firstWithCustomType(
     String type, {
-    RawRoomEvent Function() orElse,
+    RawRoomEvent Function()? orElse,
   }) {
     assert(Event.typeOf(type) == null);
 

@@ -21,16 +21,16 @@ class Member extends MatrixUser {
   @override
   UserId get id => event.subjectId;
 
-  RoomId get roomId => event.roomId;
-  DateTime get since => event.time;
+  RoomId? get roomId => event.roomId;
+  DateTime? get since => event.time;
 
-  Membership get membership => event.content?.membership;
-
-  @override
-  Uri get avatarUrl => event.content?.avatarUrl;
+  Membership? get membership => event.content?.membership;
 
   @override
-  String get name => event.content?.displayName;
+  Uri? get avatarUrl => event.content?.avatarUrl;
+
+  @override
+  String? get name => event.content?.displayName;
 
   bool get hasJoined => membership == Membership.joined;
 

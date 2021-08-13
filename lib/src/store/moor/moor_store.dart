@@ -11,9 +11,8 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:meta/meta.dart';
-import 'package:moor_ffi/moor_ffi.dart';
 import 'package:moor/backends.dart';
+import 'package:moor/ffi.dart';
 import 'package:moor/moor.dart';
 import 'package:pedantic/pedantic.dart';
 
@@ -34,9 +33,10 @@ import '../../event/ephemeral/typing_event.dart';
 import '../../event/room/state/canonical_alias_change_event.dart';
 
 import 'database.dart' hide Rooms;
+import 'package:collection/collection.dart';
 
 class MoorStore extends Store {
-  final QueryExecutor _executor;
+  final DelegatedDatabase _executor;
 
   MoorStore(this._executor);
 
@@ -45,7 +45,7 @@ class MoorStore extends Store {
   @override
   bool get isOpen => _isOpen;
 
-  Database _db;
+  Database? _db;
 
   @override
   void open() {
@@ -65,10 +65,11 @@ class MoorStore extends Store {
   // Keep track of the invites to delete invite state when the room is joined
   final _invites = <RoomId>{};
 
-  void _setInvites(Iterable<Room> rooms) {
+  void _setInvites(Iterable<Room?> rooms) {
     _invites.addAll(
       rooms
           .where((room) => room?.me?.membership == Membership.invited)
+          .whereNotNull()
           .map((r) => r.id),
     );
   }
@@ -76,13 +77,13 @@ class MoorStore extends Store {
   /// If [isolated] is true, will create an [IsolatedUpdater] to manage
   /// the user's updates.
   @override
-  Future<MyUser> getMyUser({
-    Iterable<RoomId> roomIds,
+  Future<MyUser?> getMyUser({
+    Iterable<RoomId>? roomIds,
     int timelineLimit = 15,
     bool isolated = false,
-    @required StoreLocation storeLocation,
+    required StoreLocation storeLocation,
   }) async {
-    final myUserWithDeviceRecord = await _db.getMyUserRecord();
+    final myUserWithDeviceRecord = await _db?.getMyUserRecord();
 
     if (myUserWithDeviceRecord == null) {
       return null;
@@ -91,20 +92,20 @@ class MoorStore extends Store {
     final myUserRecord = myUserWithDeviceRecord.myUserRecord;
     final deviceRecord = myUserWithDeviceRecord.deviceRecord;
 
-    final myId = UserId(myUserRecord.id);
+    final myId = UserId(myUserRecord.id!);
 
-    final homeserver = Homeserver(Uri.parse(myUserRecord.homeserver));
+    final homeserver = Homeserver(Uri.parse(myUserRecord.homeserver!));
 
     final context = Context(myId: myId);
 
     final user = MyUser(
       id: myId,
-      name: myUserRecord.name,
+      name: myUserRecord.name!,
       avatarUrl: myUserRecord.avatarUrl != null
-          ? Uri.parse(myUserRecord.avatarUrl)
+          ? Uri.parse(myUserRecord.avatarUrl!)
           : null,
       accessToken: myUserRecord.accessToken,
-      syncToken: myUserRecord.syncToken,
+      syncToken: myUserRecord.syncToken!,
       currentDevice: deviceRecord.toDevice(),
       rooms: Rooms(
         await getRooms(
@@ -115,8 +116,8 @@ class MoorStore extends Store {
         ),
         context: context,
       ),
-      hasSynced: myUserRecord.hasSynced,
-      isLoggedOut: myUserRecord.isLoggedOut,
+      hasSynced: myUserRecord.hasSynced ?? false,
+      isLoggedOut: myUserRecord.isLoggedOut ?? true,
     );
 
     await close();
@@ -133,13 +134,15 @@ class MoorStore extends Store {
 
   @override
   Future<void> setMyUserDelta(MyUser myUser) async {
-    await _db.setMyUser(
+    await _db?.setMyUser(
       MyUsersCompanion(
-        homeserver: myUser.context?.homeserver != null
-            ? Value(myUser.context.homeserver.url.toString())
+        homeserver: myUser.context?.homeServer != null
+            ? Value(myUser.context?.homeServer?.url.toString())
             : Value.absent(),
-        id: myUser.id != null ? Value(myUser.id.toString()) : Value.absent(),
-        name: myUser.name != null ? Value(myUser.name) : Value.absent(),
+        id: myUser.id.value.isNotEmpty
+            ? Value(myUser.id.toString())
+            : Value.absent(),
+        name: Value(myUser.name),
         avatarUrl: myUser.avatarUrl != null
             ? Value(myUser.avatarUrl.toString())
             : Value.absent(),
@@ -149,7 +152,7 @@ class MoorStore extends Store {
         syncToken:
             myUser.syncToken != null ? Value(myUser.syncToken) : Value.absent(),
         currentDeviceId: myUser.currentDevice?.id != null
-            ? Value(myUser.currentDevice.id.toString())
+            ? Value(myUser.currentDevice?.id.toString())
             : Value.absent(),
         hasSynced:
             myUser.hasSynced != null ? Value(myUser.hasSynced) : Value.absent(),
@@ -160,32 +163,33 @@ class MoorStore extends Store {
     );
 
     if (myUser.currentDevice != null) {
-      await _db.setDeviceRecords([myUser.currentDevice.toCompanion()]);
+      await _db?.setDeviceRecords([myUser.currentDevice!.toCompanion()]);
     }
 
     if (myUser.rooms != null) {
-      _setInvites(myUser.rooms);
+      _setInvites(myUser.rooms!);
 
       final previouslyInvitedIds = myUser.rooms
-          .where((room) =>
-              room?.me?.membership == Membership.joined &&
+          ?.where((room) =>
+              room.me?.membership == Membership.joined &&
               _invites.contains(room.id))
           .map((room) => room.id.toString())
           .toList();
 
-      if (previouslyInvitedIds.isNotEmpty) {
+      if (previouslyInvitedIds?.isNotEmpty == true) {
         unawaited(
-          _db.deleteInviteStates(previouslyInvitedIds),
+          _db?.deleteInviteStates(previouslyInvitedIds!),
         );
       }
 
-      await _db.setRooms(myUser.rooms.map((r) => r.toCompanion()).toList());
+      await _db!.setRooms(
+          myUser.rooms!.map((r) => r.toCompanion()).whereNotNull().toList());
 
       // Set room state
-      await _db.setRoomEventRecords(
-        myUser.rooms
+      await _db?.setRoomEventRecords(
+        myUser.rooms!
             .map((room) => room.stateEvents)
-            .where((stateEvents) => stateEvents != null)
+            .whereNotNull()
             .expand((stateEvents) => [
                   stateEvents.nameChange,
                   stateEvents.avatarChange,
@@ -196,15 +200,15 @@ class MoorStore extends Store {
                   stateEvents.creation,
                   stateEvents.upgrade,
                 ])
-            .where((e) => e != null)
+            .whereNotNull()
             .map((event) => event.toRecord(inTimeline: false))
             .toList(),
       );
 
-      await _db.setEphemeralEventRecords(
-        myUser.rooms
+      await _db?.setEphemeralEventRecords(
+        myUser.rooms!
             .map((room) => room.ephemeral)
-            .where((ephemeral) => ephemeral != null)
+            .whereNotNull()
             .expand((ephemeral) => ephemeral)
             .where((e) => e is! TypingEvent)
             .map((e) => e.toRecord())
@@ -212,20 +216,21 @@ class MoorStore extends Store {
       );
 
       // Set member states
-      await _db.setRoomEventRecords(
-        myUser.rooms
+      await _db?.setRoomEventRecords(
+        myUser.rooms!
             .map((room) => room.memberTimeline?.map((m) => m.event) ?? [])
             .expand((events) => events)
+            .whereNotNull()
             .map((event) => event.toRecord(inTimeline: false))
             .toList(),
       );
 
       // Set timeline. If any of the (member) state events were just set,
       // they'll be overridden with inTimeline = true.
-      await _db.setRoomEventRecords(
-        myUser.rooms
+      await _db?.setRoomEventRecords(
+        myUser.rooms!
             .map((room) => room.timeline)
-            .where((timeline) => timeline != null)
+            .whereNotNull()
             .expand((timeline) => timeline)
             .map((event) => event.toRecord(inTimeline: true))
             .toList(),
@@ -235,14 +240,15 @@ class MoorStore extends Store {
 
   @override
   Future<Iterable<Room>> getRooms(
-    Iterable<RoomId> roomIds, {
-    Context context,
-    int timelineLimit,
-    Iterable<UserId> memberIds,
+    Iterable<RoomId>? roomIds, {
+    Context? context,
+    required int timelineLimit,
+    Iterable<UserId>? memberIds,
   }) async {
-    final roomRecords = await _db.getRoomRecords(
-      roomIds?.map((id) => id.toString()),
-    );
+    final roomRecords = (await _db?.getRoomRecords(
+          roomIds?.map((id) => id.toString()),
+        )) ??
+        [];
 
     // TODO: Optimize?
     final rooms = await Future.wait(roomRecords.map((record) async {
@@ -279,8 +285,10 @@ class MoorStore extends Store {
       }
 
       final ephemeral = Ephemeral(
-        await _db.getEphemeralEventRecords(roomId.toString()).then(
-              (records) => records.map((record) => record.toEphemeralEvent()),
+        await _db!.getEphemeralEventRecords(roomId.toString()).then(
+              (records) => records
+                  .map((record) => record.toEphemeralEvent())
+                  .whereNotNull(),
             ),
       );
 
@@ -293,8 +301,7 @@ class MoorStore extends Store {
           topicChange: record.topicChangeRecord?.toRoomEvent(),
           powerLevelsChange: record.powerLevelsChangeRecord?.toRoomEvent(),
           joinRulesChange: record.joinRulesChangeRecord?.toRoomEvent(),
-          canonicalAliasChange:
-              record.canonicalAliasChangeRecord?.toRoomEvent(),
+          canonicalAliasChange: record.canonicalAliasChangeRecord?.toRoomEvent(),
           creation: record.creationRecord?.toRoomEvent(),
           upgrade: record.upgradeRecord?.toRoomEvent(),
         ),
@@ -305,7 +312,7 @@ class MoorStore extends Store {
           invitedMembersCount: roomRecord.summaryInvitedMembersCount,
         ),
         directUserId: roomRecord.directUserId != null
-            ? UserId(roomRecord.directUserId)
+            ? UserId(roomRecord.directUserId ?? '')
             : null,
         highlightedUnreadNotificationCount:
             roomRecord.highlightedUnreadNotificationCount,
@@ -323,19 +330,22 @@ class MoorStore extends Store {
   Future<Messages> getMessages(
     RoomId roomId, {
     int count = 20,
-    DateTime fromTime,
-    Iterable<UserId> memberIds,
+    DateTime? fromTime,
+    Iterable<UserId>? memberIds,
   }) async {
-    final events = await _db
-        .getRoomEventRecords(
-          roomId.toString(),
-          count: count,
-          fromTime: fromTime,
-          inTimeline: true,
-        )
-        .then((records) => records.map((r) => r.toRoomEvent()));
+    final events = (await _db
+            ?.getRoomEventRecords(
+              roomId.toString(),
+              count: count,
+              fromTime: fromTime,
+              inTimeline: true,
+            )
+            .then((records) =>
+                records.map((r) => r.toRoomEvent()).whereNotNull())) ??
+        [];
 
     var relevantUserIds = events
+        .whereNotNull()
         .map((e) => [e.senderId, if (e is MemberChangeEvent) e.subjectId])
         .expand((ids) => ids);
 
@@ -346,17 +356,15 @@ class MoorStore extends Store {
     final uniqueIdStrings = Set.of(relevantUserIds.map((id) => id.toString()));
 
     Future<Iterable<Member>> getMembers(Iterable<String> ids) async {
-      return await _db
+      return _db!
           .getMemberEventRecordsOfSenders(
             roomId.toString(),
             ids,
           )
           .then(
-            (records) => records.map(
-              (r) => Member.fromEvent(
-                r.toRoomEvent(),
-              ),
-            ),
+            (records) => records.map((r) => r.toRoomEvent()).whereNotNull().map(
+                  (r) => Member.fromEvent(r as MemberChangeEvent),
+                ),
           );
     }
 
@@ -394,9 +402,9 @@ class MoorStore extends Store {
   Future<Iterable<Member>> getMembers(
     RoomId roomId, {
     int count = 20,
-    DateTime fromTime,
+    DateTime? fromTime,
   }) async {
-    return _db
+    return _db!
         .getRoomEventRecords(
           roomId.toString(),
           count: count,
@@ -404,7 +412,8 @@ class MoorStore extends Store {
           onlyMemberChanges: true,
         )
         .then(
-          (records) => records.map((e) => Member.fromEvent(e.toRoomEvent())),
+          (records) => records.map(
+              (e) => Member.fromEvent(e.toRoomEvent() as MemberChangeEvent)),
         );
   }
 }
@@ -461,18 +470,18 @@ extension on Device {
 extension on Room {
   RoomsCompanion toCompanion() {
     return RoomsCompanion(
-      id: id != null ? Value(id.toString()) : null,
+      id: Value(id.toString()),
       timelinePreviousBatch: timeline?.previousBatch != null
-          ? Value(timeline.previousBatch)
+          ? Value(timeline?.previousBatch)
           : Value.absent(),
       timelinePreviousBatchSetBySync: timeline?.previousBatchSetBySync != null
-          ? Value(timeline.previousBatchSetBySync)
+          ? Value(timeline?.previousBatchSetBySync)
           : Value.absent(),
       summaryJoinedMembersCount: summary?.joinedMembersCount != null
-          ? Value(summary.joinedMembersCount)
+          ? Value(summary?.joinedMembersCount)
           : Value.absent(),
       summaryInvitedMembersCount: summary?.invitedMembersCount != null
-          ? Value(summary.invitedMembersCount)
+          ? Value(summary?.invitedMembersCount)
           : Value.absent(),
       highlightedUnreadNotificationCount:
           highlightedUnreadNotificationCount != null
@@ -485,48 +494,50 @@ extension on Room {
           ? Value(directUserId.toString())
           : Value.absent(),
       nameChangeEventId: stateEvents?.nameChange?.storedId != null
-          ? Value(stateEvents.nameChange.storedId)
+          ? Value(stateEvents?.nameChange?.storedId)
           : Value.absent(),
       avatarChangeEventId: stateEvents?.avatarChange?.storedId != null
-          ? Value(stateEvents.avatarChange.storedId)
+          ? Value(stateEvents?.avatarChange?.storedId)
           : Value.absent(),
       topicChangeEventId: stateEvents?.topicChange?.storedId != null
-          ? Value(stateEvents.topicChange.storedId)
+          ? Value(stateEvents?.topicChange?.storedId)
           : Value.absent(),
       powerLevelsChangeEventId: stateEvents?.powerLevelsChange?.storedId != null
-          ? Value(stateEvents.powerLevelsChange.storedId)
+          ? Value(stateEvents?.powerLevelsChange?.storedId)
           : Value.absent(),
       joinRulesChangeEventId: stateEvents?.joinRulesChange?.storedId != null
-          ? Value(stateEvents.joinRulesChange.storedId)
+          ? Value(stateEvents?.joinRulesChange?.storedId)
           : Value.absent(),
       canonicalAliasChangeEventId:
           stateEvents?.canonicalAliasChange?.storedId != null
-              ? Value(stateEvents.canonicalAliasChange.storedId)
+              ? Value(stateEvents?.canonicalAliasChange?.storedId)
               : Value.absent(),
       creationEventId: stateEvents?.creation?.storedId != null
-          ? Value(stateEvents.creation.storedId)
+          ? Value(stateEvents?.creation?.storedId)
           : Value.absent(),
       upgradeEventId: stateEvents?.upgrade?.storedId != null
-          ? Value(stateEvents.upgrade.storedId)
+          ? Value(stateEvents?.upgrade?.storedId)
           : Value.absent(),
     );
   }
 }
 
 extension on RoomEvent {
-  RoomEventRecord toRecord({@required bool inTimeline}) {
-    String stateKey, previousContent;
+  RoomEventRecord toRecord({
+    required bool inTimeline,
+  }) {
+    String? stateKey, previousContent;
     if (this is StateEvent) {
-      final it = (this as StateEvent);
+      final it = this as StateEvent;
       // Automatic cast doesn't seem to work on this
       stateKey = it.stateKey;
 
       previousContent = it.previousContent != null
-          ? json.encode(it.previousContent?.toJson())
+          ? json.encode(it.previousContent!.toJson())
           : null;
     }
 
-    String redacts;
+    String? redacts;
     if (this is RedactionEvent) {
       redacts = (this as RedactionEvent).redacts.toString();
     }
@@ -537,7 +548,7 @@ extension on RoomEvent {
       roomId: roomId.toString(),
       senderId: senderId.toString(),
       time: time,
-      content: content != null ? json.encode(content.toJson()) : null,
+      content: content != null ? json.encode(content?.toJson()) : null,
       previousContent: previousContent,
       sentState: sentState?.toShortString(),
       transactionId: transactionId,
@@ -548,9 +559,9 @@ extension on RoomEvent {
   }
 
   String get storedId {
-    var id = this.id?.toString();
+    var id = this.id.toString();
 
-    if (id == null && this is StateEvent) {
+    if (this is StateEvent) {
       final it = this as StateEvent;
       id = '$roomId:$runtimeType:${it.stateKey}';
     }
@@ -560,7 +571,7 @@ extension on RoomEvent {
 }
 
 extension on RoomEventRecord {
-  RoomEvent toRoomEvent() {
+  T? toRoomEvent<T extends RoomEvent>() {
     final args = RoomEventArgs(
       id: EventId(id),
       senderId: UserId(senderId),
@@ -572,74 +583,74 @@ extension on RoomEventRecord {
 
     dynamic decodedContent, decodedPreviousContent;
     if (content != null) {
-      decodedContent = json.decode(content);
+      decodedContent = json.decode(content!);
     }
 
     if (previousContent != null) {
-      decodedPreviousContent = json.decode(previousContent);
+      decodedPreviousContent = json.decode(previousContent!);
     }
 
     switch (type) {
       case MessageEvent.matrixType:
-        return MessageEvent(
+        return MessageEvent.instance(
           args,
           content: MessageEventContent.fromJson(decodedContent),
-        );
+        ) as T;
       case MemberChangeEvent.matrixType:
         return MemberChangeEvent(
           args,
           content: MemberChange.fromJson(decodedContent),
           previousContent: MemberChange.fromJson(decodedPreviousContent),
-          stateKey: stateKey,
-        );
+          stateKey: stateKey ?? '',
+        ) as T;
       case RedactionEvent.matrixType:
         return RedactionEvent(
           args,
           content: Redaction.fromJson(decodedContent),
-          redacts: EventId(redacts),
-        );
+          redacts: EventId(redacts ?? ''),
+        ) as T;
       case RoomAvatarChangeEvent.matrixType:
         return RoomAvatarChangeEvent(
           args,
           content: RoomAvatarChange.fromJson(decodedContent),
           previousContent: RoomAvatarChange.fromJson(decodedPreviousContent),
-        );
+        ) as T;
       case RoomNameChangeEvent.matrixType:
         return RoomNameChangeEvent(
           args,
           content: RoomNameChange.fromJson(decodedContent),
           previousContent: RoomNameChange.fromJson(decodedPreviousContent),
-        );
+        ) as T;
       case RoomCreationEvent.matrixType:
         return RoomCreationEvent(
           args,
           content: RoomCreation.fromJson(decodedContent),
           previousContent: RoomCreation.fromJson(decodedPreviousContent),
-        );
+        ) as T;
       case RoomUpgradeEvent.matrixType:
         return RoomUpgradeEvent(
           args,
           content: RoomUpgrade.fromJson(decodedContent),
           previousContent: RoomUpgrade.fromJson(decodedPreviousContent),
-        );
+        ) as T;
       case TopicChangeEvent.matrixType:
         return TopicChangeEvent(
           args,
           content: TopicChange.fromJson(decodedContent),
           previousContent: TopicChange.fromJson(decodedPreviousContent),
-        );
+        ) as T;
       case PowerLevelsChangeEvent.matrixType:
-        return PowerLevelsChangeEvent(
+        return PowerLevelsChangeEvent.instance(
           args,
           content: PowerLevelsChange.fromJson(decodedContent),
           previousContent: PowerLevelsChange.fromJson(decodedPreviousContent),
-        );
+        ) as T;
       case JoinRulesChangeEvent.matrixType:
         return JoinRulesChangeEvent(
           args,
           content: JoinRules.fromJson(decodedContent),
           previousContent: JoinRules.fromJson(decodedPreviousContent),
-        );
+        ) as T;
       case CanonicalAliasChangeEvent.matrixType:
         return CanonicalAliasChangeEvent(
           args,
@@ -647,7 +658,7 @@ extension on RoomEventRecord {
           previousContent: CanonicalAliasChange.fromJson(
             decodedPreviousContent,
           ),
-        );
+        ) as T;
       default:
         return stateKey != null
             ? RawStateEvent(
@@ -657,12 +668,12 @@ extension on RoomEventRecord {
                 previousContent:
                     RawEventContent.fromJson(decodedPreviousContent),
                 stateKey: stateKey,
-              )
+              ) as T
             : RawRoomEvent(
                 args,
                 type: type,
                 content: RawEventContent.fromJson(decodedContent),
-              );
+              ) as T;
     }
   }
 }
@@ -672,23 +683,27 @@ extension on EphemeralEvent {
     return EphemeralEventRecord(
       type: type,
       roomId: roomId.toString(),
-      content: content != null ? json.encode(content.toJson()) : null,
+      content: content != null ? json.encode(content!.toJson()) : null,
     );
   }
 }
 
 extension on EphemeralEventRecord {
-  EphemeralEvent toEphemeralEvent() {
+  EphemeralEvent? toEphemeralEvent() {
     switch (type) {
       case ReceiptEvent.matrixType:
         return ReceiptEvent(
           roomId: RoomId(roomId),
-          content: Receipts.fromJson(json.decode(content)),
+          content: Receipts.fromJson(
+            content != null ? json.decode(content!) : null,
+          ),
         );
       case TypingEvent.matrixType:
         return TypingEvent(
           roomId: RoomId(roomId),
-          content: Typers.fromJson(json.decode(content)),
+          content: Typers.fromJson(
+            content != null ? json.decode(content!) : null,
+          ),
         );
       default:
         // TODO: Custom ephemeral events
@@ -702,7 +717,7 @@ extension on SentState {
 }
 
 extension on String {
-  SentState toSentState() {
+  SentState? toSentState() {
     switch (this) {
       case 'unsent':
         return SentState.unsent;

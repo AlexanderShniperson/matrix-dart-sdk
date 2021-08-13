@@ -20,14 +20,14 @@ class RoomUpgradeEvent extends StateEvent {
   final String type = matrixType;
 
   @override
-  final RoomUpgrade content;
+  final RoomUpgrade? content;
 
   @override
-  final RoomUpgrade previousContent;
+  final RoomUpgrade? previousContent;
 
   RoomUpgradeEvent(
     RoomEventArgs args, {
-    @required this.content,
+     this.content,
     this.previousContent,
   }) : super(args, stateKey: '');
 }
@@ -39,8 +39,8 @@ class RoomUpgrade extends EventContent {
   final RoomId replacementRoomId;
 
   RoomUpgrade({
-    @required this.body,
-    @required this.replacementRoomId,
+    required this.body,
+    required this.replacementRoomId,
   });
 
   @override
@@ -52,8 +52,10 @@ class RoomUpgrade extends EventContent {
   @override
   int get hashCode => hashObjects([body, replacementRoomId]);
 
-  factory RoomUpgrade.fromJson(Map<String, dynamic> content) {
-    if (content == null) return null;
+  static RoomUpgrade? fromJson(Map<String, dynamic>? content) {
+    if (content == null) {
+      return null;
+    }
 
     final body = content['body'];
     var replacementRoomId = content['replacement_room'];

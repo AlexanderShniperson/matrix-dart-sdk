@@ -6,7 +6,6 @@
 
 import 'dart:io';
 
-import 'package:matrix_sdk/matrix_sdk.dart';
 import 'package:matrix_sdk/olm_ffi.dart';
 import 'package:test/test.dart';
 
@@ -14,7 +13,7 @@ void testOlm() {
   group('Olm', () {
     group('.account ', () {
       test('returns Account if successful', () async {
-        Olm olm = OlmFFI(
+        final olm = OlmFFI(
           libraryPath: '${Directory.current.path}/lib-native/',
         );
 

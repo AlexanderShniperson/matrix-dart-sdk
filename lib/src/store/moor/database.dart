@@ -124,7 +124,7 @@ class Database extends _$Database {
   @override
   MigrationStrategy get migration => destructiveFallback;
 
-  Future<MyUserRecordWithDeviceRecord> getMyUserRecord() {
+  Future<MyUserRecordWithDeviceRecord?> getMyUserRecord() {
     return (select(myUsers).join([
       leftOuterJoin(
         devices,
@@ -138,14 +138,14 @@ class Database extends _$Database {
             deviceRecord: r.readTable(devices),
           ),
         )
-        .getSingle();
+        .getSingleOrNull();
   }
 
   Future<void> setMyUser(MyUsersCompanion companion) async {
     // TODO: Use insertOnConflictUpdate when released
     await batch((batch) {
       batch.insert(myUsers, companion, mode: InsertMode.insertOrIgnore);
-      batch.update(
+      batch.update<$MyUsersTable, MyUserRecord>(
         myUsers,
         companion,
         where: (tbl) => tbl.id.equals(companion.id.value),
@@ -154,7 +154,7 @@ class Database extends _$Database {
   }
 
   Future<List<RoomRecordWithStateRecords>> getRoomRecords(
-    Iterable<String> roomIds,
+    Iterable<String>? roomIds,
   ) {
     final nameChangeAlias = alias(roomEvents, 'name_change');
     final avatarChangeAlias = alias(roomEvents, 'avatar_change');
@@ -213,14 +213,15 @@ class Database extends _$Database {
         .map(
           (r) => RoomRecordWithStateRecords(
             roomRecord: r.readTable(rooms),
-            nameChangeRecord: r.readTable(nameChangeAlias),
-            avatarChangeRecord: r.readTable(avatarChangeAlias),
-            topicChangeRecord: r.readTable(topicChangeAlias),
-            powerLevelsChangeRecord: r.readTable(powerLevelsChangeAlias),
-            joinRulesChangeRecord: r.readTable(joinRulesChangeAlias),
-            canonicalAliasChangeRecord: r.readTable(canonicalAliasChangeAlias),
-            creationRecord: r.readTable(creationAlias),
-            upgradeRecord: r.readTable(upgradeAlias),
+            nameChangeRecord: r.readTableOrNull(nameChangeAlias),
+            avatarChangeRecord: r.readTableOrNull(avatarChangeAlias),
+            topicChangeRecord: r.readTableOrNull(topicChangeAlias),
+            powerLevelsChangeRecord: r.readTableOrNull(powerLevelsChangeAlias),
+            joinRulesChangeRecord: r.readTableOrNull(joinRulesChangeAlias),
+            canonicalAliasChangeRecord:
+                r.readTableOrNull(canonicalAliasChangeAlias),
+            creationRecord: r.readTableOrNull(creationAlias),
+            upgradeRecord: r.readTableOrNull(upgradeAlias),
           ),
         )
         .get();
@@ -231,7 +232,7 @@ class Database extends _$Database {
     await batch((batch) async {
       for (final companion in companions) {
         batch.insert(rooms, companion, mode: InsertMode.insertOrIgnore);
-        batch.update(
+        batch.update<$RoomsTable, RoomRecord>(
           rooms,
           companion,
           where: (tbl) => tbl.id.equals(companion.id.value),
@@ -242,12 +243,12 @@ class Database extends _$Database {
 
   Future<Iterable<RoomEventRecord>> getRoomEventRecords(
     String roomId, {
-    int count,
-    DateTime fromTime,
+    int? count,
+    DateTime? fromTime,
     bool onlyMemberChanges = false,
-    bool inTimeline,
+    bool? inTimeline,
   }) async {
-    var query = select(roomEvents);
+    final query = select(roomEvents);
 
     if (onlyMemberChanges) {
       query.where(
@@ -265,15 +266,15 @@ class Database extends _$Database {
 
     query.where((tbl) => tbl.roomId.equals(roomId));
 
-    query.orderBy(
-      ([(e) => OrderingTerm(expression: e.time, mode: OrderingMode.desc)]),
-    );
+    query.orderBy([
+      (e) => OrderingTerm(expression: e.time, mode: OrderingMode.desc),
+    ]);
 
     if (count != null) {
       query.limit(count);
     }
 
-    return await query.get();
+    return query.get();
   }
 
   Future<void> setRoomEventRecords(List<RoomEventRecord> records) async {
@@ -283,7 +284,7 @@ class Database extends _$Database {
         records,
         mode: InsertMode.insertOrReplace,
       );
-      batch.deleteWhere(
+      batch.deleteWhere<$RoomEventsTable, RoomEventRecord>(
         roomEvents,
         (tbl) => tbl.id.isIn(
           records.map((r) => r.transactionId).where((txnId) => txnId != null),
@@ -315,7 +316,7 @@ class Database extends _$Database {
         (tbl) => tbl.roomId.equals(roomId),
       );
 
-    return await query.get();
+    return query.get();
   }
 
   Future<void> setEphemeralEventRecords(
@@ -335,7 +336,7 @@ class Database extends _$Database {
     await batch((batch) async {
       for (final companion in companions) {
         batch.insert(devices, companion, mode: InsertMode.insertOrIgnore);
-        batch.update(
+        batch.update<$DevicesTable, DeviceRecord>(
           devices,
           companion,
           where: (tbl) => tbl.id.equals(companion.id.value),
@@ -347,7 +348,7 @@ class Database extends _$Database {
   Future<void> deleteInviteStates(List<String> roomIds) async {
     await batch((batch) async {
       for (final roomId in roomIds) {
-        batch.deleteWhere(
+        batch.deleteWhere<$RoomEventsTable, RoomEventRecord>(
           roomEvents,
           (tbl) => tbl.id.isIn(['$roomId:%']),
         );
@@ -361,32 +362,32 @@ class MyUserRecordWithDeviceRecord {
   final DeviceRecord deviceRecord;
 
   MyUserRecordWithDeviceRecord({
-    @required this.myUserRecord,
-    @required this.deviceRecord,
+    required this.myUserRecord,
+    required this.deviceRecord,
   });
 }
 
 class RoomRecordWithStateRecords {
   final RoomRecord roomRecord;
 
-  final RoomEventRecord nameChangeRecord;
-  final RoomEventRecord avatarChangeRecord;
-  final RoomEventRecord topicChangeRecord;
-  final RoomEventRecord powerLevelsChangeRecord;
-  final RoomEventRecord joinRulesChangeRecord;
-  final RoomEventRecord canonicalAliasChangeRecord;
-  final RoomEventRecord creationRecord;
-  final RoomEventRecord upgradeRecord;
+  final RoomEventRecord? nameChangeRecord;
+  final RoomEventRecord? avatarChangeRecord;
+  final RoomEventRecord? topicChangeRecord;
+  final RoomEventRecord? powerLevelsChangeRecord;
+  final RoomEventRecord? joinRulesChangeRecord;
+  final RoomEventRecord? canonicalAliasChangeRecord;
+  final RoomEventRecord? creationRecord;
+  final RoomEventRecord? upgradeRecord;
 
   RoomRecordWithStateRecords({
-    @required this.roomRecord,
-    this.nameChangeRecord,
-    this.avatarChangeRecord,
-    this.topicChangeRecord,
-    this.powerLevelsChangeRecord,
-    this.joinRulesChangeRecord,
-    this.canonicalAliasChangeRecord,
-    this.creationRecord,
-    this.upgradeRecord,
+    required this.roomRecord,
+    required this.nameChangeRecord,
+    required this.avatarChangeRecord,
+    required this.topicChangeRecord,
+    required this.powerLevelsChangeRecord,
+    required this.joinRulesChangeRecord,
+    required this.canonicalAliasChangeRecord,
+    required this.creationRecord,
+    required this.upgradeRecord,
   });
 }

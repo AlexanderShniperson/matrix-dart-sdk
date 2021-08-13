@@ -5,8 +5,8 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import 'package:meta/meta.dart';
-
 import 'exception.dart';
+import 'package:collection/collection.dart';
 
 typedef _Submit = Future<AuthenticationSession> Function(
   Map<String, dynamic> json,
@@ -21,34 +21,34 @@ typedef OnSuccess<T> = Future<T> Function(Map<String, dynamic> body);
 @immutable
 class AuthenticationSession<T> {
   final String key;
-  final Iterable<Flow> flows;
+  final Iterable<Flow>? flows;
 
   /// Result of will be non-null if the authentication is successfully
   /// completed.
-  final T result;
+  final T? result;
 
   bool get isCompleted => result != null;
 
-  final MatrixException error;
+  final MatrixException? error;
 
   bool get hasError => error != null;
 
   AuthenticationSession._({
-    @required this.key,
-    @required this.flows,
+    required this.key,
+    required this.flows,
     this.result,
     this.error,
   });
 
   factory AuthenticationSession.fromJson(
     Map<String, dynamic> json, {
-    @required Request request,
-    @required OnSuccess<T> onSuccess,
+    required Request request,
+    required OnSuccess<T> onSuccess,
   }) {
     final flowsJson = json['flows'] as List<dynamic>;
     final key = json['session'];
 
-    MatrixException error;
+    MatrixException? error;
     if (json.containsKey('error')) {
       error = MatrixException.fromJson(json);
     }
@@ -89,7 +89,7 @@ class AuthenticationSession<T> {
 }
 
 extension FlowSelector on Iterable<Flow> {
-  Flow shortestWithOnly(Iterable<Type> types) {
+  Flow? shortestWithOnly(Iterable<Type> types) {
     final sortedWithOnlyTypes = where(
       (f) => f.stages.every(
         (stage) => types.contains(stage.runtimeType),
@@ -112,40 +112,38 @@ extension FlowSelector on Iterable<Flow> {
       },
     );
 
-    return sortedWithOnlyTypes.firstWhere((f) => true, orElse: () => null);
+    return sortedWithOnlyTypes.firstWhereOrNull((f) => true);
   }
 }
 
 @immutable
 class Flow {
   final Iterable<Stage> stages;
-  final Iterable<Stage> completedStages;
+  final Iterable<Stage>? completedStages;
 
   final Stage currentStage;
 
   Flow._({
-    @required this.stages,
-    @required this.completedStages,
-    @required this.currentStage,
+    required this.stages,
+    this.completedStages,
+    required this.currentStage,
   });
 
   factory Flow._fromJson(
     Map<String, dynamic> json,
     Map<String, dynamic> paramsJson,
-    List<dynamic> completedJson, {
-    @required _Submit submit,
+    List<dynamic>? completedJson, {
+    required _Submit submit,
   }) {
     final stagesJson = json['stages'] as List<dynamic>;
 
     final stages = stagesJson
         .map((s) => Stage._fromJson(s, paramsJson, submit: submit))
-        .where((s) => s != null)
         .toList();
 
     final completed = completedJson
         ?.map((s) => Stage._fromJson(s, paramsJson, submit: submit))
-        ?.where((s) => s != null)
-        ?.toList();
+        .toList();
 
     return Flow._(
       stages: stages,
@@ -180,7 +178,7 @@ abstract class Stage {
   factory Stage._fromJson(
     String type,
     Map<String, dynamic> paramsJson, {
-    @required _Submit submit,
+    required _Submit submit,
   }) {
     final relevantParams = paramsJson[type];
 
@@ -220,15 +218,15 @@ class RawStage extends Stage {
   final Map<String, dynamic> params;
 
   RawStage._({
-    @required _Submit submit,
-    @required this.type,
-    @required Map<String, dynamic> params,
+    required _Submit submit,
+    required this.type,
+    Map<String, dynamic>? params,
   })  : params = params ?? {},
         super._(submit, type);
 
   @override
-  Future<AuthenticationSession> complete([Map<String, dynamic> params]) =>
-      _submit({...super._toSubmitJson(), ...params});
+  Future<AuthenticationSession> complete([Map<String, dynamic>? params]) =>
+      _submit({...super._toSubmitJson(), ...params ?? {}});
 
   @override
   bool operator ==(dynamic other) {
@@ -267,16 +265,20 @@ class RecaptchaStage extends Stage {
 
   factory RecaptchaStage._fromJson(
     Map<String, dynamic> paramsJson, {
-    @required _Submit submit,
+    required _Submit submit,
   }) {
     final publicKey = paramsJson['public_key'];
 
     return RecaptchaStage._(submit, publicKey);
   }
 
+  /* TODO: wrong override implementation
   @override
-  Future<AuthenticationSession> complete({@required String response}) =>
+  Future<AuthenticationSession> complete({
+    required String response,
+  }) =>
       _submit({...super._toSubmitJson(), 'response': response});
+  */
 
   @override
   bool operator ==(dynamic other) {
@@ -304,7 +306,7 @@ class TermsStage extends Stage {
 
   factory TermsStage._fromJson(
     Map<String, dynamic> paramsJson, {
-    @required _Submit submit,
+    required _Submit submit,
   }) {
     final policiesJson = paramsJson['policies'] as Map<String, dynamic>;
 
@@ -359,10 +361,10 @@ class Policy {
   final Uri url;
 
   Policy({
-    @required this.version,
-    @required this.language,
-    @required this.name,
-    @required this.url,
+    required this.version,
+    required this.language,
+    required this.name,
+    required this.url,
   });
 
   @override

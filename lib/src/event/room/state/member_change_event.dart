@@ -22,27 +22,27 @@ class MemberChangeEvent extends StateEvent {
   final String type = matrixType;
 
   @override
-  final MemberChange content;
+  final MemberChange? content;
 
   @override
-  final MemberChange previousContent;
+  final MemberChange? previousContent;
 
   /// The [UserId] of who has joined, left, was banned, etc.
   final UserId subjectId;
 
   MemberChangeEvent._(
     RoomEventArgs args, {
-    @required this.content,
+    required this.content,
+    String stateKey = '',
     this.previousContent,
-    @required String stateKey,
   })  : subjectId = UserId(stateKey),
         super(args, stateKey: stateKey);
 
   factory MemberChangeEvent(
     RoomEventArgs args, {
-    @required MemberChange content,
-    MemberChange previousContent,
-    @required String stateKey,
+    MemberChange? content,
+    String stateKey = '',
+    MemberChange? previousContent,
   }) {
     if (content == null) {
       return MemberChangeEvent._(args, content: null, stateKey: stateKey);
@@ -56,7 +56,7 @@ class MemberChangeEvent extends StateEvent {
     }
 
     if (previousContent?.membership is Joined && content.membership is Joined) {
-      if (previousContent.displayName != content.displayName) {
+      if (previousContent?.displayName != content.displayName) {
         return DisplayNameChangeEvent._(
           args,
           content: content,
@@ -65,7 +65,7 @@ class MemberChangeEvent extends StateEvent {
         );
       }
 
-      if (previousContent.avatarUrl != content.avatarUrl) {
+      if (previousContent?.avatarUrl != content.avatarUrl) {
         return AvatarChangeEvent._(
           args,
           content: content,
@@ -120,15 +120,15 @@ class MemberChangeEvent extends StateEvent {
 class MemberChange extends EventContent {
   final bool isDirect;
 
-  final String displayName;
-  final Uri avatarUrl;
+  final String? displayName;
+  final Uri? avatarUrl;
 
   final Membership membership;
 
   MemberChange({
-    @required this.membership,
-    @required this.displayName,
-    @required this.avatarUrl,
+    required this.membership,
+    required this.displayName,
+    this.avatarUrl,
     this.isDirect = false,
   });
 
@@ -148,8 +148,10 @@ class MemberChange extends EventContent {
         membership,
       ]);
 
-  factory MemberChange.fromJson(Map<String, dynamic> content) {
-    if (content == null) return null;
+  static MemberChange? fromJson(Map<String, dynamic>? content) {
+    if (content == null) {
+      return null;
+    }
 
     var avatarUrl = content['avatar_url'];
     if (avatarUrl != null && avatarUrl is String) {
@@ -167,18 +169,21 @@ class MemberChange extends EventContent {
   }
 
   @override
-  Map<String, dynamic> toJson() => super.toJson()
-    ..addAll({
-      'membership': membership.value,
-      'displayname': displayName,
-      'avatar_url': avatarUrl?.toString(),
-    });
+  Map<String, dynamic> toJson() {
+    final result = super.toJson()
+      ..addAll({
+        'membership': membership.value,
+        'displayname': displayName,
+        'avatar_url': avatarUrl?.toString(),
+      });
+    return result;
+  }
 
   MemberChange copyWith({
-    Membership membership,
-    String displayName,
-    String avatarUrl,
-    bool isDirect,
+    Membership? membership,
+    String? displayName,
+    Uri? avatarUrl,
+    bool? isDirect,
   }) {
     return MemberChange(
       membership: membership ?? this.membership,
@@ -192,9 +197,9 @@ class MemberChange extends EventContent {
 class JoinEvent extends MemberChangeEvent {
   JoinEvent._(
     RoomEventArgs args, {
-    @required MemberChange content,
-    MemberChange previousContent,
-    @required String stateKey,
+    MemberChange? content,
+    MemberChange? previousContent,
+    String stateKey = '',
   }) : super._(
           args,
           content: content,
@@ -206,9 +211,9 @@ class JoinEvent extends MemberChangeEvent {
 class LeaveEvent extends MemberChangeEvent {
   LeaveEvent._(
     RoomEventArgs args, {
-    @required MemberChange content,
-    MemberChange previousContent,
-    @required String stateKey,
+    MemberChange? content,
+    MemberChange? previousContent,
+    String stateKey = '',
   }) : super._(
           args,
           content: content,
@@ -223,9 +228,9 @@ class KickEvent extends LeaveEvent {
 
   KickEvent._(
     RoomEventArgs args, {
-    @required MemberChange content,
-    MemberChange previousContent,
-    @required String stateKey,
+    MemberChange? content,
+    MemberChange? previousContent,
+    String stateKey = '',
   }) : super._(
           args,
           content: content,
@@ -237,9 +242,9 @@ class KickEvent extends LeaveEvent {
 class BanEvent extends MemberChangeEvent {
   BanEvent._(
     RoomEventArgs args, {
-    @required MemberChange content,
-    MemberChange previousContent,
-    @required String stateKey,
+    MemberChange? content,
+    MemberChange? previousContent,
+    String stateKey = '',
   }) : super._(
           args,
           content: content,
@@ -252,9 +257,9 @@ class BanEvent extends MemberChangeEvent {
 class InviteEvent extends MemberChangeEvent {
   InviteEvent._(
     RoomEventArgs args, {
-    @required MemberChange content,
-    MemberChange previousContent,
-    @required String stateKey,
+    MemberChange? content,
+    MemberChange? previousContent,
+    String stateKey = '',
   }) : super._(
           args,
           content: content,
@@ -266,9 +271,9 @@ class InviteEvent extends MemberChangeEvent {
 class KnockEvent extends MemberChangeEvent {
   KnockEvent._(
     RoomEventArgs args, {
-    @required MemberChange content,
-    MemberChange previousContent,
-    @required String stateKey,
+    MemberChange? content,
+    MemberChange? previousContent,
+    required String stateKey,
   }) : super._(
           args,
           content: content,
@@ -278,14 +283,14 @@ class KnockEvent extends MemberChangeEvent {
 }
 
 class DisplayNameChangeEvent extends JoinEvent {
-  String get oldSubjectName => previousContent.displayName;
-  String get newSubjectName => content.displayName;
+  String? get oldSubjectName => previousContent?.displayName;
+  String? get newSubjectName => content?.displayName;
 
   DisplayNameChangeEvent._(
     RoomEventArgs args, {
-    @required MemberChange content,
-    MemberChange previousContent,
-    @required String stateKey,
+    required MemberChange content,
+    MemberChange? previousContent,
+    String stateKey = '',
   }) : super._(
           args,
           content: content,
@@ -295,14 +300,14 @@ class DisplayNameChangeEvent extends JoinEvent {
 }
 
 class AvatarChangeEvent extends JoinEvent {
-  Uri get oldSubjectAvatarUrl => previousContent.avatarUrl;
-  Uri get newSubjectAvatarUrl => content.avatarUrl;
+  Uri? get oldSubjectAvatarUrl => previousContent?.avatarUrl;
+  Uri? get newSubjectAvatarUrl => content?.avatarUrl;
 
   AvatarChangeEvent._(
     RoomEventArgs args, {
-    @required MemberChange content,
-    MemberChange previousContent,
-    @required String stateKey,
+    MemberChange? content,
+    MemberChange? previousContent,
+    String stateKey = '',
   }) : super._(
           args,
           content: content,

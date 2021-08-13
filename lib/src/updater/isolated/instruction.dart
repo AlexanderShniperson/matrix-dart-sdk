@@ -4,6 +4,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import 'package:matrix_sdk/src/event/room/message_event.dart';
+
 import '../../context.dart';
 import '../../event/ephemeral/ephemeral.dart';
 import 'package:meta/meta.dart';
@@ -29,8 +31,12 @@ class StartSyncInstruction extends Instruction<void> {
   bool get expectsReturnValue => false;
 
   final Duration maxRetryAfter;
+  final int timelineLimit;
 
-  StartSyncInstruction(this.maxRetryAfter);
+  StartSyncInstruction(
+    this.maxRetryAfter,
+    this.timelineLimit,
+  );
 }
 
 class StopSyncInstruction extends Instruction<void> {}
@@ -44,7 +50,7 @@ abstract class RequestInstruction<T extends Contextual<T>>
 
 class KickInstruction extends RequestInstruction<MemberTimeline> {
   final UserId id;
-  final RoomId from;
+  final RoomId? from;
 
   KickInstruction(this.id, this.from);
 
@@ -53,14 +59,14 @@ class KickInstruction extends RequestInstruction<MemberTimeline> {
 }
 
 class LoadRoomEventsInstruction extends RequestInstruction<Timeline> {
-  final RoomId roomId;
+  final RoomId? roomId;
   final int count;
 
   LoadRoomEventsInstruction(this.roomId, this.count);
 }
 
 class LoadMembersInstruction extends RequestInstruction<MemberTimeline> {
-  final RoomId roomId;
+  final RoomId? roomId;
   final int count;
 
   LoadMembersInstruction(this.roomId, this.count);
@@ -90,7 +96,7 @@ class MarkReadInstruction extends RequestInstruction<ReadReceipts> {
 class SendInstruction extends RequestInstruction<Timeline> {
   final RoomId roomId;
   final EventContent content;
-  final String transactionId;
+  final String? transactionId;
   final String stateKey;
   final String type;
 
@@ -103,8 +109,42 @@ class SendInstruction extends RequestInstruction<Timeline> {
   );
 }
 
-class SetIsTypingInstruction extends RequestInstruction<Ephemeral> {
+class EditTextEventInstruction extends RequestInstruction<Timeline> {
   final RoomId roomId;
+  final TextMessageEvent event;
+  final String? transactionId;
+  final String newContent;
+
+  EditTextEventInstruction(
+    this.roomId,
+    this.event,
+    this.newContent,
+    this.transactionId,
+  );
+
+  @override
+  final bool basedOnUpdate = true;
+}
+
+class DeleteEventInstruction extends RequestInstruction<Timeline> {
+  final RoomId roomId;
+  final EventId eventId;
+  final String? transactionId;
+  final String? reason;
+
+  DeleteEventInstruction(
+    this.roomId,
+    this.eventId,
+    this.transactionId,
+    this.reason,
+  );
+
+  @override
+  final bool basedOnUpdate = true;
+}
+
+class SetIsTypingInstruction extends RequestInstruction<Ephemeral> {
+  final RoomId? roomId;
   final bool isTyping;
   final Duration timeout;
 
@@ -116,8 +156,8 @@ class SetIsTypingInstruction extends RequestInstruction<Ephemeral> {
 }
 
 class JoinRoomInstruction extends RequestInstruction<Room> {
-  final RoomId id;
-  final RoomAlias alias;
+  final RoomId? id;
+  final RoomAlias? alias;
   final Uri serverUrl;
 
   JoinRoomInstruction(this.id, this.alias, this.serverUrl);

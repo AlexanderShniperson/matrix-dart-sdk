@@ -17,14 +17,14 @@ class RoomNameChangeEvent extends StateEvent {
   final String type = matrixType;
 
   @override
-  final RoomNameChange content;
+  final RoomNameChange? content;
 
   @override
-  final RoomNameChange previousContent;
+  final RoomNameChange? previousContent;
 
   RoomNameChangeEvent(
     RoomEventArgs args, {
-    @required this.content,
+    this.content,
     this.previousContent,
   }) : super(args, stateKey: '');
 }
@@ -33,7 +33,9 @@ class RoomNameChangeEvent extends StateEvent {
 class RoomNameChange extends EventContent {
   final String name;
 
-  RoomNameChange({@required this.name});
+  RoomNameChange({
+    required this.name,
+  });
 
   @override
   bool operator ==(dynamic other) =>
@@ -42,8 +44,10 @@ class RoomNameChange extends EventContent {
   @override
   int get hashCode => name.hashCode;
 
-  factory RoomNameChange.fromJson(Map<String, dynamic> content) {
-    if (content == null) return null;
+  static RoomNameChange? fromJson(Map<String, dynamic>? content) {
+    if (content == null) {
+      return null;
+    }
 
     return RoomNameChange(name: content['name']);
   }

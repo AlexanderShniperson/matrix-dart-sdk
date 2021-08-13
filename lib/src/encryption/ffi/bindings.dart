@@ -10,20 +10,25 @@ import 'dart:io';
 /// Path to the olm dynamic library.
 ///
 /// Note that [path] must end with a slash.
-DynamicLibrary open({String path}) {
-  final name = 'olm';
-  path ??= '';
-
-  if (Platform.isLinux || Platform.isAndroid) path += 'lib$name.so';
-  if (Platform.isMacOS) path += 'lib$name.dylib';
-  if (Platform.isWindows) path += '$name.dll';
+DynamicLibrary open({final String path = ''}) {
+  const name = 'olm';
+  final buffer = StringBuffer(path);
+  if (Platform.isLinux || Platform.isAndroid) {
+    buffer.write('lib$name.so');
+  }
+  if (Platform.isMacOS) {
+    buffer.write('lib$name.dylib');
+  }
+  if (Platform.isWindows) {
+    buffer.write('$name.dll');
+  }
 
   // If path is still empty, we're not on a supported platform
-  if (path.isEmpty) {
+  if (buffer.isEmpty) {
     throw UnimplementedError('OlmFFI is not implemented on this platform');
   }
 
-  return DynamicLibrary.open(path);
+  return DynamicLibrary.open(buffer.toString());
 }
 
 /// A constructor function type.
@@ -59,16 +64,16 @@ typedef ErrorNative = Uint16 Function();
 class OlmBindings {
   final DynamicLibrary lib;
 
-  Error error;
+  late Error error;
 
-  Constructor account;
-  Size accountSize;
-  Creator createAccount;
-  SizeFor createAccountRandomLength;
-  SizeFor accountIdentityKeysLength;
-  FillFromProperty accountIdentityKeys;
+  late Constructor account;
+  late Size accountSize;
+  late Creator createAccount;
+  late SizeFor createAccountRandomLength;
+  late SizeFor accountIdentityKeysLength;
+  late FillFromProperty accountIdentityKeys;
 
-  OlmBindings({String path}) : lib = open(path: path) {
+  OlmBindings({String path = ''}) : lib = open(path: path) {
     error = lib.lookupFunction<ErrorNative, Error>('olm_error');
 
     account = lib.lookupFunction<Constructor, Constructor>('olm_account');

@@ -8,7 +8,7 @@ part of 'client.dart';
 
 // ignore_for_file: always_put_control_body_on_new_line, always_specify_types, prefer_const_declarations
 class _$ClientService extends ClientService {
-  _$ClientService([ChopperClient client]) {
+  _$ClientService([ChopperClient? client]) {
     if (client == null) return;
     this.client = client;
   }
@@ -25,18 +25,27 @@ class _$ClientService extends ClientService {
   }
 
   @override
-  Future<Response<dynamic>> profile({String authorization, String userId}) {
+  Future<Response<dynamic>> profile(
+      {required String authorization, required String userId}) {
     final $url = '/_matrix/client/r0/profile/$userId';
-    final $headers = {'Authorization': authorization};
+    final $headers = {
+      'Authorization': authorization,
+    };
+
     final $request = Request('GET', $url, client.baseUrl, headers: $headers);
     return client.send<dynamic, dynamic>($request);
   }
 
   @override
   Future<Response<dynamic>> profileSetDisplayName(
-      {String authorization, String userId, String body}) {
+      {required String authorization,
+      required String userId,
+      required String body}) {
     final $url = '/_matrix/client/r0/profile/$userId/displayname';
-    final $headers = {'Authorization': authorization};
+    final $headers = {
+      'Authorization': authorization,
+    };
+
     final $body = body;
     final $request =
         Request('PUT', $url, client.baseUrl, body: $body, headers: $headers);
@@ -44,9 +53,13 @@ class _$ClientService extends ClientService {
   }
 
   @override
-  Future<Response<dynamic>> setPusher({String authorization, String body}) {
+  Future<Response<dynamic>> setPusher(
+      {required String authorization, required String body}) {
     final $url = '/_matrix/client/r0/pushers/set';
-    final $headers = {'Authorization': authorization};
+    final $headers = {
+      'Authorization': authorization,
+    };
+
     final $body = body;
     final $request =
         Request('POST', $url, client.baseUrl, body: $body, headers: $headers);
@@ -54,7 +67,8 @@ class _$ClientService extends ClientService {
   }
 
   @override
-  Future<Response<dynamic>> register({String kind, String body}) {
+  Future<Response<dynamic>> register(
+      {required String kind, required String body}) {
     final $url = '/_matrix/client/r0/register';
     final $params = <String, dynamic>{'kind': kind};
     final $body = body;
@@ -65,10 +79,10 @@ class _$ClientService extends ClientService {
 
   @override
   Future<Response<dynamic>> sync(
-      {String authorization,
-      String since,
+      {required String authorization,
+      required String since,
       bool fullState = false,
-      String filter,
+      required String filter,
       int timeout = 0}) {
     final $url = '/_matrix/client/r0/sync';
     final $params = <String, dynamic>{
@@ -77,7 +91,10 @@ class _$ClientService extends ClientService {
       'filter': filter,
       'timeout': timeout
     };
-    final $headers = {'Authorization': authorization};
+    final $headers = {
+      'Authorization': authorization,
+    };
+
     final $request = Request('GET', $url, client.baseUrl,
         parameters: $params, headers: $headers);
     return client.send<dynamic, dynamic>($request);
@@ -85,12 +102,12 @@ class _$ClientService extends ClientService {
 
   @override
   Future<Response<dynamic>> roomMessages(
-      {String authorization,
-      String roomId,
-      String from,
-      int limit,
+      {required String authorization,
+      required String roomId,
+      required String from,
+      required int limit,
       String dir = 'b',
-      String filter}) {
+      required String filter}) {
     final $url = '/_matrix/client/r0/rooms/$roomId/messages';
     final $params = <String, dynamic>{
       'from': from,
@@ -98,7 +115,10 @@ class _$ClientService extends ClientService {
       'dir': dir,
       'filter': filter
     };
-    final $headers = {'Authorization': authorization};
+    final $headers = {
+      'Authorization': authorization,
+    };
+
     final $request = Request('GET', $url, client.baseUrl,
         parameters: $params, headers: $headers);
     return client.send<dynamic, dynamic>($request);
@@ -106,10 +126,16 @@ class _$ClientService extends ClientService {
 
   @override
   Future<Response<dynamic>> members(
-      {String authorization, String roomId, String at, String membership}) {
+      {required String authorization,
+      required String roomId,
+      required String at,
+      required String membership}) {
     final $url = '/_matrix/client/r0/rooms/$roomId/members';
     final $params = <String, dynamic>{'at': at, 'membership': membership};
-    final $headers = {'Authorization': authorization};
+    final $headers = {
+      'Authorization': authorization,
+    };
+
     final $request = Request('GET', $url, client.baseUrl,
         parameters: $params, headers: $headers);
     return client.send<dynamic, dynamic>($request);
@@ -117,13 +143,51 @@ class _$ClientService extends ClientService {
 
   @override
   Future<Response<dynamic>> send(
-      {String authorization,
-      String roomId,
-      String eventType,
-      String txnId,
-      String content}) {
+      {required String authorization,
+      required String roomId,
+      required String eventType,
+      required String txnId,
+      required String content}) {
     final $url = '/_matrix/client/r0/rooms/$roomId/send/$eventType/$txnId';
-    final $headers = {'Authorization': authorization};
+    final $headers = {
+      'Authorization': authorization,
+    };
+
+    final $body = content;
+    final $request =
+        Request('PUT', $url, client.baseUrl, body: $body, headers: $headers);
+    return client.send<dynamic, dynamic>($request);
+  }
+
+  @override
+  Future<Response<dynamic>> edit(
+      {required String authorization,
+      required String roomId,
+      required String txnId,
+      required String content}) {
+    final $url = '/_matrix/client/r0/rooms/$roomId/send/m.room.message/$txnId';
+    final $headers = {
+      'Authorization': authorization,
+    };
+
+    final $body = content;
+    final $request =
+        Request('PUT', $url, client.baseUrl, body: $body, headers: $headers);
+    return client.send<dynamic, dynamic>($request);
+  }
+
+  @override
+  Future<Response<dynamic>> redact(
+      {required String authorization,
+      required String roomId,
+      required String eventId,
+      required String txnId,
+      required String content}) {
+    final $url = '/_matrix/client/r0/rooms/$roomId/redact/$eventId/$txnId';
+    final $headers = {
+      'Authorization': authorization,
+    };
+
     final $body = content;
     final $request =
         Request('PUT', $url, client.baseUrl, body: $body, headers: $headers);
@@ -132,13 +196,16 @@ class _$ClientService extends ClientService {
 
   @override
   Future<Response<dynamic>> sendState(
-      {String authorization,
-      String roomId,
-      String eventType,
-      String stateKey,
-      String content}) {
+      {required String authorization,
+      required String roomId,
+      required String eventType,
+      required String stateKey,
+      required String content}) {
     final $url = '/_matrix/client/r0/rooms/$roomId/state/$eventType/$stateKey';
-    final $headers = {'Authorization': authorization};
+    final $headers = {
+      'Authorization': authorization,
+    };
+
     final $body = content;
     final $request =
         Request('PUT', $url, client.baseUrl, body: $body, headers: $headers);
@@ -147,9 +214,15 @@ class _$ClientService extends ClientService {
 
   @override
   Future<Response<dynamic>> typing(
-      {String authorization, String roomId, String userId, String body}) {
+      {required String authorization,
+      required String roomId,
+      required String userId,
+      required String body}) {
     final $url = '/_matrix/client/r0/rooms/$roomId/typing/$userId';
-    final $headers = {'Authorization': authorization};
+    final $headers = {
+      'Authorization': authorization,
+    };
+
     final $body = body;
     final $request =
         Request('PUT', $url, client.baseUrl, body: $body, headers: $headers);
@@ -158,9 +231,14 @@ class _$ClientService extends ClientService {
 
   @override
   Future<Response<dynamic>> readMarkers(
-      {String authorization, String roomId, String body}) {
+      {required String authorization,
+      required String roomId,
+      required String body}) {
     final $url = '/_matrix/client/r0/rooms/$roomId/read_markers';
-    final $headers = {'Authorization': authorization};
+    final $headers = {
+      'Authorization': authorization,
+    };
+
     final $body = body;
     final $request =
         Request('POST', $url, client.baseUrl, body: $body, headers: $headers);
@@ -169,9 +247,14 @@ class _$ClientService extends ClientService {
 
   @override
   Future<Response<dynamic>> kick(
-      {String authorization, String roomId, String body}) {
+      {required String authorization,
+      required String roomId,
+      required String body}) {
     final $url = '/_matrix/client/r0/rooms/$roomId/kick';
-    final $headers = {'Authorization': authorization};
+    final $headers = {
+      'Authorization': authorization,
+    };
+
     final $body = body;
     final $request =
         Request('POST', $url, client.baseUrl, body: $body, headers: $headers);
@@ -179,17 +262,25 @@ class _$ClientService extends ClientService {
   }
 
   @override
-  Future<Response<dynamic>> leave({String authorization, String roomId}) {
+  Future<Response<dynamic>> leave(
+      {required String authorization, required String roomId}) {
     final $url = '/_matrix/client/r0/rooms/$roomId/leave';
-    final $headers = {'Authorization': authorization};
+    final $headers = {
+      'Authorization': authorization,
+    };
+
     final $request = Request('POST', $url, client.baseUrl, headers: $headers);
     return client.send<dynamic, dynamic>($request);
   }
 
   @override
-  Future<Response<dynamic>> createRoom({String authorization, String body}) {
+  Future<Response<dynamic>> createRoom(
+      {required String authorization, required String body}) {
     final $url = '/_matrix/client/r0/createRoom';
-    final $headers = {'Authorization': authorization};
+    final $headers = {
+      'Authorization': authorization,
+    };
+
     final $body = body;
     final $request =
         Request('POST', $url, client.baseUrl, body: $body, headers: $headers);
@@ -198,33 +289,45 @@ class _$ClientService extends ClientService {
 
   @override
   Future<Response<dynamic>> join(
-      {String authorization, String roomIdOrAlias, String serverName}) {
+      {required String authorization,
+      required String roomIdOrAlias,
+      required String serverName}) {
     final $url = '/_matrix/client/r0/join/$roomIdOrAlias';
     final $params = <String, dynamic>{'server_name': serverName};
-    final $headers = {'Authorization': authorization};
+    final $headers = {
+      'Authorization': authorization,
+    };
+
     final $request = Request('POST', $url, client.baseUrl,
         parameters: $params, headers: $headers);
     return client.send<dynamic, dynamic>($request);
   }
 
   @override
-  Future<Response<dynamic>> logout({String authorization}) {
+  Future<Response<dynamic>> logout({required String authorization}) {
     final $url = '/_matrix/client/r0/logout';
-    final $headers = {'Authorization': authorization};
+    final $headers = {
+      'Authorization': authorization,
+    };
+
     final $request = Request('POST', $url, client.baseUrl, headers: $headers);
     return client.send<dynamic, dynamic>($request);
   }
 
   @override
   Future<Response<dynamic>> publicRooms(
-      {String authorization, String server, String body}) {
+      {required String authorization,
+      required String server,
+      required String body}) {
     final $url = '/_matrix/client/r0/publicRooms';
     final $params = <String, dynamic>{'server': server};
-    final $headers = {'Authorization': authorization};
+    final $headers = {
+      'Authorization': authorization,
+    };
+
     final $body = body;
     final $request = Request('POST', $url, client.baseUrl,
         body: $body, parameters: $params, headers: $headers);
     return client.send<dynamic, dynamic>($request);
   }
 }
-// ignore_for_file: avoid_catches_without_on_clauses,type_annotate_public_apis,lines_longer_than_80_chars,avoid_equals_and_hash_code_on_mutable_classes

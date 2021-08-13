@@ -27,8 +27,8 @@ abstract class IsolateRunner {
       () async {
         final updaterAvailable = Completer<void>();
 
-        Updater updater;
-        StreamSubscription subscription;
+        Updater? updater;
+        StreamSubscription? subscription;
         subscription = messageStream.listen((message) {
           if (message is UpdaterArgs) {
             updater = Updater(
@@ -38,7 +38,7 @@ abstract class IsolateRunner {
               saveMyUserToStore: message.saveMyUserToStore,
             );
             updaterAvailable.complete();
-            subscription.cancel();
+            subscription?.cancel();
           }
         });
 
@@ -47,7 +47,7 @@ abstract class IsolateRunner {
         await updaterAvailable.future;
 
         // Send updates back to main isolate
-        updater.updates.listen(
+        updater?.updates.listen(
           (u) => sendPort.send(u.minimize()),
         );
 
@@ -59,11 +59,14 @@ abstract class IsolateRunner {
           final instruction = message as Instruction;
 
           if (instruction is StartSyncInstruction) {
-            updater.syncer.start(maxRetryAfter: instruction.maxRetryAfter);
+            updater?.syncer.start(
+              maxRetryAfter: instruction.maxRetryAfter,
+              timelineLimit: instruction.timelineLimit,
+            );
           }
 
           if (instruction is StopSyncInstruction) {
-            await updater.syncer.stop();
+            await updater?.syncer.stop();
             sendPort.send(null);
           }
 
@@ -79,7 +82,7 @@ abstract class IsolateRunner {
         sendPort.send(
           ErrorWithStackTraceString(
             error,
-            stackTrace?.toString() ?? "",
+            stackTrace.toString(),
           ),
         );
       },
@@ -87,22 +90,26 @@ abstract class IsolateRunner {
   }
 
   static Future<void> _executeRequest(
-    Updater updater,
+    Updater? updater,
     SendPort sendPort,
     RequestInstruction instruction,
   ) async {
+    if (updater == null) {
+      return Future.value();
+    }
+
     Future<dynamic> Function() operation;
 
     if (instruction is KickInstruction) {
-      operation = () => updater.kick(instruction.id, from: instruction.from);
+      operation = () => updater.kick(instruction.id, from: instruction.from!);
     } else if (instruction is LoadRoomEventsInstruction) {
       operation = () => updater.loadRoomEvents(
-            roomId: instruction.roomId,
+            roomId: instruction.roomId!,
             count: instruction.count,
           );
     } else if (instruction is LoadMembersInstruction) {
       operation = () => updater.loadMembers(
-            roomId: instruction.roomId,
+            roomId: instruction.roomId!,
             count: instruction.count,
           );
     } else if (instruction is LoadRoomsInstruction) {
@@ -134,7 +141,7 @@ abstract class IsolateRunner {
       return;
     } else if (instruction is SetIsTypingInstruction) {
       operation = () => updater.setIsTyping(
-            roomId: instruction.roomId,
+            roomId: instruction.roomId!,
             isTyping: instruction.isTyping,
             timeout: instruction.timeout,
           );
@@ -150,6 +157,20 @@ abstract class IsolateRunner {
       operation = () => updater.setName(name: instruction.name);
     } else if (instruction is SetPusherInstruction) {
       operation = () => updater.setPusher(instruction.pusher);
+    } else if (instruction is EditTextEventInstruction) {
+      operation = () => updater.edit(
+            instruction.roomId,
+            instruction.event,
+            instruction.newContent,
+            transactionId: instruction.transactionId,
+          );
+    } else if (instruction is DeleteEventInstruction) {
+      operation = () => updater.delete(
+            instruction.roomId,
+            instruction.eventId,
+            transactionId: instruction.transactionId,
+            reason: instruction.reason,
+          );
     } else {
       throw UnsupportedError(
         'Unsupported instruction: ${instruction.runtimeType}',
@@ -174,10 +195,10 @@ class UpdaterArgs {
   final bool saveMyUserToStore;
 
   UpdaterArgs({
-    @required this.myUser,
-    @required this.homeserverUrl,
-    @required this.storeLocation,
-    @required this.saveMyUserToStore,
+    required this.myUser,
+    required this.homeserverUrl,
+    required this.storeLocation,
+    required this.saveMyUserToStore,
   });
 }
 

@@ -20,16 +20,16 @@ class MessageEvent extends RoomEvent {
   final String type = matrixType;
 
   @override
-  final MessageEventContent content;
+  final MessageEventContent? content;
 
   MessageEvent._(
     RoomEventArgs args, {
-    @required this.content,
+    this.content,
   }) : super(args);
 
-  factory MessageEvent(
+  static MessageEvent? instance(
     RoomEventArgs args, {
-    @required MessageEventContent content,
+    MessageEventContent? content,
   }) {
     if (content is TextMessage) {
       return TextMessageEvent(args, content: content);
@@ -55,20 +55,36 @@ abstract class MessageEventContent extends EventContent {
   @protected
   String get type;
 
-  EventId get inReplyToId;
+  EventId? get inReplyToId;
+
+  EventId? get inReplacementToId;
 
   MessageEventContent();
 
-  factory MessageEventContent.fromJson(Map<String, dynamic> content) {
-    if (content == null) return null;
+  static MessageEventContent? fromJson(Map<String, dynamic>? content) {
+    if (content == null) {
+      return null;
+    }
 
     final msgtype = content['msgtype'];
 
-    EventId inReplyTo;
+    EventId? inReplyTo;
     if (content.containsKey('m.relates_to') &&
         content['m.relates_to']?.containsKey('m.in_reply_to') == true) {
       final repliesTo = content['m.relates_to']['m.in_reply_to']['event_id'];
       inReplyTo = EventId(repliesTo);
+    }
+
+    EventId? inReplacementToId;
+    if (content.containsKey('m.relates_to') &&
+        content['m.relates_to'] is Map<String, dynamic>) {
+      final Map<String, dynamic> infoMap = content['m.relates_to'];
+
+      if (infoMap.containsKey('rel_type') &&
+          infoMap['rel_type'] == 'm.replace') {
+        final replacement = infoMap['event_id'];
+        inReplacementToId = EventId(replacement);
+      }
     }
 
     switch (msgtype) {
@@ -103,6 +119,7 @@ abstract class MessageEventContent extends EventContent {
           url: url,
           info: info,
           inReplyToId: inReplyTo,
+          inReplacementToId: inReplacementToId,
         );
       case AudioMessage.matrixMessageType:
         final body = content['body'];
@@ -129,13 +146,14 @@ abstract class MessageEventContent extends EventContent {
           url: url,
           info: info,
           inReplyToId: inReplyTo,
+          inReplacementToId: inReplacementToId,
         );
       case VideoMessage.matrixMessageType:
         return VideoMessage.fromJson(content);
       case TextMessage.matrixMessageType:
       case EmoteMessage.matrixMessageType:
       default:
-        final body = content['body'];
+        final body = content['body'] ?? '';
         final formattedBody = content['formatted_body'];
         final format = content['format'];
 
@@ -145,6 +163,7 @@ abstract class MessageEventContent extends EventContent {
             format: format,
             formattedBody: formattedBody,
             inReplyToId: inReplyTo,
+            inReplacementToId: inReplacementToId,
           );
         } else {
           return TextMessage(
@@ -152,6 +171,7 @@ abstract class MessageEventContent extends EventContent {
             format: format,
             formattedBody: formattedBody,
             inReplyToId: inReplyTo,
+            inReplacementToId: inReplacementToId,
           );
         }
     }
@@ -170,14 +190,23 @@ abstract class MessageEventContent extends EventContent {
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{'msgtype': type};
 
+    Map<String, dynamic> relates = {};
+
     if (inReplyToId != null) {
-      json.addAll({
-        'm.relates_to': {
-          'm.in_reply_to': {
-            'event_id': inReplyToId.toString(),
-          }
+      relates.addAll({
+        'm.in_reply_to': {
+          'event_id': inReplyToId.toString(),
         }
       });
+    }
+
+    if (inReplacementToId != null) {
+      relates.addAll(
+          {'event_id': inReplacementToId.toString(), 'rel_type': 'm.replace'});
+    }
+
+    if (relates.isNotEmpty) {
+      json['m.relates_to'] = relates;
     }
 
     return json;
@@ -191,17 +220,21 @@ class TextMessage extends MessageEventContent {
   final String type = matrixMessageType;
 
   final String body;
-  final String format;
-  final String formattedBody;
+  final String? format;
+  final String? formattedBody;
 
   @override
-  final EventId inReplyToId;
+  final EventId? inReplyToId;
+
+  @override
+  final EventId? inReplacementToId;
 
   TextMessage({
-    @required this.body,
+    required this.body,
     this.format,
     this.formattedBody,
     this.inReplyToId,
+    this.inReplacementToId,
   });
 
   @override
@@ -225,7 +258,7 @@ class TextMessageEvent extends MessageEvent {
 
   TextMessageEvent(
     RoomEventArgs args, {
-    @required this.content,
+    required this.content,
   }) : super._(args, content: content);
 }
 
@@ -236,15 +269,17 @@ class EmoteMessage extends TextMessage {
   final String type = matrixMessageType;
 
   EmoteMessage({
-    @required String body,
-    String format,
-    String formattedBody,
-    EventId inReplyToId,
+    required String body,
+    String? format,
+    String? formattedBody,
+    EventId? inReplyToId,
+    EventId? inReplacementToId,
   }) : super(
           body: body,
           format: format,
           formattedBody: formattedBody,
           inReplyToId: inReplyToId,
+          inReplacementToId: inReplacementToId,
         );
 }
 
@@ -254,7 +289,7 @@ class EmoteMessageEvent extends TextMessageEvent {
 
   EmoteMessageEvent(
     RoomEventArgs args, {
-    @required this.content,
+    required this.content,
   }) : super(args, content: content);
 }
 
@@ -265,17 +300,21 @@ class ImageMessage extends MessageEventContent {
   final String type = matrixMessageType;
 
   final String body;
-  final Uri url;
-  final ImageInfo info;
+  final Uri? url;
+  final ImageInfo? info;
 
   @override
-  final EventId inReplyToId;
+  final EventId? inReplyToId;
+
+  @override
+  final EventId? inReplacementToId;
 
   ImageMessage({
-    @required this.body,
+    required this.body,
     this.url,
     this.info,
     this.inReplyToId,
+    this.inReplacementToId,
   });
 
   @override
@@ -300,12 +339,12 @@ class ImageMessage extends MessageEventContent {
     if (info != null) {
       final jsonInfo = json['info'] = {};
 
-      if (info.width != null) {
-        jsonInfo['w'] = info.width;
+      if (info?.width != null) {
+        jsonInfo['w'] = info!.width;
       }
 
-      if (info.height != null) {
-        jsonInfo['h'] = info.height;
+      if (info?.height != null) {
+        jsonInfo['h'] = info!.height;
       }
     }
 
@@ -314,19 +353,19 @@ class ImageMessage extends MessageEventContent {
 }
 
 class ImageInfo {
-  final int width;
-  final int height;
+  final int? width;
+  final int? height;
 
   ImageInfo({this.width, this.height});
 }
 
 class ImageMessageEvent extends MessageEvent {
   @override
-  final ImageMessage content;
+  final ImageMessage? content;
 
   ImageMessageEvent(
     RoomEventArgs args, {
-    @required this.content,
+    required this.content,
   }) : super._(args, content: content);
 }
 
@@ -337,22 +376,26 @@ class VideoMessage extends MessageEventContent {
   final String type = matrixMessageType;
 
   final String body;
-  final Uri url;
-  final VideoInfo info;
+  final Uri? url;
+  final VideoInfo? info;
 
   @override
-  final EventId inReplyToId;
+  final EventId? inReplyToId;
+
+  @override
+  final EventId? inReplacementToId;
 
   VideoMessage({
-    @required this.body,
+    required this.body,
     this.url,
     this.info,
     this.inReplyToId,
+    this.inReplacementToId,
   });
 
-  factory VideoMessage.fromJson(
+  static VideoMessage? fromJson(
     Map<String, dynamic> json, {
-    EventId inReplyToId,
+    EventId? inReplyToId,
   }) {
     final body = json['body'];
 
@@ -392,20 +435,20 @@ class VideoMessage extends MessageEventContent {
 
 @immutable
 class VideoInfo {
-  final Duration duration;
-  final int width;
-  final int height;
+  final Duration? duration;
+  final int? width;
+  final int? height;
   final int size;
 
   final String mimeType;
-  final ThumbnailInfo thumbnail;
+  final ThumbnailInfo? thumbnail;
 
   VideoInfo({
     this.duration,
     this.width,
     this.height,
-    this.size,
-    this.mimeType,
+    required this.size,
+    required this.mimeType,
     this.thumbnail,
   });
 
@@ -452,24 +495,24 @@ class VideoInfo {
         'mimetype': mimeType,
         'size': size,
         'thumbnail_info': thumbnail?.toJson(),
-        'thumbnail_url': thumbnail?.url?.toString(),
+        'thumbnail_url': thumbnail?.url.toString(),
       };
 }
 
 @immutable
 class ThumbnailInfo {
   final Uri url;
-  final int width;
-  final int height;
-  final int size;
+  final int? width;
+  final int? height;
+  final int? size;
   final String mimeType;
 
   ThumbnailInfo({
-    @required this.url,
+    required this.url,
     this.width,
     this.height,
     this.size,
-    this.mimeType,
+    required this.mimeType,
   });
 
   @override
@@ -492,9 +535,9 @@ class ThumbnailInfo {
         'mimetype': mimeType,
       };
 
-  factory ThumbnailInfo.fromJson(
+  static ThumbnailInfo? fromJson(
     Map<String, dynamic> json, {
-    @required String url,
+    String? url,
   }) {
     final parsedUrl = url != null ? Uri.tryParse(url) : null;
     if (parsedUrl == null) {
@@ -517,7 +560,7 @@ class VideoMessageEvent extends MessageEvent {
 
   VideoMessageEvent(
     RoomEventArgs args, {
-    @required this.content,
+    required this.content,
   }) : super._(args, content: content);
 }
 
@@ -527,18 +570,22 @@ class AudioMessage extends MessageEventContent {
   @override
   final String type = matrixMessageType;
 
+  @override
+  final EventId? inReplacementToId;
+
   final String body;
-  final Uri url;
-  final AudioInfo info;
+  final Uri? url;
+  final AudioInfo? info;
 
   @override
-  final EventId inReplyToId;
+  final EventId? inReplyToId;
 
   AudioMessage({
-    @required this.body,
+    required this.body,
     this.url,
     this.info,
     this.inReplyToId,
+    this.inReplacementToId,
   });
 
   @override
@@ -561,9 +608,9 @@ class AudioMessage extends MessageEventContent {
 
     if (info != null) {
       json['info'] = {
-        'duration': info.duration?.inMilliseconds,
-        'mimetype': info.mimetype,
-        'size': info.size,
+        'duration': info!.duration?.inMilliseconds,
+        'mimetype': info!.mimetype,
+        'size': info!.size,
       };
     }
     return super.toJson()..addAll(json);
@@ -572,11 +619,15 @@ class AudioMessage extends MessageEventContent {
 
 @immutable
 class AudioInfo {
-  final Duration duration;
+  final Duration? duration;
   final String mimetype;
   final int size;
 
-  AudioInfo({this.duration, this.mimetype, this.size});
+  AudioInfo({
+    this.duration,
+    required this.mimetype,
+    required this.size,
+  });
 
   @override
   bool operator ==(dynamic other) =>
@@ -595,6 +646,6 @@ class AudioMessageEvent extends MessageEvent {
 
   AudioMessageEvent(
     RoomEventArgs args, {
-    @required this.content,
+    required this.content,
   }) : super._(args, content: content);
 }

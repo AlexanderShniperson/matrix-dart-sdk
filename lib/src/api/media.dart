@@ -13,7 +13,7 @@ part 'media.chopper.dart';
 
 @ChopperApi(baseUrl: MediaService.baseUrl)
 abstract class MediaService extends ChopperService {
-  static MediaService create([ChopperClient client]) => _$MediaService(client);
+  static MediaService create([ChopperClient? client]) => _$MediaService(client);
 
   static const baseUrl = '/${Api.base}/media/${Api.version}';
   static const downloadSegment = 'download';

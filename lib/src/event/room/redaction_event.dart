@@ -20,12 +20,12 @@ class RedactionEvent extends RoomEvent {
 
   RedactionEvent(
     RoomEventArgs args, {
-    @required this.content,
-    @required this.redacts,
+    required this.content,
+    required this.redacts,
   }) : super(args);
 
   @override
-  final Redaction content;
+  final Redaction? content;
 
   final EventId redacts;
 
@@ -53,7 +53,9 @@ class RedactionEvent extends RoomEvent {
 class Redaction extends EventContent {
   final String reason;
 
-  Redaction({@required this.reason});
+  Redaction({
+    required this.reason,
+  });
 
   @override
   bool operator ==(dynamic other) =>
@@ -62,12 +64,14 @@ class Redaction extends EventContent {
   @override
   int get hashCode => reason.hashCode;
 
-  factory Redaction.fromJson(Map<String, dynamic> content) {
-    if (content == null) return null;
+  static Redaction? fromJson(Map<String, dynamic>? content) {
+    if (content == null) {
+      return null;
+    }
 
-    String reason;
+    String reason = '';
     if (content.containsKey('reason')) {
-      reason = content['reason'];
+      reason = content['reason'] ?? '';
     }
 
     return Redaction(reason: reason);
@@ -79,8 +83,8 @@ class Redaction extends EventContent {
 
 class RedactedEvent extends RoomEvent {
   factory RedactedEvent.fromRedaction({
-    @required RedactionEvent redaction,
-    @required RoomEvent original,
+    required RedactionEvent redaction,
+    required RoomEvent original,
   }) {
     if (original is StateEvent) {
       return RedactedStateEvent(redaction, original);
@@ -93,7 +97,7 @@ class RedactedEvent extends RoomEvent {
   final String type;
 
   @override
-  final EventContent content = null;
+  final EventContent? content = null;
 
   final RedactionEvent redaction;
 
@@ -114,10 +118,10 @@ class RedactedEvent extends RoomEvent {
 
 class RedactedStateEvent extends StateEvent implements RedactedEvent {
   @override
-  final EventContent content = null;
+  final EventContent? content = null;
 
   @override
-  final EventContent previousContent = null;
+  final EventContent? previousContent = null;
 
   @override
   final String type;

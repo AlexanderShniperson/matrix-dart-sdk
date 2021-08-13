@@ -12,21 +12,22 @@ import 'identifier.dart';
 import 'my_user.dart';
 import 'room/room.dart';
 import 'updater/updater.dart';
+import 'util/nullable_extension.dart';
 
 class PublicRooms extends DelegatingIterable<RoomResult> {
   /// The server these rooms belong to.
-  final Homeserver server;
+  final Homeserver? server;
 
   /// Note that this is an _estimation_ of the amount of total
   /// public rooms.
   ///
   /// Is `null` if [hasLoaded] is false.
-  final int totalRoomsCount;
+  final int? totalRoomsCount;
 
   /// Search term used to find public rooms. Can be null to get all rooms.
-  final String searchTerm;
+  final String? searchTerm;
 
-  final String nextBatch;
+  final String? nextBatch;
 
   /// Returns true if at least once a request has been made using [load] to
   /// get public rooms.
@@ -41,7 +42,7 @@ class PublicRooms extends DelegatingIterable<RoomResult> {
     this.totalRoomsCount,
     this.searchTerm,
     this.nextBatch,
-    this.hasLoaded,
+    this.hasLoaded = false,
   }) : super(iterable);
 
   PublicRooms.of(Homeserver server)
@@ -74,21 +75,25 @@ class PublicRooms extends DelegatingIterable<RoomResult> {
   /// for something  else.
   ///
   /// Returns a new [PublicRooms] with possibly more rooms loaded.
-  Future<PublicRooms> load({
-    @required MyUser as,
+  Future<PublicRooms?> load({
+    required MyUser as,
     int limit = 30,
-    String searchTerm,
+    String? searchTerm,
   }) async {
     assert(
       !hasLoaded || searchTerm == null || this.searchTerm == searchTerm,
     );
 
-    final body = await as.context.homeserver.api.publicRooms(
-      accessToken: as.accessToken,
-      server: (server.wellKnownUrl ?? server.url).host,
-      since: nextBatch,
+    final body = await as.context?.homeServer?.api.publicRooms(
+      accessToken: as.accessToken ?? '',
+      server: (server?.wellKnownUrl ?? server?.url)?.host ?? '',
+      since: nextBatch ?? '',
       genericSearchTerm: searchTerm,
     );
+
+    if (body == null) {
+      return null;
+    }
 
     var newRooms = PublicRooms._fromJson(body);
 
@@ -103,12 +108,12 @@ class PublicRooms extends DelegatingIterable<RoomResult> {
   }
 
   PublicRooms _copyWith({
-    Iterable<RoomResult> rooms,
-    Homeserver server,
-    int totalRoomsCount,
-    String searchTerm,
-    String nextBatch,
-    bool hasLoaded,
+    Iterable<RoomResult>? rooms,
+    Homeserver? server,
+    int? totalRoomsCount,
+    String? searchTerm,
+    String? nextBatch,
+    bool? hasLoaded,
   }) {
     return PublicRooms._(
       rooms ?? this,
@@ -120,7 +125,7 @@ class PublicRooms extends DelegatingIterable<RoomResult> {
     );
   }
 
-  PublicRooms _merge(PublicRooms other) {
+  PublicRooms? _merge(PublicRooms? other) {
     if (other == null) {
       return this;
     }
@@ -141,24 +146,24 @@ class RoomResult with Identifiable<RoomId> {
   @override
   final RoomId id;
   final String name;
-  final Uri avatarUrl;
+  final Uri? avatarUrl;
   final String topic;
-  final RoomAlias canonicalAlias;
+  final RoomAlias? canonicalAlias;
   final Iterable<RoomAlias> aliases;
   final int joinedMembersCount;
   final bool worldReadable;
   final bool guestsCanJoin;
 
   RoomResult({
-    this.id,
-    this.name,
+    required this.id,
+    required this.name,
     this.avatarUrl,
-    this.topic,
+    required this.topic,
     this.canonicalAlias,
-    this.aliases,
-    this.joinedMembersCount,
-    this.worldReadable,
-    this.guestsCanJoin,
+    required this.aliases,
+    required this.joinedMembersCount,
+    required this.worldReadable,
+    required this.guestsCanJoin,
   });
 
   factory RoomResult.fromJson(Map<String, dynamic> json) {
@@ -188,8 +193,14 @@ class RoomResult with Identifiable<RoomId> {
     );
   }
 
-  Future<RequestUpdate<Room>> join({@required MyUser as}) =>
-      as.rooms.enter(id: id);
+  Future<RequestUpdate<Room>?> join({
+    required MyUser as,
+  }) {
+    final result = as.rooms.let((value) {
+      value.enter(id: id);
+    });
+    return result ?? Future.value(null);
+  }
 
   @override
   String toString() {

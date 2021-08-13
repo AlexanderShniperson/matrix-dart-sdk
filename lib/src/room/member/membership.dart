@@ -53,7 +53,7 @@ class Joined extends Membership {
   static const _value = 'join';
 
   @override
-  final String value = _value;
+  String get value => _value;
 
   const Joined._();
 }
@@ -62,7 +62,7 @@ class Invited extends Membership {
   static const _value = 'invite';
 
   @override
-  final String value = _value;
+  String get value => _value;
 
   const Invited._();
 }
@@ -71,7 +71,7 @@ class Left extends Membership {
   static const _value = 'leave';
 
   @override
-  final String value = _value;
+  String get value => _value;
 
   const Left._();
 }
@@ -84,7 +84,7 @@ class Banned extends Membership {
   static const _value = 'ban';
 
   @override
-  final String value = _value;
+  String get value => _value;
 
   const Banned._();
 }
@@ -93,7 +93,7 @@ class Knocked extends Membership {
   static const _value = 'knock';
 
   @override
-  final String value = _value;
+  String get value => _value;
 
   const Knocked._();
 }

@@ -18,7 +18,7 @@ void testLocalUser() {
   group('LocalUser', () {
     group('Sync', () {
       Homeserver hs;
-      MyUser user;
+      MyUser? user;
 
       setUp(() async {
         hs = Homeserver(
@@ -218,36 +218,36 @@ void testLocalUser() {
       });
 
       test('stops sync process', () async {
-        StreamSubscription sub;
-        sub = user.updates.listen((_) async {
-          expect(user.isSyncing, isTrue);
-          await user.stopSync();
-          expect(user.isSyncing, isFalse);
+        StreamSubscription? sub;
+        sub = user?.updates?.listen((_) async {
+          expect(user?.isSyncing, isTrue);
+          await user?.stopSync();
+          expect(user?.isSyncing, isFalse);
 
-          await sub.cancel();
+          await sub?.cancel();
         });
 
-        user.startSync();
+        user?.startSync();
       });
 
       test('.updates delta has correct rooms', () async {
-        StreamSubscription sub;
-        sub = user.updates.listen((update) {
-          final room = update.delta.rooms.first;
+        StreamSubscription? sub;
+        sub = user?.updates?.listen((update) {
+          final room = update.delta.rooms?.first;
 
-          expect(room.id, RoomId('!726s6s6q:example.com'));
-          expect(room.summary.joinedMembersCount, 2);
+          expect(room?.id, RoomId('!726s6s6q:example.com'));
+          expect(room?.summary?.joinedMembersCount, 2);
 
-          user.stopSync();
-          sub.cancel();
+          user?.stopSync();
+          sub?.cancel();
         });
 
-        user.startSync();
+        user?.startSync();
       });
     });
 
     test('.pushers.set does not raise an error if sucessful', () async {
-      var hs = Homeserver(
+      final hs = Homeserver(
         Uri.parse('https://pattle.im'),
         httpClient: MockClient((request) async {
           if (request.url.path.endsWith('login')) {
@@ -275,13 +275,13 @@ void testLocalUser() {
           }
         }),
       );
-      var user = await hs.login(
+      final user = await hs.login(
         Username('pat'),
         'password',
         store: createMemoryStore(),
       );
 
-      await user.pushers.add(
+      await user.pushers?.add(
         HttpPusher(
           key: 'APA91bHPRgkF3JUikC4ENAHEeMrd41Zxv3hVZjC9KtT8OvPVGJ',
           appId: 'im.pattle.app.android',

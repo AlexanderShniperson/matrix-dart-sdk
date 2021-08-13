@@ -11,11 +11,14 @@ import 'typing_event.dart';
 import 'receipt_event.dart';
 
 abstract class EphemeralEvent extends Event {
-  final RoomId roomId;
+  final RoomId? roomId;
 
   EphemeralEvent(this.roomId);
 
-  factory EphemeralEvent.fromJson(Map<String, dynamic> json, {RoomId roomId}) {
+  static EphemeralEvent? fromJson(
+    Map<String, dynamic> json, {
+    RoomId? roomId,
+  }) {
     roomId ??= RoomId(json['room_id']);
 
     switch (json['type']) {

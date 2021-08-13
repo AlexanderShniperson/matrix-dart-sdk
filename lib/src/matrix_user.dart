@@ -15,8 +15,8 @@ abstract class MatrixUser with Identifiable<UserId> {
   @override
   UserId get id;
 
-  String get name;
-  Uri get avatarUrl;
+  String? get name;
+  Uri? get avatarUrl;
 
   @override
   bool operator ==(dynamic other) =>

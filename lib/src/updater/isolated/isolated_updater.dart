@@ -5,8 +5,10 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:isolate';
 
+import 'package:matrix_sdk/src/event/room/message_event.dart';
 import 'package:meta/meta.dart';
 
 import '../../context.dart';
@@ -73,7 +75,7 @@ class IsolatedUpdater implements Updater {
       if (message is SendPort) {
         _sendPort = message;
 
-        _sendPort.send(
+        _sendPort?.send(
           UpdaterArgs(
             myUser: _user,
             homeserverUrl: homeserver.url,
@@ -95,16 +97,15 @@ class IsolatedUpdater implements Updater {
     Isolate.spawn(IsolateRunner.run, _receivePort.sendPort);
   }
 
-  SendPort _sendPort;
+  SendPort? _sendPort;
 
   @override
   bool get isReady => _sendPort != null;
 
   final _receivePort = ReceivePort();
 
-  Stream<dynamic> __messageStream;
-  Stream<dynamic> get _messageStream =>
-      __messageStream ??= _receivePort.asBroadcastStream();
+  late final Stream<dynamic> __messageStream = _receivePort.asBroadcastStream();
+  Stream<dynamic> get _messageStream => __messageStream;
 
   final _errorSubject = StreamController<ErrorWithStackTraceString>.broadcast();
   @override
@@ -117,32 +118,29 @@ class IsolatedUpdater implements Updater {
   Future<void> get _initialized => _initializedCompleter.future;
 
   MyUser _user;
+
   @override
   MyUser get user => _user;
 
   @override
   final Homeserver homeserver;
 
-  IsolatedSyncer _syncer;
+  late final IsolatedSyncer _syncer = IsolatedSyncer(this);
 
   @override
-  IsolatedSyncer get syncer => _syncer ??= IsolatedSyncer(this);
-
-  bool _hasListeners = false;
+  IsolatedSyncer get syncer => _syncer;
 
   // ignore: close_sinks
-  StreamController<Update> __controller;
-  StreamController<Update> get _controller =>
-      __controller ??= StreamController<Update>.broadcast(
-        onListen: () => _hasListeners = true,
-      );
+  late final StreamController<Update> __controller =
+      StreamController<Update>.broadcast();
+  StreamController<Update> get _controller => __controller;
 
   @override
   Stream<Update> get updates => _controller.stream;
 
   /// Sends an instruction to the isolate, possibly with a return value.
-  Future<T> _execute<T>(Instruction<T> instruction) async {
-    _sendPort.send(instruction);
+  Future<T?> _execute<T>(Instruction<T> instruction) async {
+    _sendPort?.send(instruction);
 
     if (instruction.expectsReturnValue) {
       final stream = instruction is RequestInstruction
@@ -151,7 +149,9 @@ class IsolatedUpdater implements Updater {
               : updates
           : _messageStream;
 
-      return (await stream.firstWhere((event) => event is T)) as T;
+      return await stream.firstWhere(
+        (event) => event is T?,
+      ) as T?;
     }
 
     return null;
@@ -159,9 +159,9 @@ class IsolatedUpdater implements Updater {
 
   Stream<T> _executeStream<T>(
     Instruction<T> instruction, {
-    @required updateCount,
+    required updateCount,
   }) {
-    _sendPort.send(instruction);
+    _sendPort?.send(instruction);
 
     final stream = instruction is RequestInstruction
         ? (instruction as RequestInstruction).basedOnUpdate
@@ -176,48 +176,51 @@ class IsolatedUpdater implements Updater {
   }
 
   @override
-  Future<RequestUpdate<MemberTimeline>> kick(UserId id, {RoomId from}) =>
+  Future<RequestUpdate<MemberTimeline>?> kick(
+    UserId id, {
+    RoomId? from,
+  }) =>
       _execute(KickInstruction(id, from));
 
   @override
-  Future<RequestUpdate<Timeline>> loadRoomEvents({
-    RoomId roomId,
+  Future<RequestUpdate<Timeline>?> loadRoomEvents({
+    RoomId? roomId,
     int count = 20,
   }) =>
       _execute(LoadRoomEventsInstruction(roomId, count));
 
   @override
-  Future<RequestUpdate<MemberTimeline>> loadMembers({
-    RoomId roomId,
+  Future<RequestUpdate<MemberTimeline>?> loadMembers({
+    RoomId? roomId,
     int count = 10,
   }) =>
       _execute(LoadMembersInstruction(roomId, count));
 
   @override
-  Future<RequestUpdate<Rooms>> loadRooms(
+  Future<RequestUpdate<Rooms>?> loadRooms(
     Iterable<RoomId> roomIds,
     int timelineLimit,
   ) =>
       _execute(LoadRoomsInstruction(roomIds.toList(), timelineLimit));
 
   @override
-  Future<RequestUpdate<MyUser>> logout() => _execute(LogoutInstruction());
+  Future<RequestUpdate<MyUser>?> logout() => _execute(LogoutInstruction());
 
   @override
-  Future<RequestUpdate<ReadReceipts>> markRead({
-    RoomId roomId,
-    EventId until,
+  Future<RequestUpdate<ReadReceipts>?> markRead({
+    required RoomId roomId,
+    required EventId until,
     bool receipt = true,
   }) =>
       _execute(MarkReadInstruction(roomId, until, receipt));
 
   @override
-  Stream<RequestUpdate<Timeline>> send(
+  Stream<RequestUpdate<Timeline>?> send(
     RoomId roomId,
     EventContent content, {
-    String transactionId,
+    String? transactionId,
     String stateKey = '',
-    String type,
+    String type = '',
   }) =>
       _executeStream(
         SendInstruction(
@@ -232,32 +235,60 @@ class IsolatedUpdater implements Updater {
       );
 
   @override
-  Future<RequestUpdate<Ephemeral>> setIsTyping({
-    RoomId roomId,
-    bool isTyping,
+  Future<RequestUpdate<Ephemeral>?> setIsTyping({
+    required RoomId roomId,
+    bool isTyping = false,
     Duration timeout = const Duration(seconds: 30),
   }) =>
       _execute(SetIsTypingInstruction(roomId, isTyping, timeout));
 
   @override
-  Future<RequestUpdate<Room>> joinRoom({
-    RoomId id,
-    RoomAlias alias,
-    Uri serverUrl,
+  Future<RequestUpdate<Room>?> joinRoom({
+    RoomId? id,
+    RoomAlias? alias,
+    required Uri serverUrl,
   }) =>
       _execute(JoinRoomInstruction(id, alias, serverUrl));
 
   @override
-  Future<RequestUpdate<Room>> leaveRoom(RoomId id) =>
+  Future<RequestUpdate<Room>?> leaveRoom(RoomId id) =>
       _execute(LeaveRoomInstruction(id));
 
   @override
-  Future<RequestUpdate<MyUser>> setName({String name}) =>
+  Future<RequestUpdate<MyUser>?> setName({
+    required String name,
+  }) =>
       _execute(SetNameInstruction(name));
 
   @override
-  Future<RequestUpdate<MyUser>> setPusher(Map<String, dynamic> pusher) =>
+  Future<void> setPusher(Map<String, dynamic> pusher) =>
       _execute(SetPusherInstruction(pusher));
+
+  @override
+  Future<RequestUpdate<Timeline>?> edit(
+    RoomId roomId,
+    TextMessageEvent event,
+    String newContent, {
+    String? transactionId,
+  }) async {
+    return _execute(EditTextEventInstruction(
+      roomId,
+      event,
+      newContent,
+      transactionId,
+    ));
+  }
+
+  @override
+  Future<RequestUpdate<Timeline>?> delete(
+    RoomId roomId,
+    EventId eventId, {
+    String? transactionId,
+    String? reason,
+  }) async {
+    return _execute(
+        DeleteEventInstruction(roomId, eventId, transactionId, reason));
+  }
 }
 
 class IsolatedSyncer implements Syncer {
@@ -271,9 +302,12 @@ class IsolatedSyncer implements Syncer {
   bool get isSyncing => _isSyncing;
 
   @override
-  void start({Duration maxRetryAfter = const Duration(seconds: 30)}) {
+  void start({
+    Duration maxRetryAfter = const Duration(seconds: 30),
+    int timelineLimit = 30,
+  }) {
     _updater._execute(
-      StartSyncInstruction(maxRetryAfter),
+      StartSyncInstruction(maxRetryAfter, timelineLimit),
     );
     _isSyncing = true;
   }
@@ -295,7 +329,9 @@ abstract class MinimizedUpdate<T extends Update> {
 }
 
 class MinimizedSyncUpdate extends MinimizedUpdate<SyncUpdate> {
-  MinimizedSyncUpdate({@required MyUser delta}) : super(delta);
+  MinimizedSyncUpdate({
+    required MyUser delta,
+  }) : super(delta);
 
   @override
   SyncUpdate deminimize(MyUser user) => SyncUpdate(user, delta);
@@ -303,15 +339,15 @@ class MinimizedSyncUpdate extends MinimizedUpdate<SyncUpdate> {
 
 class MinimizedRequestUpdate<T extends Contextual<T>>
     extends MinimizedUpdate<RequestUpdate<T>> {
-  final T deltaData;
+  final T? deltaData;
   final RequestType type;
   final bool basedOnUpdate;
 
   MinimizedRequestUpdate({
-    @required MyUser delta,
-    @required this.deltaData,
-    @required this.type,
-    @required this.basedOnUpdate,
+    required MyUser delta,
+    required this.deltaData,
+    required this.type,
+    required this.basedOnUpdate,
   }) : super(delta);
 
   @override

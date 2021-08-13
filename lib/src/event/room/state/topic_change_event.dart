@@ -17,14 +17,14 @@ class TopicChangeEvent extends StateEvent {
   final String type = matrixType;
 
   @override
-  final TopicChange content;
+  final TopicChange? content;
 
   @override
-  final TopicChange previousContent;
+  final TopicChange? previousContent;
 
   TopicChangeEvent(
     RoomEventArgs args, {
-    @required this.content,
+    this.content,
     this.previousContent,
   }) : super(args, stateKey: '');
 }
@@ -33,7 +33,9 @@ class TopicChangeEvent extends StateEvent {
 class TopicChange extends EventContent {
   final String topic;
 
-  TopicChange({@required this.topic});
+  TopicChange({
+    required this.topic,
+  });
 
   @override
   bool operator ==(dynamic other) =>
@@ -42,8 +44,10 @@ class TopicChange extends EventContent {
   @override
   int get hashCode => topic.hashCode;
 
-  factory TopicChange.fromJson(Map<String, dynamic> content) {
-    if (content == null) return null;
+  static TopicChange? fromJson(Map<String, dynamic>? content) {
+    if (content == null) {
+      return null;
+    }
 
     return TopicChange(topic: content['topic']);
   }

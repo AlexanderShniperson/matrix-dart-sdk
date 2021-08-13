@@ -8,7 +8,7 @@ part of 'media.dart';
 
 // ignore_for_file: always_put_control_body_on_new_line, always_specify_types, prefer_const_declarations
 class _$MediaService extends MediaService {
-  _$MediaService([ChopperClient client]) {
+  _$MediaService([ChopperClient? client]) {
     if (client == null) return;
     this.client = client;
   }
@@ -36,8 +36,9 @@ class _$MediaService extends MediaService {
     final $headers = {
       'Authorization': authorization,
       'Content-Length': length,
-      'Content-Type': contentType
+      'Content-Type': contentType,
     };
+
     final $body = byteStream;
     final $request = Request('POST', $url, client.baseUrl,
         body: $body, parameters: $params, headers: $headers);
@@ -57,4 +58,3 @@ class _$MediaService extends MediaService {
     return client.send<Stream<List<int>>, int>($request);
   }
 }
-// ignore_for_file: avoid_catches_without_on_clauses,type_annotate_public_apis,lines_longer_than_80_chars,avoid_equals_and_hash_code_on_mutable_classes

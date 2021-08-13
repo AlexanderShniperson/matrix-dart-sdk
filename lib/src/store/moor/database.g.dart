@@ -8,15 +8,15 @@ part of 'database.dart';
 
 // ignore_for_file: unnecessary_brace_in_string_interps, unnecessary_this
 class MyUserRecord extends DataClass implements Insertable<MyUserRecord> {
-  final String homeserver;
-  final String id;
-  final String name;
-  final String avatarUrl;
-  final String accessToken;
-  final String syncToken;
-  final String currentDeviceId;
-  final bool hasSynced;
-  final bool isLoggedOut;
+  final String? homeserver;
+  final String? id;
+  final String? name;
+  final String? avatarUrl;
+  final String? accessToken;
+  final String? syncToken;
+  final String? currentDeviceId;
+  final bool? hasSynced;
+  final bool? isLoggedOut;
   MyUserRecord(
       {this.homeserver,
       this.id,
@@ -28,26 +28,26 @@ class MyUserRecord extends DataClass implements Insertable<MyUserRecord> {
       this.hasSynced,
       this.isLoggedOut});
   factory MyUserRecord.fromData(Map<String, dynamic> data, GeneratedDatabase db,
-      {String prefix}) {
+      {String? prefix}) {
     final effectivePrefix = prefix ?? '';
-    final stringType = db.typeSystem.forDartType<String>();
-    final boolType = db.typeSystem.forDartType<bool>();
     return MyUserRecord(
-      homeserver: stringType
+      homeserver: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}homeserver']),
-      id: stringType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
-      name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name']),
-      avatarUrl: stringType
+      id: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id']),
+      name: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}name']),
+      avatarUrl: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}avatar_url']),
-      accessToken: stringType
+      accessToken: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}access_token']),
-      syncToken: stringType
+      syncToken: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}sync_token']),
-      currentDeviceId: stringType
+      currentDeviceId: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}current_device_id']),
-      hasSynced: boolType
+      hasSynced: const BoolType()
           .mapFromDatabaseResponse(data['${effectivePrefix}has_synced']),
-      isLoggedOut: boolType
+      isLoggedOut: const BoolType()
           .mapFromDatabaseResponse(data['${effectivePrefix}is_logged_out']),
     );
   }
@@ -55,76 +55,104 @@ class MyUserRecord extends DataClass implements Insertable<MyUserRecord> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     if (!nullToAbsent || homeserver != null) {
-      map['homeserver'] = Variable<String>(homeserver);
+      map['homeserver'] = Variable<String?>(homeserver);
     }
     if (!nullToAbsent || id != null) {
-      map['id'] = Variable<String>(id);
+      map['id'] = Variable<String?>(id);
     }
     if (!nullToAbsent || name != null) {
-      map['name'] = Variable<String>(name);
+      map['name'] = Variable<String?>(name);
     }
     if (!nullToAbsent || avatarUrl != null) {
-      map['avatar_url'] = Variable<String>(avatarUrl);
+      map['avatar_url'] = Variable<String?>(avatarUrl);
     }
     if (!nullToAbsent || accessToken != null) {
-      map['access_token'] = Variable<String>(accessToken);
+      map['access_token'] = Variable<String?>(accessToken);
     }
     if (!nullToAbsent || syncToken != null) {
-      map['sync_token'] = Variable<String>(syncToken);
+      map['sync_token'] = Variable<String?>(syncToken);
     }
     if (!nullToAbsent || currentDeviceId != null) {
-      map['current_device_id'] = Variable<String>(currentDeviceId);
+      map['current_device_id'] = Variable<String?>(currentDeviceId);
     }
     if (!nullToAbsent || hasSynced != null) {
-      map['has_synced'] = Variable<bool>(hasSynced);
+      map['has_synced'] = Variable<bool?>(hasSynced);
     }
     if (!nullToAbsent || isLoggedOut != null) {
-      map['is_logged_out'] = Variable<bool>(isLoggedOut);
+      map['is_logged_out'] = Variable<bool?>(isLoggedOut);
     }
     return map;
   }
 
+  MyUsersCompanion toCompanion(bool nullToAbsent) {
+    return MyUsersCompanion(
+      homeserver: homeserver == null && nullToAbsent
+          ? const Value.absent()
+          : Value(homeserver),
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      avatarUrl: avatarUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(avatarUrl),
+      accessToken: accessToken == null && nullToAbsent
+          ? const Value.absent()
+          : Value(accessToken),
+      syncToken: syncToken == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncToken),
+      currentDeviceId: currentDeviceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(currentDeviceId),
+      hasSynced: hasSynced == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hasSynced),
+      isLoggedOut: isLoggedOut == null && nullToAbsent
+          ? const Value.absent()
+          : Value(isLoggedOut),
+    );
+  }
+
   factory MyUserRecord.fromJson(Map<String, dynamic> json,
-      {ValueSerializer serializer}) {
+      {ValueSerializer? serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return MyUserRecord(
-      homeserver: serializer.fromJson<String>(json['homeserver']),
-      id: serializer.fromJson<String>(json['id']),
-      name: serializer.fromJson<String>(json['name']),
-      avatarUrl: serializer.fromJson<String>(json['avatarUrl']),
-      accessToken: serializer.fromJson<String>(json['accessToken']),
-      syncToken: serializer.fromJson<String>(json['syncToken']),
-      currentDeviceId: serializer.fromJson<String>(json['currentDeviceId']),
-      hasSynced: serializer.fromJson<bool>(json['hasSynced']),
-      isLoggedOut: serializer.fromJson<bool>(json['isLoggedOut']),
+      homeserver: serializer.fromJson<String?>(json['homeserver']),
+      id: serializer.fromJson<String?>(json['id']),
+      name: serializer.fromJson<String?>(json['name']),
+      avatarUrl: serializer.fromJson<String?>(json['avatarUrl']),
+      accessToken: serializer.fromJson<String?>(json['accessToken']),
+      syncToken: serializer.fromJson<String?>(json['syncToken']),
+      currentDeviceId: serializer.fromJson<String?>(json['currentDeviceId']),
+      hasSynced: serializer.fromJson<bool?>(json['hasSynced']),
+      isLoggedOut: serializer.fromJson<bool?>(json['isLoggedOut']),
     );
   }
   @override
-  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'homeserver': serializer.toJson<String>(homeserver),
-      'id': serializer.toJson<String>(id),
-      'name': serializer.toJson<String>(name),
-      'avatarUrl': serializer.toJson<String>(avatarUrl),
-      'accessToken': serializer.toJson<String>(accessToken),
-      'syncToken': serializer.toJson<String>(syncToken),
-      'currentDeviceId': serializer.toJson<String>(currentDeviceId),
-      'hasSynced': serializer.toJson<bool>(hasSynced),
-      'isLoggedOut': serializer.toJson<bool>(isLoggedOut),
+      'homeserver': serializer.toJson<String?>(homeserver),
+      'id': serializer.toJson<String?>(id),
+      'name': serializer.toJson<String?>(name),
+      'avatarUrl': serializer.toJson<String?>(avatarUrl),
+      'accessToken': serializer.toJson<String?>(accessToken),
+      'syncToken': serializer.toJson<String?>(syncToken),
+      'currentDeviceId': serializer.toJson<String?>(currentDeviceId),
+      'hasSynced': serializer.toJson<bool?>(hasSynced),
+      'isLoggedOut': serializer.toJson<bool?>(isLoggedOut),
     };
   }
 
   MyUserRecord copyWith(
-          {String homeserver,
-          String id,
-          String name,
-          String avatarUrl,
-          String accessToken,
-          String syncToken,
-          String currentDeviceId,
-          bool hasSynced,
-          bool isLoggedOut}) =>
+          {String? homeserver,
+          String? id,
+          String? name,
+          String? avatarUrl,
+          String? accessToken,
+          String? syncToken,
+          String? currentDeviceId,
+          bool? hasSynced,
+          bool? isLoggedOut}) =>
       MyUserRecord(
         homeserver: homeserver ?? this.homeserver,
         id: id ?? this.id,
@@ -170,7 +198,7 @@ class MyUserRecord extends DataClass implements Insertable<MyUserRecord> {
                               $mrjc(hasSynced.hashCode,
                                   isLoggedOut.hashCode)))))))));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is MyUserRecord &&
           other.homeserver == this.homeserver &&
@@ -185,15 +213,15 @@ class MyUserRecord extends DataClass implements Insertable<MyUserRecord> {
 }
 
 class MyUsersCompanion extends UpdateCompanion<MyUserRecord> {
-  final Value<String> homeserver;
-  final Value<String> id;
-  final Value<String> name;
-  final Value<String> avatarUrl;
-  final Value<String> accessToken;
-  final Value<String> syncToken;
-  final Value<String> currentDeviceId;
-  final Value<bool> hasSynced;
-  final Value<bool> isLoggedOut;
+  final Value<String?> homeserver;
+  final Value<String?> id;
+  final Value<String?> name;
+  final Value<String?> avatarUrl;
+  final Value<String?> accessToken;
+  final Value<String?> syncToken;
+  final Value<String?> currentDeviceId;
+  final Value<bool?> hasSynced;
+  final Value<bool?> isLoggedOut;
   const MyUsersCompanion({
     this.homeserver = const Value.absent(),
     this.id = const Value.absent(),
@@ -217,15 +245,15 @@ class MyUsersCompanion extends UpdateCompanion<MyUserRecord> {
     this.isLoggedOut = const Value.absent(),
   });
   static Insertable<MyUserRecord> custom({
-    Expression<String> homeserver,
-    Expression<String> id,
-    Expression<String> name,
-    Expression<String> avatarUrl,
-    Expression<String> accessToken,
-    Expression<String> syncToken,
-    Expression<String> currentDeviceId,
-    Expression<bool> hasSynced,
-    Expression<bool> isLoggedOut,
+    Expression<String?>? homeserver,
+    Expression<String?>? id,
+    Expression<String?>? name,
+    Expression<String?>? avatarUrl,
+    Expression<String?>? accessToken,
+    Expression<String?>? syncToken,
+    Expression<String?>? currentDeviceId,
+    Expression<bool?>? hasSynced,
+    Expression<bool?>? isLoggedOut,
   }) {
     return RawValuesInsertable({
       if (homeserver != null) 'homeserver': homeserver,
@@ -241,15 +269,15 @@ class MyUsersCompanion extends UpdateCompanion<MyUserRecord> {
   }
 
   MyUsersCompanion copyWith(
-      {Value<String> homeserver,
-      Value<String> id,
-      Value<String> name,
-      Value<String> avatarUrl,
-      Value<String> accessToken,
-      Value<String> syncToken,
-      Value<String> currentDeviceId,
-      Value<bool> hasSynced,
-      Value<bool> isLoggedOut}) {
+      {Value<String?>? homeserver,
+      Value<String?>? id,
+      Value<String?>? name,
+      Value<String?>? avatarUrl,
+      Value<String?>? accessToken,
+      Value<String?>? syncToken,
+      Value<String?>? currentDeviceId,
+      Value<bool?>? hasSynced,
+      Value<bool?>? isLoggedOut}) {
     return MyUsersCompanion(
       homeserver: homeserver ?? this.homeserver,
       id: id ?? this.id,
@@ -267,152 +295,102 @@ class MyUsersCompanion extends UpdateCompanion<MyUserRecord> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     if (homeserver.present) {
-      map['homeserver'] = Variable<String>(homeserver.value);
+      map['homeserver'] = Variable<String?>(homeserver.value);
     }
     if (id.present) {
-      map['id'] = Variable<String>(id.value);
+      map['id'] = Variable<String?>(id.value);
     }
     if (name.present) {
-      map['name'] = Variable<String>(name.value);
+      map['name'] = Variable<String?>(name.value);
     }
     if (avatarUrl.present) {
-      map['avatar_url'] = Variable<String>(avatarUrl.value);
+      map['avatar_url'] = Variable<String?>(avatarUrl.value);
     }
     if (accessToken.present) {
-      map['access_token'] = Variable<String>(accessToken.value);
+      map['access_token'] = Variable<String?>(accessToken.value);
     }
     if (syncToken.present) {
-      map['sync_token'] = Variable<String>(syncToken.value);
+      map['sync_token'] = Variable<String?>(syncToken.value);
     }
     if (currentDeviceId.present) {
-      map['current_device_id'] = Variable<String>(currentDeviceId.value);
+      map['current_device_id'] = Variable<String?>(currentDeviceId.value);
     }
     if (hasSynced.present) {
-      map['has_synced'] = Variable<bool>(hasSynced.value);
+      map['has_synced'] = Variable<bool?>(hasSynced.value);
     }
     if (isLoggedOut.present) {
-      map['is_logged_out'] = Variable<bool>(isLoggedOut.value);
+      map['is_logged_out'] = Variable<bool?>(isLoggedOut.value);
     }
     return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MyUsersCompanion(')
+          ..write('homeserver: $homeserver, ')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('avatarUrl: $avatarUrl, ')
+          ..write('accessToken: $accessToken, ')
+          ..write('syncToken: $syncToken, ')
+          ..write('currentDeviceId: $currentDeviceId, ')
+          ..write('hasSynced: $hasSynced, ')
+          ..write('isLoggedOut: $isLoggedOut')
+          ..write(')'))
+        .toString();
   }
 }
 
 class $MyUsersTable extends MyUsers
     with TableInfo<$MyUsersTable, MyUserRecord> {
   final GeneratedDatabase _db;
-  final String _alias;
+  final String? _alias;
   $MyUsersTable(this._db, [this._alias]);
   final VerificationMeta _homeserverMeta = const VerificationMeta('homeserver');
-  GeneratedTextColumn _homeserver;
-  @override
-  GeneratedTextColumn get homeserver => _homeserver ??= _constructHomeserver();
-  GeneratedTextColumn _constructHomeserver() {
-    return GeneratedTextColumn(
-      'homeserver',
-      $tableName,
-      true,
-    );
-  }
-
+  late final GeneratedColumn<String?> homeserver = GeneratedColumn<String?>(
+      'homeserver', aliasedName, true,
+      typeName: 'TEXT', requiredDuringInsert: false);
   final VerificationMeta _idMeta = const VerificationMeta('id');
-  GeneratedTextColumn _id;
-  @override
-  GeneratedTextColumn get id => _id ??= _constructId();
-  GeneratedTextColumn _constructId() {
-    return GeneratedTextColumn(
-      'id',
-      $tableName,
-      true,
-    );
-  }
-
+  late final GeneratedColumn<String?> id = GeneratedColumn<String?>(
+      'id', aliasedName, true,
+      typeName: 'TEXT', requiredDuringInsert: false);
   final VerificationMeta _nameMeta = const VerificationMeta('name');
-  GeneratedTextColumn _name;
-  @override
-  GeneratedTextColumn get name => _name ??= _constructName();
-  GeneratedTextColumn _constructName() {
-    return GeneratedTextColumn(
-      'name',
-      $tableName,
-      true,
-    );
-  }
-
+  late final GeneratedColumn<String?> name = GeneratedColumn<String?>(
+      'name', aliasedName, true,
+      typeName: 'TEXT', requiredDuringInsert: false);
   final VerificationMeta _avatarUrlMeta = const VerificationMeta('avatarUrl');
-  GeneratedTextColumn _avatarUrl;
-  @override
-  GeneratedTextColumn get avatarUrl => _avatarUrl ??= _constructAvatarUrl();
-  GeneratedTextColumn _constructAvatarUrl() {
-    return GeneratedTextColumn(
-      'avatar_url',
-      $tableName,
-      true,
-    );
-  }
-
+  late final GeneratedColumn<String?> avatarUrl = GeneratedColumn<String?>(
+      'avatar_url', aliasedName, true,
+      typeName: 'TEXT', requiredDuringInsert: false);
   final VerificationMeta _accessTokenMeta =
       const VerificationMeta('accessToken');
-  GeneratedTextColumn _accessToken;
-  @override
-  GeneratedTextColumn get accessToken =>
-      _accessToken ??= _constructAccessToken();
-  GeneratedTextColumn _constructAccessToken() {
-    return GeneratedTextColumn(
-      'access_token',
-      $tableName,
-      true,
-    );
-  }
-
+  late final GeneratedColumn<String?> accessToken = GeneratedColumn<String?>(
+      'access_token', aliasedName, true,
+      typeName: 'TEXT', requiredDuringInsert: false);
   final VerificationMeta _syncTokenMeta = const VerificationMeta('syncToken');
-  GeneratedTextColumn _syncToken;
-  @override
-  GeneratedTextColumn get syncToken => _syncToken ??= _constructSyncToken();
-  GeneratedTextColumn _constructSyncToken() {
-    return GeneratedTextColumn(
-      'sync_token',
-      $tableName,
-      true,
-    );
-  }
-
+  late final GeneratedColumn<String?> syncToken = GeneratedColumn<String?>(
+      'sync_token', aliasedName, true,
+      typeName: 'TEXT', requiredDuringInsert: false);
   final VerificationMeta _currentDeviceIdMeta =
       const VerificationMeta('currentDeviceId');
-  GeneratedTextColumn _currentDeviceId;
-  @override
-  GeneratedTextColumn get currentDeviceId =>
-      _currentDeviceId ??= _constructCurrentDeviceId();
-  GeneratedTextColumn _constructCurrentDeviceId() {
-    return GeneratedTextColumn('current_device_id', $tableName, true,
-        $customConstraints: 'REFERENCES devices(id)');
-  }
-
+  late final GeneratedColumn<String?> currentDeviceId =
+      GeneratedColumn<String?>('current_device_id', aliasedName, true,
+          typeName: 'TEXT',
+          requiredDuringInsert: false,
+          $customConstraints: 'REFERENCES devices(id)');
   final VerificationMeta _hasSyncedMeta = const VerificationMeta('hasSynced');
-  GeneratedBoolColumn _hasSynced;
-  @override
-  GeneratedBoolColumn get hasSynced => _hasSynced ??= _constructHasSynced();
-  GeneratedBoolColumn _constructHasSynced() {
-    return GeneratedBoolColumn(
-      'has_synced',
-      $tableName,
-      true,
-    );
-  }
-
+  late final GeneratedColumn<bool?> hasSynced = GeneratedColumn<bool?>(
+      'has_synced', aliasedName, true,
+      typeName: 'INTEGER',
+      requiredDuringInsert: false,
+      defaultConstraints: 'CHECK (has_synced IN (0, 1))');
   final VerificationMeta _isLoggedOutMeta =
       const VerificationMeta('isLoggedOut');
-  GeneratedBoolColumn _isLoggedOut;
-  @override
-  GeneratedBoolColumn get isLoggedOut =>
-      _isLoggedOut ??= _constructIsLoggedOut();
-  GeneratedBoolColumn _constructIsLoggedOut() {
-    return GeneratedBoolColumn(
-      'is_logged_out',
-      $tableName,
-      true,
-    );
-  }
-
+  late final GeneratedColumn<bool?> isLoggedOut = GeneratedColumn<bool?>(
+      'is_logged_out', aliasedName, true,
+      typeName: 'INTEGER',
+      requiredDuringInsert: false,
+      defaultConstraints: 'CHECK (is_logged_out IN (0, 1))');
   @override
   List<GeneratedColumn> get $columns => [
         homeserver,
@@ -426,11 +404,9 @@ class $MyUsersTable extends MyUsers
         isLoggedOut
       ];
   @override
-  $MyUsersTable get asDslTable => this;
+  String get aliasedName => _alias ?? 'my_users';
   @override
-  String get $tableName => _alias ?? 'my_users';
-  @override
-  final String actualTableName = 'my_users';
+  String get actualTableName => 'my_users';
   @override
   VerificationContext validateIntegrity(Insertable<MyUserRecord> instance,
       {bool isInserting = false}) {
@@ -440,44 +416,44 @@ class $MyUsersTable extends MyUsers
       context.handle(
           _homeserverMeta,
           homeserver.isAcceptableOrUnknown(
-              data['homeserver'], _homeserverMeta));
+              data['homeserver']!, _homeserverMeta));
     }
     if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
     if (data.containsKey('name')) {
       context.handle(
-          _nameMeta, name.isAcceptableOrUnknown(data['name'], _nameMeta));
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
     }
     if (data.containsKey('avatar_url')) {
       context.handle(_avatarUrlMeta,
-          avatarUrl.isAcceptableOrUnknown(data['avatar_url'], _avatarUrlMeta));
+          avatarUrl.isAcceptableOrUnknown(data['avatar_url']!, _avatarUrlMeta));
     }
     if (data.containsKey('access_token')) {
       context.handle(
           _accessTokenMeta,
           accessToken.isAcceptableOrUnknown(
-              data['access_token'], _accessTokenMeta));
+              data['access_token']!, _accessTokenMeta));
     }
     if (data.containsKey('sync_token')) {
       context.handle(_syncTokenMeta,
-          syncToken.isAcceptableOrUnknown(data['sync_token'], _syncTokenMeta));
+          syncToken.isAcceptableOrUnknown(data['sync_token']!, _syncTokenMeta));
     }
     if (data.containsKey('current_device_id')) {
       context.handle(
           _currentDeviceIdMeta,
           currentDeviceId.isAcceptableOrUnknown(
-              data['current_device_id'], _currentDeviceIdMeta));
+              data['current_device_id']!, _currentDeviceIdMeta));
     }
     if (data.containsKey('has_synced')) {
       context.handle(_hasSyncedMeta,
-          hasSynced.isAcceptableOrUnknown(data['has_synced'], _hasSyncedMeta));
+          hasSynced.isAcceptableOrUnknown(data['has_synced']!, _hasSyncedMeta));
     }
     if (data.containsKey('is_logged_out')) {
       context.handle(
           _isLoggedOutMeta,
           isLoggedOut.isAcceptableOrUnknown(
-              data['is_logged_out'], _isLoggedOutMeta));
+              data['is_logged_out']!, _isLoggedOutMeta));
     }
     return context;
   }
@@ -485,9 +461,9 @@ class $MyUsersTable extends MyUsers
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  MyUserRecord map(Map<String, dynamic> data, {String tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return MyUserRecord.fromData(data, _db, prefix: effectivePrefix);
+  MyUserRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return MyUserRecord.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -497,26 +473,26 @@ class $MyUsersTable extends MyUsers
 }
 
 class RoomRecord extends DataClass implements Insertable<RoomRecord> {
-  final String myMembership;
+  final String? myMembership;
   final String id;
-  final String timelinePreviousBatch;
-  final bool timelinePreviousBatchSetBySync;
-  final int summaryJoinedMembersCount;
-  final int summaryInvitedMembersCount;
-  final String nameChangeEventId;
-  final String avatarChangeEventId;
-  final String topicChangeEventId;
-  final String powerLevelsChangeEventId;
-  final String joinRulesChangeEventId;
-  final String canonicalAliasChangeEventId;
-  final String creationEventId;
-  final String upgradeEventId;
-  final int highlightedUnreadNotificationCount;
-  final int totalUnreadNotificationCount;
-  final String directUserId;
+  final String? timelinePreviousBatch;
+  final bool? timelinePreviousBatchSetBySync;
+  final int? summaryJoinedMembersCount;
+  final int? summaryInvitedMembersCount;
+  final String? nameChangeEventId;
+  final String? avatarChangeEventId;
+  final String? topicChangeEventId;
+  final String? powerLevelsChangeEventId;
+  final String? joinRulesChangeEventId;
+  final String? canonicalAliasChangeEventId;
+  final String? creationEventId;
+  final String? upgradeEventId;
+  final int? highlightedUnreadNotificationCount;
+  final int? totalUnreadNotificationCount;
+  final String? directUserId;
   RoomRecord(
       {this.myMembership,
-      @required this.id,
+      required this.id,
       this.timelinePreviousBatch,
       this.timelinePreviousBatchSetBySync,
       this.summaryJoinedMembersCount,
@@ -533,44 +509,43 @@ class RoomRecord extends DataClass implements Insertable<RoomRecord> {
       this.totalUnreadNotificationCount,
       this.directUserId});
   factory RoomRecord.fromData(Map<String, dynamic> data, GeneratedDatabase db,
-      {String prefix}) {
+      {String? prefix}) {
     final effectivePrefix = prefix ?? '';
-    final stringType = db.typeSystem.forDartType<String>();
-    final boolType = db.typeSystem.forDartType<bool>();
-    final intType = db.typeSystem.forDartType<int>();
     return RoomRecord(
-      myMembership: stringType
+      myMembership: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}my_membership']),
-      id: stringType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
-      timelinePreviousBatch: stringType.mapFromDatabaseResponse(
+      id: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
+      timelinePreviousBatch: const StringType().mapFromDatabaseResponse(
           data['${effectivePrefix}timeline_previous_batch']),
-      timelinePreviousBatchSetBySync: boolType.mapFromDatabaseResponse(
+      timelinePreviousBatchSetBySync: const BoolType().mapFromDatabaseResponse(
           data['${effectivePrefix}timeline_previous_batch_set_by_sync']),
-      summaryJoinedMembersCount: intType.mapFromDatabaseResponse(
+      summaryJoinedMembersCount: const IntType().mapFromDatabaseResponse(
           data['${effectivePrefix}summary_joined_members_count']),
-      summaryInvitedMembersCount: intType.mapFromDatabaseResponse(
+      summaryInvitedMembersCount: const IntType().mapFromDatabaseResponse(
           data['${effectivePrefix}summary_invited_members_count']),
-      nameChangeEventId: stringType.mapFromDatabaseResponse(
+      nameChangeEventId: const StringType().mapFromDatabaseResponse(
           data['${effectivePrefix}name_change_event_id']),
-      avatarChangeEventId: stringType.mapFromDatabaseResponse(
+      avatarChangeEventId: const StringType().mapFromDatabaseResponse(
           data['${effectivePrefix}avatar_change_event_id']),
-      topicChangeEventId: stringType.mapFromDatabaseResponse(
+      topicChangeEventId: const StringType().mapFromDatabaseResponse(
           data['${effectivePrefix}topic_change_event_id']),
-      powerLevelsChangeEventId: stringType.mapFromDatabaseResponse(
+      powerLevelsChangeEventId: const StringType().mapFromDatabaseResponse(
           data['${effectivePrefix}power_levels_change_event_id']),
-      joinRulesChangeEventId: stringType.mapFromDatabaseResponse(
+      joinRulesChangeEventId: const StringType().mapFromDatabaseResponse(
           data['${effectivePrefix}join_rules_change_event_id']),
-      canonicalAliasChangeEventId: stringType.mapFromDatabaseResponse(
+      canonicalAliasChangeEventId: const StringType().mapFromDatabaseResponse(
           data['${effectivePrefix}canonical_alias_change_event_id']),
-      creationEventId: stringType
+      creationEventId: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}creation_event_id']),
-      upgradeEventId: stringType
+      upgradeEventId: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}upgrade_event_id']),
-      highlightedUnreadNotificationCount: intType.mapFromDatabaseResponse(
-          data['${effectivePrefix}highlighted_unread_notification_count']),
-      totalUnreadNotificationCount: intType.mapFromDatabaseResponse(
+      highlightedUnreadNotificationCount: const IntType()
+          .mapFromDatabaseResponse(
+              data['${effectivePrefix}highlighted_unread_notification_count']),
+      totalUnreadNotificationCount: const IntType().mapFromDatabaseResponse(
           data['${effectivePrefix}total_unread_notification_count']),
-      directUserId: stringType
+      directUserId: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}direct_user_id']),
     );
   }
@@ -578,151 +553,211 @@ class RoomRecord extends DataClass implements Insertable<RoomRecord> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     if (!nullToAbsent || myMembership != null) {
-      map['my_membership'] = Variable<String>(myMembership);
+      map['my_membership'] = Variable<String?>(myMembership);
     }
-    if (!nullToAbsent || id != null) {
-      map['id'] = Variable<String>(id);
-    }
+    map['id'] = Variable<String>(id);
     if (!nullToAbsent || timelinePreviousBatch != null) {
-      map['timeline_previous_batch'] = Variable<String>(timelinePreviousBatch);
+      map['timeline_previous_batch'] = Variable<String?>(timelinePreviousBatch);
     }
     if (!nullToAbsent || timelinePreviousBatchSetBySync != null) {
       map['timeline_previous_batch_set_by_sync'] =
-          Variable<bool>(timelinePreviousBatchSetBySync);
+          Variable<bool?>(timelinePreviousBatchSetBySync);
     }
     if (!nullToAbsent || summaryJoinedMembersCount != null) {
       map['summary_joined_members_count'] =
-          Variable<int>(summaryJoinedMembersCount);
+          Variable<int?>(summaryJoinedMembersCount);
     }
     if (!nullToAbsent || summaryInvitedMembersCount != null) {
       map['summary_invited_members_count'] =
-          Variable<int>(summaryInvitedMembersCount);
+          Variable<int?>(summaryInvitedMembersCount);
     }
     if (!nullToAbsent || nameChangeEventId != null) {
-      map['name_change_event_id'] = Variable<String>(nameChangeEventId);
+      map['name_change_event_id'] = Variable<String?>(nameChangeEventId);
     }
     if (!nullToAbsent || avatarChangeEventId != null) {
-      map['avatar_change_event_id'] = Variable<String>(avatarChangeEventId);
+      map['avatar_change_event_id'] = Variable<String?>(avatarChangeEventId);
     }
     if (!nullToAbsent || topicChangeEventId != null) {
-      map['topic_change_event_id'] = Variable<String>(topicChangeEventId);
+      map['topic_change_event_id'] = Variable<String?>(topicChangeEventId);
     }
     if (!nullToAbsent || powerLevelsChangeEventId != null) {
       map['power_levels_change_event_id'] =
-          Variable<String>(powerLevelsChangeEventId);
+          Variable<String?>(powerLevelsChangeEventId);
     }
     if (!nullToAbsent || joinRulesChangeEventId != null) {
       map['join_rules_change_event_id'] =
-          Variable<String>(joinRulesChangeEventId);
+          Variable<String?>(joinRulesChangeEventId);
     }
     if (!nullToAbsent || canonicalAliasChangeEventId != null) {
       map['canonical_alias_change_event_id'] =
-          Variable<String>(canonicalAliasChangeEventId);
+          Variable<String?>(canonicalAliasChangeEventId);
     }
     if (!nullToAbsent || creationEventId != null) {
-      map['creation_event_id'] = Variable<String>(creationEventId);
+      map['creation_event_id'] = Variable<String?>(creationEventId);
     }
     if (!nullToAbsent || upgradeEventId != null) {
-      map['upgrade_event_id'] = Variable<String>(upgradeEventId);
+      map['upgrade_event_id'] = Variable<String?>(upgradeEventId);
     }
     if (!nullToAbsent || highlightedUnreadNotificationCount != null) {
       map['highlighted_unread_notification_count'] =
-          Variable<int>(highlightedUnreadNotificationCount);
+          Variable<int?>(highlightedUnreadNotificationCount);
     }
     if (!nullToAbsent || totalUnreadNotificationCount != null) {
       map['total_unread_notification_count'] =
-          Variable<int>(totalUnreadNotificationCount);
+          Variable<int?>(totalUnreadNotificationCount);
     }
     if (!nullToAbsent || directUserId != null) {
-      map['direct_user_id'] = Variable<String>(directUserId);
+      map['direct_user_id'] = Variable<String?>(directUserId);
     }
     return map;
   }
 
+  RoomsCompanion toCompanion(bool nullToAbsent) {
+    return RoomsCompanion(
+      myMembership: myMembership == null && nullToAbsent
+          ? const Value.absent()
+          : Value(myMembership),
+      id: Value(id),
+      timelinePreviousBatch: timelinePreviousBatch == null && nullToAbsent
+          ? const Value.absent()
+          : Value(timelinePreviousBatch),
+      timelinePreviousBatchSetBySync:
+          timelinePreviousBatchSetBySync == null && nullToAbsent
+              ? const Value.absent()
+              : Value(timelinePreviousBatchSetBySync),
+      summaryJoinedMembersCount:
+          summaryJoinedMembersCount == null && nullToAbsent
+              ? const Value.absent()
+              : Value(summaryJoinedMembersCount),
+      summaryInvitedMembersCount:
+          summaryInvitedMembersCount == null && nullToAbsent
+              ? const Value.absent()
+              : Value(summaryInvitedMembersCount),
+      nameChangeEventId: nameChangeEventId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nameChangeEventId),
+      avatarChangeEventId: avatarChangeEventId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(avatarChangeEventId),
+      topicChangeEventId: topicChangeEventId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(topicChangeEventId),
+      powerLevelsChangeEventId: powerLevelsChangeEventId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(powerLevelsChangeEventId),
+      joinRulesChangeEventId: joinRulesChangeEventId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(joinRulesChangeEventId),
+      canonicalAliasChangeEventId:
+          canonicalAliasChangeEventId == null && nullToAbsent
+              ? const Value.absent()
+              : Value(canonicalAliasChangeEventId),
+      creationEventId: creationEventId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(creationEventId),
+      upgradeEventId: upgradeEventId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(upgradeEventId),
+      highlightedUnreadNotificationCount:
+          highlightedUnreadNotificationCount == null && nullToAbsent
+              ? const Value.absent()
+              : Value(highlightedUnreadNotificationCount),
+      totalUnreadNotificationCount:
+          totalUnreadNotificationCount == null && nullToAbsent
+              ? const Value.absent()
+              : Value(totalUnreadNotificationCount),
+      directUserId: directUserId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(directUserId),
+    );
+  }
+
   factory RoomRecord.fromJson(Map<String, dynamic> json,
-      {ValueSerializer serializer}) {
+      {ValueSerializer? serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return RoomRecord(
-      myMembership: serializer.fromJson<String>(json['myMembership']),
+      myMembership: serializer.fromJson<String?>(json['myMembership']),
       id: serializer.fromJson<String>(json['id']),
       timelinePreviousBatch:
-          serializer.fromJson<String>(json['timelinePreviousBatch']),
+          serializer.fromJson<String?>(json['timelinePreviousBatch']),
       timelinePreviousBatchSetBySync:
-          serializer.fromJson<bool>(json['timelinePreviousBatchSetBySync']),
+          serializer.fromJson<bool?>(json['timelinePreviousBatchSetBySync']),
       summaryJoinedMembersCount:
-          serializer.fromJson<int>(json['summaryJoinedMembersCount']),
+          serializer.fromJson<int?>(json['summaryJoinedMembersCount']),
       summaryInvitedMembersCount:
-          serializer.fromJson<int>(json['summaryInvitedMembersCount']),
-      nameChangeEventId: serializer.fromJson<String>(json['nameChangeEventId']),
+          serializer.fromJson<int?>(json['summaryInvitedMembersCount']),
+      nameChangeEventId:
+          serializer.fromJson<String?>(json['nameChangeEventId']),
       avatarChangeEventId:
-          serializer.fromJson<String>(json['avatarChangeEventId']),
+          serializer.fromJson<String?>(json['avatarChangeEventId']),
       topicChangeEventId:
-          serializer.fromJson<String>(json['topicChangeEventId']),
+          serializer.fromJson<String?>(json['topicChangeEventId']),
       powerLevelsChangeEventId:
-          serializer.fromJson<String>(json['powerLevelsChangeEventId']),
+          serializer.fromJson<String?>(json['powerLevelsChangeEventId']),
       joinRulesChangeEventId:
-          serializer.fromJson<String>(json['joinRulesChangeEventId']),
+          serializer.fromJson<String?>(json['joinRulesChangeEventId']),
       canonicalAliasChangeEventId:
-          serializer.fromJson<String>(json['canonicalAliasChangeEventId']),
-      creationEventId: serializer.fromJson<String>(json['creationEventId']),
-      upgradeEventId: serializer.fromJson<String>(json['upgradeEventId']),
+          serializer.fromJson<String?>(json['canonicalAliasChangeEventId']),
+      creationEventId: serializer.fromJson<String?>(json['creationEventId']),
+      upgradeEventId: serializer.fromJson<String?>(json['upgradeEventId']),
       highlightedUnreadNotificationCount:
-          serializer.fromJson<int>(json['highlightedUnreadNotificationCount']),
+          serializer.fromJson<int?>(json['highlightedUnreadNotificationCount']),
       totalUnreadNotificationCount:
-          serializer.fromJson<int>(json['totalUnreadNotificationCount']),
-      directUserId: serializer.fromJson<String>(json['directUserId']),
+          serializer.fromJson<int?>(json['totalUnreadNotificationCount']),
+      directUserId: serializer.fromJson<String?>(json['directUserId']),
     );
   }
   @override
-  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'myMembership': serializer.toJson<String>(myMembership),
+      'myMembership': serializer.toJson<String?>(myMembership),
       'id': serializer.toJson<String>(id),
-      'timelinePreviousBatch': serializer.toJson<String>(timelinePreviousBatch),
+      'timelinePreviousBatch':
+          serializer.toJson<String?>(timelinePreviousBatch),
       'timelinePreviousBatchSetBySync':
-          serializer.toJson<bool>(timelinePreviousBatchSetBySync),
+          serializer.toJson<bool?>(timelinePreviousBatchSetBySync),
       'summaryJoinedMembersCount':
-          serializer.toJson<int>(summaryJoinedMembersCount),
+          serializer.toJson<int?>(summaryJoinedMembersCount),
       'summaryInvitedMembersCount':
-          serializer.toJson<int>(summaryInvitedMembersCount),
-      'nameChangeEventId': serializer.toJson<String>(nameChangeEventId),
-      'avatarChangeEventId': serializer.toJson<String>(avatarChangeEventId),
-      'topicChangeEventId': serializer.toJson<String>(topicChangeEventId),
+          serializer.toJson<int?>(summaryInvitedMembersCount),
+      'nameChangeEventId': serializer.toJson<String?>(nameChangeEventId),
+      'avatarChangeEventId': serializer.toJson<String?>(avatarChangeEventId),
+      'topicChangeEventId': serializer.toJson<String?>(topicChangeEventId),
       'powerLevelsChangeEventId':
-          serializer.toJson<String>(powerLevelsChangeEventId),
+          serializer.toJson<String?>(powerLevelsChangeEventId),
       'joinRulesChangeEventId':
-          serializer.toJson<String>(joinRulesChangeEventId),
+          serializer.toJson<String?>(joinRulesChangeEventId),
       'canonicalAliasChangeEventId':
-          serializer.toJson<String>(canonicalAliasChangeEventId),
-      'creationEventId': serializer.toJson<String>(creationEventId),
-      'upgradeEventId': serializer.toJson<String>(upgradeEventId),
+          serializer.toJson<String?>(canonicalAliasChangeEventId),
+      'creationEventId': serializer.toJson<String?>(creationEventId),
+      'upgradeEventId': serializer.toJson<String?>(upgradeEventId),
       'highlightedUnreadNotificationCount':
-          serializer.toJson<int>(highlightedUnreadNotificationCount),
+          serializer.toJson<int?>(highlightedUnreadNotificationCount),
       'totalUnreadNotificationCount':
-          serializer.toJson<int>(totalUnreadNotificationCount),
-      'directUserId': serializer.toJson<String>(directUserId),
+          serializer.toJson<int?>(totalUnreadNotificationCount),
+      'directUserId': serializer.toJson<String?>(directUserId),
     };
   }
 
   RoomRecord copyWith(
-          {String myMembership,
-          String id,
-          String timelinePreviousBatch,
-          bool timelinePreviousBatchSetBySync,
-          int summaryJoinedMembersCount,
-          int summaryInvitedMembersCount,
-          String nameChangeEventId,
-          String avatarChangeEventId,
-          String topicChangeEventId,
-          String powerLevelsChangeEventId,
-          String joinRulesChangeEventId,
-          String canonicalAliasChangeEventId,
-          String creationEventId,
-          String upgradeEventId,
-          int highlightedUnreadNotificationCount,
-          int totalUnreadNotificationCount,
-          String directUserId}) =>
+          {String? myMembership,
+          String? id,
+          String? timelinePreviousBatch,
+          bool? timelinePreviousBatchSetBySync,
+          int? summaryJoinedMembersCount,
+          int? summaryInvitedMembersCount,
+          String? nameChangeEventId,
+          String? avatarChangeEventId,
+          String? topicChangeEventId,
+          String? powerLevelsChangeEventId,
+          String? joinRulesChangeEventId,
+          String? canonicalAliasChangeEventId,
+          String? creationEventId,
+          String? upgradeEventId,
+          int? highlightedUnreadNotificationCount,
+          int? totalUnreadNotificationCount,
+          String? directUserId}) =>
       RoomRecord(
         myMembership: myMembership ?? this.myMembership,
         id: id ?? this.id,
@@ -819,7 +854,7 @@ class RoomRecord extends DataClass implements Insertable<RoomRecord> {
                                                                   directUserId
                                                                       .hashCode)))))))))))))))));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is RoomRecord &&
           other.myMembership == this.myMembership &&
@@ -846,23 +881,23 @@ class RoomRecord extends DataClass implements Insertable<RoomRecord> {
 }
 
 class RoomsCompanion extends UpdateCompanion<RoomRecord> {
-  final Value<String> myMembership;
+  final Value<String?> myMembership;
   final Value<String> id;
-  final Value<String> timelinePreviousBatch;
-  final Value<bool> timelinePreviousBatchSetBySync;
-  final Value<int> summaryJoinedMembersCount;
-  final Value<int> summaryInvitedMembersCount;
-  final Value<String> nameChangeEventId;
-  final Value<String> avatarChangeEventId;
-  final Value<String> topicChangeEventId;
-  final Value<String> powerLevelsChangeEventId;
-  final Value<String> joinRulesChangeEventId;
-  final Value<String> canonicalAliasChangeEventId;
-  final Value<String> creationEventId;
-  final Value<String> upgradeEventId;
-  final Value<int> highlightedUnreadNotificationCount;
-  final Value<int> totalUnreadNotificationCount;
-  final Value<String> directUserId;
+  final Value<String?> timelinePreviousBatch;
+  final Value<bool?> timelinePreviousBatchSetBySync;
+  final Value<int?> summaryJoinedMembersCount;
+  final Value<int?> summaryInvitedMembersCount;
+  final Value<String?> nameChangeEventId;
+  final Value<String?> avatarChangeEventId;
+  final Value<String?> topicChangeEventId;
+  final Value<String?> powerLevelsChangeEventId;
+  final Value<String?> joinRulesChangeEventId;
+  final Value<String?> canonicalAliasChangeEventId;
+  final Value<String?> creationEventId;
+  final Value<String?> upgradeEventId;
+  final Value<int?> highlightedUnreadNotificationCount;
+  final Value<int?> totalUnreadNotificationCount;
+  final Value<String?> directUserId;
   const RoomsCompanion({
     this.myMembership = const Value.absent(),
     this.id = const Value.absent(),
@@ -884,7 +919,7 @@ class RoomsCompanion extends UpdateCompanion<RoomRecord> {
   });
   RoomsCompanion.insert({
     this.myMembership = const Value.absent(),
-    @required String id,
+    required String id,
     this.timelinePreviousBatch = const Value.absent(),
     this.timelinePreviousBatchSetBySync = const Value.absent(),
     this.summaryJoinedMembersCount = const Value.absent(),
@@ -902,23 +937,23 @@ class RoomsCompanion extends UpdateCompanion<RoomRecord> {
     this.directUserId = const Value.absent(),
   }) : id = Value(id);
   static Insertable<RoomRecord> custom({
-    Expression<String> myMembership,
-    Expression<String> id,
-    Expression<String> timelinePreviousBatch,
-    Expression<bool> timelinePreviousBatchSetBySync,
-    Expression<int> summaryJoinedMembersCount,
-    Expression<int> summaryInvitedMembersCount,
-    Expression<String> nameChangeEventId,
-    Expression<String> avatarChangeEventId,
-    Expression<String> topicChangeEventId,
-    Expression<String> powerLevelsChangeEventId,
-    Expression<String> joinRulesChangeEventId,
-    Expression<String> canonicalAliasChangeEventId,
-    Expression<String> creationEventId,
-    Expression<String> upgradeEventId,
-    Expression<int> highlightedUnreadNotificationCount,
-    Expression<int> totalUnreadNotificationCount,
-    Expression<String> directUserId,
+    Expression<String?>? myMembership,
+    Expression<String>? id,
+    Expression<String?>? timelinePreviousBatch,
+    Expression<bool?>? timelinePreviousBatchSetBySync,
+    Expression<int?>? summaryJoinedMembersCount,
+    Expression<int?>? summaryInvitedMembersCount,
+    Expression<String?>? nameChangeEventId,
+    Expression<String?>? avatarChangeEventId,
+    Expression<String?>? topicChangeEventId,
+    Expression<String?>? powerLevelsChangeEventId,
+    Expression<String?>? joinRulesChangeEventId,
+    Expression<String?>? canonicalAliasChangeEventId,
+    Expression<String?>? creationEventId,
+    Expression<String?>? upgradeEventId,
+    Expression<int?>? highlightedUnreadNotificationCount,
+    Expression<int?>? totalUnreadNotificationCount,
+    Expression<String?>? directUserId,
   }) {
     return RawValuesInsertable({
       if (myMembership != null) 'my_membership': myMembership,
@@ -954,23 +989,23 @@ class RoomsCompanion extends UpdateCompanion<RoomRecord> {
   }
 
   RoomsCompanion copyWith(
-      {Value<String> myMembership,
-      Value<String> id,
-      Value<String> timelinePreviousBatch,
-      Value<bool> timelinePreviousBatchSetBySync,
-      Value<int> summaryJoinedMembersCount,
-      Value<int> summaryInvitedMembersCount,
-      Value<String> nameChangeEventId,
-      Value<String> avatarChangeEventId,
-      Value<String> topicChangeEventId,
-      Value<String> powerLevelsChangeEventId,
-      Value<String> joinRulesChangeEventId,
-      Value<String> canonicalAliasChangeEventId,
-      Value<String> creationEventId,
-      Value<String> upgradeEventId,
-      Value<int> highlightedUnreadNotificationCount,
-      Value<int> totalUnreadNotificationCount,
-      Value<String> directUserId}) {
+      {Value<String?>? myMembership,
+      Value<String>? id,
+      Value<String?>? timelinePreviousBatch,
+      Value<bool?>? timelinePreviousBatchSetBySync,
+      Value<int?>? summaryJoinedMembersCount,
+      Value<int?>? summaryInvitedMembersCount,
+      Value<String?>? nameChangeEventId,
+      Value<String?>? avatarChangeEventId,
+      Value<String?>? topicChangeEventId,
+      Value<String?>? powerLevelsChangeEventId,
+      Value<String?>? joinRulesChangeEventId,
+      Value<String?>? canonicalAliasChangeEventId,
+      Value<String?>? creationEventId,
+      Value<String?>? upgradeEventId,
+      Value<int?>? highlightedUnreadNotificationCount,
+      Value<int?>? totalUnreadNotificationCount,
+      Value<String?>? directUserId}) {
     return RoomsCompanion(
       myMembership: myMembership ?? this.myMembership,
       id: id ?? this.id,
@@ -1005,290 +1040,210 @@ class RoomsCompanion extends UpdateCompanion<RoomRecord> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     if (myMembership.present) {
-      map['my_membership'] = Variable<String>(myMembership.value);
+      map['my_membership'] = Variable<String?>(myMembership.value);
     }
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
     if (timelinePreviousBatch.present) {
       map['timeline_previous_batch'] =
-          Variable<String>(timelinePreviousBatch.value);
+          Variable<String?>(timelinePreviousBatch.value);
     }
     if (timelinePreviousBatchSetBySync.present) {
       map['timeline_previous_batch_set_by_sync'] =
-          Variable<bool>(timelinePreviousBatchSetBySync.value);
+          Variable<bool?>(timelinePreviousBatchSetBySync.value);
     }
     if (summaryJoinedMembersCount.present) {
       map['summary_joined_members_count'] =
-          Variable<int>(summaryJoinedMembersCount.value);
+          Variable<int?>(summaryJoinedMembersCount.value);
     }
     if (summaryInvitedMembersCount.present) {
       map['summary_invited_members_count'] =
-          Variable<int>(summaryInvitedMembersCount.value);
+          Variable<int?>(summaryInvitedMembersCount.value);
     }
     if (nameChangeEventId.present) {
-      map['name_change_event_id'] = Variable<String>(nameChangeEventId.value);
+      map['name_change_event_id'] = Variable<String?>(nameChangeEventId.value);
     }
     if (avatarChangeEventId.present) {
       map['avatar_change_event_id'] =
-          Variable<String>(avatarChangeEventId.value);
+          Variable<String?>(avatarChangeEventId.value);
     }
     if (topicChangeEventId.present) {
-      map['topic_change_event_id'] = Variable<String>(topicChangeEventId.value);
+      map['topic_change_event_id'] =
+          Variable<String?>(topicChangeEventId.value);
     }
     if (powerLevelsChangeEventId.present) {
       map['power_levels_change_event_id'] =
-          Variable<String>(powerLevelsChangeEventId.value);
+          Variable<String?>(powerLevelsChangeEventId.value);
     }
     if (joinRulesChangeEventId.present) {
       map['join_rules_change_event_id'] =
-          Variable<String>(joinRulesChangeEventId.value);
+          Variable<String?>(joinRulesChangeEventId.value);
     }
     if (canonicalAliasChangeEventId.present) {
       map['canonical_alias_change_event_id'] =
-          Variable<String>(canonicalAliasChangeEventId.value);
+          Variable<String?>(canonicalAliasChangeEventId.value);
     }
     if (creationEventId.present) {
-      map['creation_event_id'] = Variable<String>(creationEventId.value);
+      map['creation_event_id'] = Variable<String?>(creationEventId.value);
     }
     if (upgradeEventId.present) {
-      map['upgrade_event_id'] = Variable<String>(upgradeEventId.value);
+      map['upgrade_event_id'] = Variable<String?>(upgradeEventId.value);
     }
     if (highlightedUnreadNotificationCount.present) {
       map['highlighted_unread_notification_count'] =
-          Variable<int>(highlightedUnreadNotificationCount.value);
+          Variable<int?>(highlightedUnreadNotificationCount.value);
     }
     if (totalUnreadNotificationCount.present) {
       map['total_unread_notification_count'] =
-          Variable<int>(totalUnreadNotificationCount.value);
+          Variable<int?>(totalUnreadNotificationCount.value);
     }
     if (directUserId.present) {
-      map['direct_user_id'] = Variable<String>(directUserId.value);
+      map['direct_user_id'] = Variable<String?>(directUserId.value);
     }
     return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RoomsCompanion(')
+          ..write('myMembership: $myMembership, ')
+          ..write('id: $id, ')
+          ..write('timelinePreviousBatch: $timelinePreviousBatch, ')
+          ..write(
+              'timelinePreviousBatchSetBySync: $timelinePreviousBatchSetBySync, ')
+          ..write('summaryJoinedMembersCount: $summaryJoinedMembersCount, ')
+          ..write('summaryInvitedMembersCount: $summaryInvitedMembersCount, ')
+          ..write('nameChangeEventId: $nameChangeEventId, ')
+          ..write('avatarChangeEventId: $avatarChangeEventId, ')
+          ..write('topicChangeEventId: $topicChangeEventId, ')
+          ..write('powerLevelsChangeEventId: $powerLevelsChangeEventId, ')
+          ..write('joinRulesChangeEventId: $joinRulesChangeEventId, ')
+          ..write('canonicalAliasChangeEventId: $canonicalAliasChangeEventId, ')
+          ..write('creationEventId: $creationEventId, ')
+          ..write('upgradeEventId: $upgradeEventId, ')
+          ..write(
+              'highlightedUnreadNotificationCount: $highlightedUnreadNotificationCount, ')
+          ..write(
+              'totalUnreadNotificationCount: $totalUnreadNotificationCount, ')
+          ..write('directUserId: $directUserId')
+          ..write(')'))
+        .toString();
   }
 }
 
 class $RoomsTable extends Rooms with TableInfo<$RoomsTable, RoomRecord> {
   final GeneratedDatabase _db;
-  final String _alias;
+  final String? _alias;
   $RoomsTable(this._db, [this._alias]);
   final VerificationMeta _myMembershipMeta =
       const VerificationMeta('myMembership');
-  GeneratedTextColumn _myMembership;
-  @override
-  GeneratedTextColumn get myMembership =>
-      _myMembership ??= _constructMyMembership();
-  GeneratedTextColumn _constructMyMembership() {
-    return GeneratedTextColumn(
-      'my_membership',
-      $tableName,
-      true,
-    );
-  }
-
+  late final GeneratedColumn<String?> myMembership = GeneratedColumn<String?>(
+      'my_membership', aliasedName, true,
+      typeName: 'TEXT', requiredDuringInsert: false);
   final VerificationMeta _idMeta = const VerificationMeta('id');
-  GeneratedTextColumn _id;
-  @override
-  GeneratedTextColumn get id => _id ??= _constructId();
-  GeneratedTextColumn _constructId() {
-    return GeneratedTextColumn(
-      'id',
-      $tableName,
-      false,
-    );
-  }
-
+  late final GeneratedColumn<String?> id = GeneratedColumn<String?>(
+      'id', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true);
   final VerificationMeta _timelinePreviousBatchMeta =
       const VerificationMeta('timelinePreviousBatch');
-  GeneratedTextColumn _timelinePreviousBatch;
-  @override
-  GeneratedTextColumn get timelinePreviousBatch =>
-      _timelinePreviousBatch ??= _constructTimelinePreviousBatch();
-  GeneratedTextColumn _constructTimelinePreviousBatch() {
-    return GeneratedTextColumn(
-      'timeline_previous_batch',
-      $tableName,
-      true,
-    );
-  }
-
+  late final GeneratedColumn<String?> timelinePreviousBatch =
+      GeneratedColumn<String?>('timeline_previous_batch', aliasedName, true,
+          typeName: 'TEXT', requiredDuringInsert: false);
   final VerificationMeta _timelinePreviousBatchSetBySyncMeta =
       const VerificationMeta('timelinePreviousBatchSetBySync');
-  GeneratedBoolColumn _timelinePreviousBatchSetBySync;
-  @override
-  GeneratedBoolColumn get timelinePreviousBatchSetBySync =>
-      _timelinePreviousBatchSetBySync ??=
-          _constructTimelinePreviousBatchSetBySync();
-  GeneratedBoolColumn _constructTimelinePreviousBatchSetBySync() {
-    return GeneratedBoolColumn(
-      'timeline_previous_batch_set_by_sync',
-      $tableName,
-      true,
-    );
-  }
-
+  late final GeneratedColumn<bool?> timelinePreviousBatchSetBySync =
+      GeneratedColumn<bool?>(
+          'timeline_previous_batch_set_by_sync', aliasedName, true,
+          typeName: 'INTEGER',
+          requiredDuringInsert: false,
+          defaultConstraints:
+              'CHECK (timeline_previous_batch_set_by_sync IN (0, 1))');
   final VerificationMeta _summaryJoinedMembersCountMeta =
       const VerificationMeta('summaryJoinedMembersCount');
-  GeneratedIntColumn _summaryJoinedMembersCount;
-  @override
-  GeneratedIntColumn get summaryJoinedMembersCount =>
-      _summaryJoinedMembersCount ??= _constructSummaryJoinedMembersCount();
-  GeneratedIntColumn _constructSummaryJoinedMembersCount() {
-    return GeneratedIntColumn(
-      'summary_joined_members_count',
-      $tableName,
-      true,
-    );
-  }
-
+  late final GeneratedColumn<int?> summaryJoinedMembersCount =
+      GeneratedColumn<int?>('summary_joined_members_count', aliasedName, true,
+          typeName: 'INTEGER', requiredDuringInsert: false);
   final VerificationMeta _summaryInvitedMembersCountMeta =
       const VerificationMeta('summaryInvitedMembersCount');
-  GeneratedIntColumn _summaryInvitedMembersCount;
-  @override
-  GeneratedIntColumn get summaryInvitedMembersCount =>
-      _summaryInvitedMembersCount ??= _constructSummaryInvitedMembersCount();
-  GeneratedIntColumn _constructSummaryInvitedMembersCount() {
-    return GeneratedIntColumn(
-      'summary_invited_members_count',
-      $tableName,
-      true,
-    );
-  }
-
+  late final GeneratedColumn<int?> summaryInvitedMembersCount =
+      GeneratedColumn<int?>('summary_invited_members_count', aliasedName, true,
+          typeName: 'INTEGER', requiredDuringInsert: false);
   final VerificationMeta _nameChangeEventIdMeta =
       const VerificationMeta('nameChangeEventId');
-  GeneratedTextColumn _nameChangeEventId;
-  @override
-  GeneratedTextColumn get nameChangeEventId =>
-      _nameChangeEventId ??= _constructNameChangeEventId();
-  GeneratedTextColumn _constructNameChangeEventId() {
-    return GeneratedTextColumn('name_change_event_id', $tableName, true,
-        $customConstraints: 'REFERENCES room_events(id)');
-  }
-
+  late final GeneratedColumn<String?> nameChangeEventId =
+      GeneratedColumn<String?>('name_change_event_id', aliasedName, true,
+          typeName: 'TEXT',
+          requiredDuringInsert: false,
+          $customConstraints: 'REFERENCES room_events(id)');
   final VerificationMeta _avatarChangeEventIdMeta =
       const VerificationMeta('avatarChangeEventId');
-  GeneratedTextColumn _avatarChangeEventId;
-  @override
-  GeneratedTextColumn get avatarChangeEventId =>
-      _avatarChangeEventId ??= _constructAvatarChangeEventId();
-  GeneratedTextColumn _constructAvatarChangeEventId() {
-    return GeneratedTextColumn('avatar_change_event_id', $tableName, true,
-        $customConstraints: 'REFERENCES room_events(id)');
-  }
-
+  late final GeneratedColumn<String?> avatarChangeEventId =
+      GeneratedColumn<String?>('avatar_change_event_id', aliasedName, true,
+          typeName: 'TEXT',
+          requiredDuringInsert: false,
+          $customConstraints: 'REFERENCES room_events(id)');
   final VerificationMeta _topicChangeEventIdMeta =
       const VerificationMeta('topicChangeEventId');
-  GeneratedTextColumn _topicChangeEventId;
-  @override
-  GeneratedTextColumn get topicChangeEventId =>
-      _topicChangeEventId ??= _constructTopicChangeEventId();
-  GeneratedTextColumn _constructTopicChangeEventId() {
-    return GeneratedTextColumn('topic_change_event_id', $tableName, true,
-        $customConstraints: 'REFERENCES room_events(id)');
-  }
-
+  late final GeneratedColumn<String?> topicChangeEventId =
+      GeneratedColumn<String?>('topic_change_event_id', aliasedName, true,
+          typeName: 'TEXT',
+          requiredDuringInsert: false,
+          $customConstraints: 'REFERENCES room_events(id)');
   final VerificationMeta _powerLevelsChangeEventIdMeta =
       const VerificationMeta('powerLevelsChangeEventId');
-  GeneratedTextColumn _powerLevelsChangeEventId;
-  @override
-  GeneratedTextColumn get powerLevelsChangeEventId =>
-      _powerLevelsChangeEventId ??= _constructPowerLevelsChangeEventId();
-  GeneratedTextColumn _constructPowerLevelsChangeEventId() {
-    return GeneratedTextColumn('power_levels_change_event_id', $tableName, true,
-        $customConstraints: 'REFERENCES room_events(id)');
-  }
-
+  late final GeneratedColumn<String?> powerLevelsChangeEventId =
+      GeneratedColumn<String?>(
+          'power_levels_change_event_id', aliasedName, true,
+          typeName: 'TEXT',
+          requiredDuringInsert: false,
+          $customConstraints: 'REFERENCES room_events(id)');
   final VerificationMeta _joinRulesChangeEventIdMeta =
       const VerificationMeta('joinRulesChangeEventId');
-  GeneratedTextColumn _joinRulesChangeEventId;
-  @override
-  GeneratedTextColumn get joinRulesChangeEventId =>
-      _joinRulesChangeEventId ??= _constructJoinRulesChangeEventId();
-  GeneratedTextColumn _constructJoinRulesChangeEventId() {
-    return GeneratedTextColumn('join_rules_change_event_id', $tableName, true,
-        $customConstraints: 'REFERENCES room_events(id)');
-  }
-
+  late final GeneratedColumn<String?> joinRulesChangeEventId =
+      GeneratedColumn<String?>('join_rules_change_event_id', aliasedName, true,
+          typeName: 'TEXT',
+          requiredDuringInsert: false,
+          $customConstraints: 'REFERENCES room_events(id)');
   final VerificationMeta _canonicalAliasChangeEventIdMeta =
       const VerificationMeta('canonicalAliasChangeEventId');
-  GeneratedTextColumn _canonicalAliasChangeEventId;
-  @override
-  GeneratedTextColumn get canonicalAliasChangeEventId =>
-      _canonicalAliasChangeEventId ??= _constructCanonicalAliasChangeEventId();
-  GeneratedTextColumn _constructCanonicalAliasChangeEventId() {
-    return GeneratedTextColumn(
-        'canonical_alias_change_event_id', $tableName, true,
-        $customConstraints: 'REFERENCES room_events(id)');
-  }
-
+  late final GeneratedColumn<String?> canonicalAliasChangeEventId =
+      GeneratedColumn<String?>(
+          'canonical_alias_change_event_id', aliasedName, true,
+          typeName: 'TEXT',
+          requiredDuringInsert: false,
+          $customConstraints: 'REFERENCES room_events(id)');
   final VerificationMeta _creationEventIdMeta =
       const VerificationMeta('creationEventId');
-  GeneratedTextColumn _creationEventId;
-  @override
-  GeneratedTextColumn get creationEventId =>
-      _creationEventId ??= _constructCreationEventId();
-  GeneratedTextColumn _constructCreationEventId() {
-    return GeneratedTextColumn('creation_event_id', $tableName, true,
-        $customConstraints: 'REFERENCES room_events(id)');
-  }
-
+  late final GeneratedColumn<String?> creationEventId =
+      GeneratedColumn<String?>('creation_event_id', aliasedName, true,
+          typeName: 'TEXT',
+          requiredDuringInsert: false,
+          $customConstraints: 'REFERENCES room_events(id)');
   final VerificationMeta _upgradeEventIdMeta =
       const VerificationMeta('upgradeEventId');
-  GeneratedTextColumn _upgradeEventId;
-  @override
-  GeneratedTextColumn get upgradeEventId =>
-      _upgradeEventId ??= _constructUpgradeEventId();
-  GeneratedTextColumn _constructUpgradeEventId() {
-    return GeneratedTextColumn('upgrade_event_id', $tableName, true,
-        $customConstraints: 'REFERENCES room_events(id)');
-  }
-
+  late final GeneratedColumn<String?> upgradeEventId = GeneratedColumn<String?>(
+      'upgrade_event_id', aliasedName, true,
+      typeName: 'TEXT',
+      requiredDuringInsert: false,
+      $customConstraints: 'REFERENCES room_events(id)');
   final VerificationMeta _highlightedUnreadNotificationCountMeta =
       const VerificationMeta('highlightedUnreadNotificationCount');
-  GeneratedIntColumn _highlightedUnreadNotificationCount;
-  @override
-  GeneratedIntColumn get highlightedUnreadNotificationCount =>
-      _highlightedUnreadNotificationCount ??=
-          _constructHighlightedUnreadNotificationCount();
-  GeneratedIntColumn _constructHighlightedUnreadNotificationCount() {
-    return GeneratedIntColumn(
-      'highlighted_unread_notification_count',
-      $tableName,
-      true,
-    );
-  }
-
+  late final GeneratedColumn<int?> highlightedUnreadNotificationCount =
+      GeneratedColumn<int?>(
+          'highlighted_unread_notification_count', aliasedName, true,
+          typeName: 'INTEGER', requiredDuringInsert: false);
   final VerificationMeta _totalUnreadNotificationCountMeta =
       const VerificationMeta('totalUnreadNotificationCount');
-  GeneratedIntColumn _totalUnreadNotificationCount;
-  @override
-  GeneratedIntColumn get totalUnreadNotificationCount =>
-      _totalUnreadNotificationCount ??=
-          _constructTotalUnreadNotificationCount();
-  GeneratedIntColumn _constructTotalUnreadNotificationCount() {
-    return GeneratedIntColumn(
-      'total_unread_notification_count',
-      $tableName,
-      true,
-    );
-  }
-
+  late final GeneratedColumn<int?> totalUnreadNotificationCount =
+      GeneratedColumn<int?>(
+          'total_unread_notification_count', aliasedName, true,
+          typeName: 'INTEGER', requiredDuringInsert: false);
   final VerificationMeta _directUserIdMeta =
       const VerificationMeta('directUserId');
-  GeneratedTextColumn _directUserId;
-  @override
-  GeneratedTextColumn get directUserId =>
-      _directUserId ??= _constructDirectUserId();
-  GeneratedTextColumn _constructDirectUserId() {
-    return GeneratedTextColumn(
-      'direct_user_id',
-      $tableName,
-      true,
-    );
-  }
-
+  late final GeneratedColumn<String?> directUserId = GeneratedColumn<String?>(
+      'direct_user_id', aliasedName, true,
+      typeName: 'TEXT', requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         myMembership,
@@ -1310,11 +1265,9 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, RoomRecord> {
         directUserId
       ];
   @override
-  $RoomsTable get asDslTable => this;
+  String get aliasedName => _alias ?? 'rooms';
   @override
-  String get $tableName => _alias ?? 'rooms';
-  @override
-  final String actualTableName = 'rooms';
+  String get actualTableName => 'rooms';
   @override
   VerificationContext validateIntegrity(Insertable<RoomRecord> instance,
       {bool isInserting = false}) {
@@ -1324,10 +1277,10 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, RoomRecord> {
       context.handle(
           _myMembershipMeta,
           myMembership.isAcceptableOrUnknown(
-              data['my_membership'], _myMembershipMeta));
+              data['my_membership']!, _myMembershipMeta));
     }
     if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
     }
@@ -1335,98 +1288,99 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, RoomRecord> {
       context.handle(
           _timelinePreviousBatchMeta,
           timelinePreviousBatch.isAcceptableOrUnknown(
-              data['timeline_previous_batch'], _timelinePreviousBatchMeta));
+              data['timeline_previous_batch']!, _timelinePreviousBatchMeta));
     }
     if (data.containsKey('timeline_previous_batch_set_by_sync')) {
       context.handle(
           _timelinePreviousBatchSetBySyncMeta,
           timelinePreviousBatchSetBySync.isAcceptableOrUnknown(
-              data['timeline_previous_batch_set_by_sync'],
+              data['timeline_previous_batch_set_by_sync']!,
               _timelinePreviousBatchSetBySyncMeta));
     }
     if (data.containsKey('summary_joined_members_count')) {
       context.handle(
           _summaryJoinedMembersCountMeta,
           summaryJoinedMembersCount.isAcceptableOrUnknown(
-              data['summary_joined_members_count'],
+              data['summary_joined_members_count']!,
               _summaryJoinedMembersCountMeta));
     }
     if (data.containsKey('summary_invited_members_count')) {
       context.handle(
           _summaryInvitedMembersCountMeta,
           summaryInvitedMembersCount.isAcceptableOrUnknown(
-              data['summary_invited_members_count'],
+              data['summary_invited_members_count']!,
               _summaryInvitedMembersCountMeta));
     }
     if (data.containsKey('name_change_event_id')) {
       context.handle(
           _nameChangeEventIdMeta,
           nameChangeEventId.isAcceptableOrUnknown(
-              data['name_change_event_id'], _nameChangeEventIdMeta));
+              data['name_change_event_id']!, _nameChangeEventIdMeta));
     }
     if (data.containsKey('avatar_change_event_id')) {
       context.handle(
           _avatarChangeEventIdMeta,
           avatarChangeEventId.isAcceptableOrUnknown(
-              data['avatar_change_event_id'], _avatarChangeEventIdMeta));
+              data['avatar_change_event_id']!, _avatarChangeEventIdMeta));
     }
     if (data.containsKey('topic_change_event_id')) {
       context.handle(
           _topicChangeEventIdMeta,
           topicChangeEventId.isAcceptableOrUnknown(
-              data['topic_change_event_id'], _topicChangeEventIdMeta));
+              data['topic_change_event_id']!, _topicChangeEventIdMeta));
     }
     if (data.containsKey('power_levels_change_event_id')) {
       context.handle(
           _powerLevelsChangeEventIdMeta,
           powerLevelsChangeEventId.isAcceptableOrUnknown(
-              data['power_levels_change_event_id'],
+              data['power_levels_change_event_id']!,
               _powerLevelsChangeEventIdMeta));
     }
     if (data.containsKey('join_rules_change_event_id')) {
       context.handle(
           _joinRulesChangeEventIdMeta,
           joinRulesChangeEventId.isAcceptableOrUnknown(
-              data['join_rules_change_event_id'], _joinRulesChangeEventIdMeta));
+              data['join_rules_change_event_id']!,
+              _joinRulesChangeEventIdMeta));
     }
     if (data.containsKey('canonical_alias_change_event_id')) {
       context.handle(
           _canonicalAliasChangeEventIdMeta,
           canonicalAliasChangeEventId.isAcceptableOrUnknown(
-              data['canonical_alias_change_event_id'],
+              data['canonical_alias_change_event_id']!,
               _canonicalAliasChangeEventIdMeta));
     }
     if (data.containsKey('creation_event_id')) {
       context.handle(
           _creationEventIdMeta,
           creationEventId.isAcceptableOrUnknown(
-              data['creation_event_id'], _creationEventIdMeta));
+              data['creation_event_id']!, _creationEventIdMeta));
     }
     if (data.containsKey('upgrade_event_id')) {
       context.handle(
           _upgradeEventIdMeta,
           upgradeEventId.isAcceptableOrUnknown(
-              data['upgrade_event_id'], _upgradeEventIdMeta));
+              data['upgrade_event_id']!, _upgradeEventIdMeta));
     }
     if (data.containsKey('highlighted_unread_notification_count')) {
       context.handle(
           _highlightedUnreadNotificationCountMeta,
           highlightedUnreadNotificationCount.isAcceptableOrUnknown(
-              data['highlighted_unread_notification_count'],
+              data['highlighted_unread_notification_count']!,
               _highlightedUnreadNotificationCountMeta));
     }
     if (data.containsKey('total_unread_notification_count')) {
       context.handle(
           _totalUnreadNotificationCountMeta,
           totalUnreadNotificationCount.isAcceptableOrUnknown(
-              data['total_unread_notification_count'],
+              data['total_unread_notification_count']!,
               _totalUnreadNotificationCountMeta));
     }
     if (data.containsKey('direct_user_id')) {
       context.handle(
           _directUserIdMeta,
           directUserId.isAcceptableOrUnknown(
-              data['direct_user_id'], _directUserIdMeta));
+              data['direct_user_id']!, _directUserIdMeta));
     }
     return context;
   }
@@ -1434,9 +1388,9 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, RoomRecord> {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  RoomRecord map(Map<String, dynamic> data, {String tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return RoomRecord.fromData(data, _db, prefix: effectivePrefix);
+  RoomRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return RoomRecord.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -1450,19 +1404,19 @@ class RoomEventRecord extends DataClass implements Insertable<RoomEventRecord> {
   final String type;
   final String roomId;
   final String senderId;
-  final DateTime time;
-  final String content;
-  final String previousContent;
-  final String sentState;
-  final String transactionId;
-  final String stateKey;
-  final String redacts;
+  final DateTime? time;
+  final String? content;
+  final String? previousContent;
+  final String? sentState;
+  final String? transactionId;
+  final String? stateKey;
+  final String? redacts;
   final bool inTimeline;
   RoomEventRecord(
-      {@required this.id,
-      @required this.type,
-      @required this.roomId,
-      @required this.senderId,
+      {required this.id,
+      required this.type,
+      required this.roomId,
+      required this.senderId,
       this.time,
       this.content,
       this.previousContent,
@@ -1470,131 +1424,149 @@ class RoomEventRecord extends DataClass implements Insertable<RoomEventRecord> {
       this.transactionId,
       this.stateKey,
       this.redacts,
-      @required this.inTimeline});
+      required this.inTimeline});
   factory RoomEventRecord.fromData(
       Map<String, dynamic> data, GeneratedDatabase db,
-      {String prefix}) {
+      {String? prefix}) {
     final effectivePrefix = prefix ?? '';
-    final stringType = db.typeSystem.forDartType<String>();
-    final dateTimeType = db.typeSystem.forDartType<DateTime>();
-    final boolType = db.typeSystem.forDartType<bool>();
     return RoomEventRecord(
-      id: stringType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
-      type: stringType.mapFromDatabaseResponse(data['${effectivePrefix}type']),
-      roomId:
-          stringType.mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
-      senderId: stringType
-          .mapFromDatabaseResponse(data['${effectivePrefix}sender_id']),
-      time:
-          dateTimeType.mapFromDatabaseResponse(data['${effectivePrefix}time']),
-      content:
-          stringType.mapFromDatabaseResponse(data['${effectivePrefix}content']),
-      previousContent: stringType
+      id: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
+      type: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}type'])!,
+      roomId: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}room_id'])!,
+      senderId: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}sender_id'])!,
+      time: const DateTimeType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}time']),
+      content: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}content']),
+      previousContent: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}previous_content']),
-      sentState: stringType
+      sentState: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}sent_state']),
-      transactionId: stringType
+      transactionId: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}transaction_id']),
-      stateKey: stringType
+      stateKey: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}state_key']),
-      redacts:
-          stringType.mapFromDatabaseResponse(data['${effectivePrefix}redacts']),
-      inTimeline: boolType
-          .mapFromDatabaseResponse(data['${effectivePrefix}in_timeline']),
+      redacts: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}redacts']),
+      inTimeline: const BoolType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}in_timeline'])!,
     );
   }
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (!nullToAbsent || id != null) {
-      map['id'] = Variable<String>(id);
-    }
-    if (!nullToAbsent || type != null) {
-      map['type'] = Variable<String>(type);
-    }
-    if (!nullToAbsent || roomId != null) {
-      map['room_id'] = Variable<String>(roomId);
-    }
-    if (!nullToAbsent || senderId != null) {
-      map['sender_id'] = Variable<String>(senderId);
-    }
+    map['id'] = Variable<String>(id);
+    map['type'] = Variable<String>(type);
+    map['room_id'] = Variable<String>(roomId);
+    map['sender_id'] = Variable<String>(senderId);
     if (!nullToAbsent || time != null) {
-      map['time'] = Variable<DateTime>(time);
+      map['time'] = Variable<DateTime?>(time);
     }
     if (!nullToAbsent || content != null) {
-      map['content'] = Variable<String>(content);
+      map['content'] = Variable<String?>(content);
     }
     if (!nullToAbsent || previousContent != null) {
-      map['previous_content'] = Variable<String>(previousContent);
+      map['previous_content'] = Variable<String?>(previousContent);
     }
     if (!nullToAbsent || sentState != null) {
-      map['sent_state'] = Variable<String>(sentState);
+      map['sent_state'] = Variable<String?>(sentState);
     }
     if (!nullToAbsent || transactionId != null) {
-      map['transaction_id'] = Variable<String>(transactionId);
+      map['transaction_id'] = Variable<String?>(transactionId);
     }
     if (!nullToAbsent || stateKey != null) {
-      map['state_key'] = Variable<String>(stateKey);
+      map['state_key'] = Variable<String?>(stateKey);
     }
     if (!nullToAbsent || redacts != null) {
-      map['redacts'] = Variable<String>(redacts);
+      map['redacts'] = Variable<String?>(redacts);
     }
-    if (!nullToAbsent || inTimeline != null) {
-      map['in_timeline'] = Variable<bool>(inTimeline);
-    }
+    map['in_timeline'] = Variable<bool>(inTimeline);
     return map;
   }
 
+  RoomEventsCompanion toCompanion(bool nullToAbsent) {
+    return RoomEventsCompanion(
+      id: Value(id),
+      type: Value(type),
+      roomId: Value(roomId),
+      senderId: Value(senderId),
+      time: time == null && nullToAbsent ? const Value.absent() : Value(time),
+      content: content == null && nullToAbsent
+          ? const Value.absent()
+          : Value(content),
+      previousContent: previousContent == null && nullToAbsent
+          ? const Value.absent()
+          : Value(previousContent),
+      sentState: sentState == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sentState),
+      transactionId: transactionId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(transactionId),
+      stateKey: stateKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(stateKey),
+      redacts: redacts == null && nullToAbsent
+          ? const Value.absent()
+          : Value(redacts),
+      inTimeline: Value(inTimeline),
+    );
+  }
+
   factory RoomEventRecord.fromJson(Map<String, dynamic> json,
-      {ValueSerializer serializer}) {
+      {ValueSerializer? serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return RoomEventRecord(
       id: serializer.fromJson<String>(json['id']),
       type: serializer.fromJson<String>(json['type']),
       roomId: serializer.fromJson<String>(json['roomId']),
       senderId: serializer.fromJson<String>(json['senderId']),
-      time: serializer.fromJson<DateTime>(json['time']),
-      content: serializer.fromJson<String>(json['content']),
-      previousContent: serializer.fromJson<String>(json['previousContent']),
-      sentState: serializer.fromJson<String>(json['sentState']),
-      transactionId: serializer.fromJson<String>(json['transactionId']),
-      stateKey: serializer.fromJson<String>(json['stateKey']),
-      redacts: serializer.fromJson<String>(json['redacts']),
+      time: serializer.fromJson<DateTime?>(json['time']),
+      content: serializer.fromJson<String?>(json['content']),
+      previousContent: serializer.fromJson<String?>(json['previousContent']),
+      sentState: serializer.fromJson<String?>(json['sentState']),
+      transactionId: serializer.fromJson<String?>(json['transactionId']),
+      stateKey: serializer.fromJson<String?>(json['stateKey']),
+      redacts: serializer.fromJson<String?>(json['redacts']),
       inTimeline: serializer.fromJson<bool>(json['inTimeline']),
     );
   }
   @override
-  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'type': serializer.toJson<String>(type),
       'roomId': serializer.toJson<String>(roomId),
       'senderId': serializer.toJson<String>(senderId),
-      'time': serializer.toJson<DateTime>(time),
-      'content': serializer.toJson<String>(content),
-      'previousContent': serializer.toJson<String>(previousContent),
-      'sentState': serializer.toJson<String>(sentState),
-      'transactionId': serializer.toJson<String>(transactionId),
-      'stateKey': serializer.toJson<String>(stateKey),
-      'redacts': serializer.toJson<String>(redacts),
+      'time': serializer.toJson<DateTime?>(time),
+      'content': serializer.toJson<String?>(content),
+      'previousContent': serializer.toJson<String?>(previousContent),
+      'sentState': serializer.toJson<String?>(sentState),
+      'transactionId': serializer.toJson<String?>(transactionId),
+      'stateKey': serializer.toJson<String?>(stateKey),
+      'redacts': serializer.toJson<String?>(redacts),
       'inTimeline': serializer.toJson<bool>(inTimeline),
     };
   }
 
   RoomEventRecord copyWith(
-          {String id,
-          String type,
-          String roomId,
-          String senderId,
-          DateTime time,
-          String content,
-          String previousContent,
-          String sentState,
-          String transactionId,
-          String stateKey,
-          String redacts,
-          bool inTimeline}) =>
+          {String? id,
+          String? type,
+          String? roomId,
+          String? senderId,
+          DateTime? time,
+          String? content,
+          String? previousContent,
+          String? sentState,
+          String? transactionId,
+          String? stateKey,
+          String? redacts,
+          bool? inTimeline}) =>
       RoomEventRecord(
         id: id ?? this.id,
         type: type ?? this.type,
@@ -1652,7 +1624,7 @@ class RoomEventRecord extends DataClass implements Insertable<RoomEventRecord> {
                                           $mrjc(redacts.hashCode,
                                               inTimeline.hashCode))))))))))));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is RoomEventRecord &&
           other.id == this.id &&
@@ -1674,13 +1646,13 @@ class RoomEventsCompanion extends UpdateCompanion<RoomEventRecord> {
   final Value<String> type;
   final Value<String> roomId;
   final Value<String> senderId;
-  final Value<DateTime> time;
-  final Value<String> content;
-  final Value<String> previousContent;
-  final Value<String> sentState;
-  final Value<String> transactionId;
-  final Value<String> stateKey;
-  final Value<String> redacts;
+  final Value<DateTime?> time;
+  final Value<String?> content;
+  final Value<String?> previousContent;
+  final Value<String?> sentState;
+  final Value<String?> transactionId;
+  final Value<String?> stateKey;
+  final Value<String?> redacts;
   final Value<bool> inTimeline;
   const RoomEventsCompanion({
     this.id = const Value.absent(),
@@ -1697,10 +1669,10 @@ class RoomEventsCompanion extends UpdateCompanion<RoomEventRecord> {
     this.inTimeline = const Value.absent(),
   });
   RoomEventsCompanion.insert({
-    @required String id,
-    @required String type,
-    @required String roomId,
-    @required String senderId,
+    required String id,
+    required String type,
+    required String roomId,
+    required String senderId,
     this.time = const Value.absent(),
     this.content = const Value.absent(),
     this.previousContent = const Value.absent(),
@@ -1708,25 +1680,25 @@ class RoomEventsCompanion extends UpdateCompanion<RoomEventRecord> {
     this.transactionId = const Value.absent(),
     this.stateKey = const Value.absent(),
     this.redacts = const Value.absent(),
-    @required bool inTimeline,
+    required bool inTimeline,
   })  : id = Value(id),
         type = Value(type),
         roomId = Value(roomId),
         senderId = Value(senderId),
         inTimeline = Value(inTimeline);
   static Insertable<RoomEventRecord> custom({
-    Expression<String> id,
-    Expression<String> type,
-    Expression<String> roomId,
-    Expression<String> senderId,
-    Expression<DateTime> time,
-    Expression<String> content,
-    Expression<String> previousContent,
-    Expression<String> sentState,
-    Expression<String> transactionId,
-    Expression<String> stateKey,
-    Expression<String> redacts,
-    Expression<bool> inTimeline,
+    Expression<String>? id,
+    Expression<String>? type,
+    Expression<String>? roomId,
+    Expression<String>? senderId,
+    Expression<DateTime?>? time,
+    Expression<String?>? content,
+    Expression<String?>? previousContent,
+    Expression<String?>? sentState,
+    Expression<String?>? transactionId,
+    Expression<String?>? stateKey,
+    Expression<String?>? redacts,
+    Expression<bool>? inTimeline,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1745,18 +1717,18 @@ class RoomEventsCompanion extends UpdateCompanion<RoomEventRecord> {
   }
 
   RoomEventsCompanion copyWith(
-      {Value<String> id,
-      Value<String> type,
-      Value<String> roomId,
-      Value<String> senderId,
-      Value<DateTime> time,
-      Value<String> content,
-      Value<String> previousContent,
-      Value<String> sentState,
-      Value<String> transactionId,
-      Value<String> stateKey,
-      Value<String> redacts,
-      Value<bool> inTimeline}) {
+      {Value<String>? id,
+      Value<String>? type,
+      Value<String>? roomId,
+      Value<String>? senderId,
+      Value<DateTime?>? time,
+      Value<String?>? content,
+      Value<String?>? previousContent,
+      Value<String?>? sentState,
+      Value<String?>? transactionId,
+      Value<String?>? stateKey,
+      Value<String?>? redacts,
+      Value<bool>? inTimeline}) {
     return RoomEventsCompanion(
       id: id ?? this.id,
       type: type ?? this.type,
@@ -1789,183 +1761,111 @@ class RoomEventsCompanion extends UpdateCompanion<RoomEventRecord> {
       map['sender_id'] = Variable<String>(senderId.value);
     }
     if (time.present) {
-      map['time'] = Variable<DateTime>(time.value);
+      map['time'] = Variable<DateTime?>(time.value);
     }
     if (content.present) {
-      map['content'] = Variable<String>(content.value);
+      map['content'] = Variable<String?>(content.value);
     }
     if (previousContent.present) {
-      map['previous_content'] = Variable<String>(previousContent.value);
+      map['previous_content'] = Variable<String?>(previousContent.value);
     }
     if (sentState.present) {
-      map['sent_state'] = Variable<String>(sentState.value);
+      map['sent_state'] = Variable<String?>(sentState.value);
     }
     if (transactionId.present) {
-      map['transaction_id'] = Variable<String>(transactionId.value);
+      map['transaction_id'] = Variable<String?>(transactionId.value);
     }
     if (stateKey.present) {
-      map['state_key'] = Variable<String>(stateKey.value);
+      map['state_key'] = Variable<String?>(stateKey.value);
     }
     if (redacts.present) {
-      map['redacts'] = Variable<String>(redacts.value);
+      map['redacts'] = Variable<String?>(redacts.value);
     }
     if (inTimeline.present) {
       map['in_timeline'] = Variable<bool>(inTimeline.value);
     }
     return map;
   }
+
+  @override
+  String toString() {
+    return (StringBuffer('RoomEventsCompanion(')
+          ..write('id: $id, ')
+          ..write('type: $type, ')
+          ..write('roomId: $roomId, ')
+          ..write('senderId: $senderId, ')
+          ..write('time: $time, ')
+          ..write('content: $content, ')
+          ..write('previousContent: $previousContent, ')
+          ..write('sentState: $sentState, ')
+          ..write('transactionId: $transactionId, ')
+          ..write('stateKey: $stateKey, ')
+          ..write('redacts: $redacts, ')
+          ..write('inTimeline: $inTimeline')
+          ..write(')'))
+        .toString();
+  }
 }
 
 class $RoomEventsTable extends RoomEvents
     with TableInfo<$RoomEventsTable, RoomEventRecord> {
   final GeneratedDatabase _db;
-  final String _alias;
+  final String? _alias;
   $RoomEventsTable(this._db, [this._alias]);
   final VerificationMeta _idMeta = const VerificationMeta('id');
-  GeneratedTextColumn _id;
-  @override
-  GeneratedTextColumn get id => _id ??= _constructId();
-  GeneratedTextColumn _constructId() {
-    return GeneratedTextColumn(
-      'id',
-      $tableName,
-      false,
-    );
-  }
-
+  late final GeneratedColumn<String?> id = GeneratedColumn<String?>(
+      'id', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true);
   final VerificationMeta _typeMeta = const VerificationMeta('type');
-  GeneratedTextColumn _type;
-  @override
-  GeneratedTextColumn get type => _type ??= _constructType();
-  GeneratedTextColumn _constructType() {
-    return GeneratedTextColumn(
-      'type',
-      $tableName,
-      false,
-    );
-  }
-
+  late final GeneratedColumn<String?> type = GeneratedColumn<String?>(
+      'type', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true);
   final VerificationMeta _roomIdMeta = const VerificationMeta('roomId');
-  GeneratedTextColumn _roomId;
-  @override
-  GeneratedTextColumn get roomId => _roomId ??= _constructRoomId();
-  GeneratedTextColumn _constructRoomId() {
-    return GeneratedTextColumn('room_id', $tableName, false,
-        $customConstraints: 'REFERENCES room_events(id)');
-  }
-
+  late final GeneratedColumn<String?> roomId = GeneratedColumn<String?>(
+      'room_id', aliasedName, false,
+      typeName: 'TEXT',
+      requiredDuringInsert: true,
+      $customConstraints: 'REFERENCES room_events(id)');
   final VerificationMeta _senderIdMeta = const VerificationMeta('senderId');
-  GeneratedTextColumn _senderId;
-  @override
-  GeneratedTextColumn get senderId => _senderId ??= _constructSenderId();
-  GeneratedTextColumn _constructSenderId() {
-    return GeneratedTextColumn(
-      'sender_id',
-      $tableName,
-      false,
-    );
-  }
-
+  late final GeneratedColumn<String?> senderId = GeneratedColumn<String?>(
+      'sender_id', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true);
   final VerificationMeta _timeMeta = const VerificationMeta('time');
-  GeneratedDateTimeColumn _time;
-  @override
-  GeneratedDateTimeColumn get time => _time ??= _constructTime();
-  GeneratedDateTimeColumn _constructTime() {
-    return GeneratedDateTimeColumn(
-      'time',
-      $tableName,
-      true,
-    );
-  }
-
+  late final GeneratedColumn<DateTime?> time = GeneratedColumn<DateTime?>(
+      'time', aliasedName, true,
+      typeName: 'INTEGER', requiredDuringInsert: false);
   final VerificationMeta _contentMeta = const VerificationMeta('content');
-  GeneratedTextColumn _content;
-  @override
-  GeneratedTextColumn get content => _content ??= _constructContent();
-  GeneratedTextColumn _constructContent() {
-    return GeneratedTextColumn(
-      'content',
-      $tableName,
-      true,
-    );
-  }
-
+  late final GeneratedColumn<String?> content = GeneratedColumn<String?>(
+      'content', aliasedName, true,
+      typeName: 'TEXT', requiredDuringInsert: false);
   final VerificationMeta _previousContentMeta =
       const VerificationMeta('previousContent');
-  GeneratedTextColumn _previousContent;
-  @override
-  GeneratedTextColumn get previousContent =>
-      _previousContent ??= _constructPreviousContent();
-  GeneratedTextColumn _constructPreviousContent() {
-    return GeneratedTextColumn(
-      'previous_content',
-      $tableName,
-      true,
-    );
-  }
-
+  late final GeneratedColumn<String?> previousContent =
+      GeneratedColumn<String?>('previous_content', aliasedName, true,
+          typeName: 'TEXT', requiredDuringInsert: false);
   final VerificationMeta _sentStateMeta = const VerificationMeta('sentState');
-  GeneratedTextColumn _sentState;
-  @override
-  GeneratedTextColumn get sentState => _sentState ??= _constructSentState();
-  GeneratedTextColumn _constructSentState() {
-    return GeneratedTextColumn(
-      'sent_state',
-      $tableName,
-      true,
-    );
-  }
-
+  late final GeneratedColumn<String?> sentState = GeneratedColumn<String?>(
+      'sent_state', aliasedName, true,
+      typeName: 'TEXT', requiredDuringInsert: false);
   final VerificationMeta _transactionIdMeta =
       const VerificationMeta('transactionId');
-  GeneratedTextColumn _transactionId;
-  @override
-  GeneratedTextColumn get transactionId =>
-      _transactionId ??= _constructTransactionId();
-  GeneratedTextColumn _constructTransactionId() {
-    return GeneratedTextColumn(
-      'transaction_id',
-      $tableName,
-      true,
-    );
-  }
-
+  late final GeneratedColumn<String?> transactionId = GeneratedColumn<String?>(
+      'transaction_id', aliasedName, true,
+      typeName: 'TEXT', requiredDuringInsert: false);
   final VerificationMeta _stateKeyMeta = const VerificationMeta('stateKey');
-  GeneratedTextColumn _stateKey;
-  @override
-  GeneratedTextColumn get stateKey => _stateKey ??= _constructStateKey();
-  GeneratedTextColumn _constructStateKey() {
-    return GeneratedTextColumn(
-      'state_key',
-      $tableName,
-      true,
-    );
-  }
-
+  late final GeneratedColumn<String?> stateKey = GeneratedColumn<String?>(
+      'state_key', aliasedName, true,
+      typeName: 'TEXT', requiredDuringInsert: false);
   final VerificationMeta _redactsMeta = const VerificationMeta('redacts');
-  GeneratedTextColumn _redacts;
-  @override
-  GeneratedTextColumn get redacts => _redacts ??= _constructRedacts();
-  GeneratedTextColumn _constructRedacts() {
-    return GeneratedTextColumn(
-      'redacts',
-      $tableName,
-      true,
-    );
-  }
-
+  late final GeneratedColumn<String?> redacts = GeneratedColumn<String?>(
+      'redacts', aliasedName, true,
+      typeName: 'TEXT', requiredDuringInsert: false);
   final VerificationMeta _inTimelineMeta = const VerificationMeta('inTimeline');
-  GeneratedBoolColumn _inTimeline;
-  @override
-  GeneratedBoolColumn get inTimeline => _inTimeline ??= _constructInTimeline();
-  GeneratedBoolColumn _constructInTimeline() {
-    return GeneratedBoolColumn(
-      'in_timeline',
-      $tableName,
-      false,
-    );
-  }
-
+  late final GeneratedColumn<bool?> inTimeline = GeneratedColumn<bool?>(
+      'in_timeline', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: true,
+      defaultConstraints: 'CHECK (in_timeline IN (0, 1))');
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -1982,76 +1882,74 @@ class $RoomEventsTable extends RoomEvents
         inTimeline
       ];
   @override
-  $RoomEventsTable get asDslTable => this;
+  String get aliasedName => _alias ?? 'room_events';
   @override
-  String get $tableName => _alias ?? 'room_events';
-  @override
-  final String actualTableName = 'room_events';
+  String get actualTableName => 'room_events';
   @override
   VerificationContext validateIntegrity(Insertable<RoomEventRecord> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
     }
     if (data.containsKey('type')) {
       context.handle(
-          _typeMeta, type.isAcceptableOrUnknown(data['type'], _typeMeta));
+          _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
     } else if (isInserting) {
       context.missing(_typeMeta);
     }
     if (data.containsKey('room_id')) {
       context.handle(_roomIdMeta,
-          roomId.isAcceptableOrUnknown(data['room_id'], _roomIdMeta));
+          roomId.isAcceptableOrUnknown(data['room_id']!, _roomIdMeta));
     } else if (isInserting) {
       context.missing(_roomIdMeta);
     }
     if (data.containsKey('sender_id')) {
       context.handle(_senderIdMeta,
-          senderId.isAcceptableOrUnknown(data['sender_id'], _senderIdMeta));
+          senderId.isAcceptableOrUnknown(data['sender_id']!, _senderIdMeta));
     } else if (isInserting) {
       context.missing(_senderIdMeta);
     }
     if (data.containsKey('time')) {
       context.handle(
-          _timeMeta, time.isAcceptableOrUnknown(data['time'], _timeMeta));
+          _timeMeta, time.isAcceptableOrUnknown(data['time']!, _timeMeta));
     }
     if (data.containsKey('content')) {
       context.handle(_contentMeta,
-          content.isAcceptableOrUnknown(data['content'], _contentMeta));
+          content.isAcceptableOrUnknown(data['content']!, _contentMeta));
     }
     if (data.containsKey('previous_content')) {
       context.handle(
           _previousContentMeta,
           previousContent.isAcceptableOrUnknown(
-              data['previous_content'], _previousContentMeta));
+              data['previous_content']!, _previousContentMeta));
     }
     if (data.containsKey('sent_state')) {
       context.handle(_sentStateMeta,
-          sentState.isAcceptableOrUnknown(data['sent_state'], _sentStateMeta));
+          sentState.isAcceptableOrUnknown(data['sent_state']!, _sentStateMeta));
     }
     if (data.containsKey('transaction_id')) {
       context.handle(
           _transactionIdMeta,
           transactionId.isAcceptableOrUnknown(
-              data['transaction_id'], _transactionIdMeta));
+              data['transaction_id']!, _transactionIdMeta));
     }
     if (data.containsKey('state_key')) {
       context.handle(_stateKeyMeta,
-          stateKey.isAcceptableOrUnknown(data['state_key'], _stateKeyMeta));
+          stateKey.isAcceptableOrUnknown(data['state_key']!, _stateKeyMeta));
     }
     if (data.containsKey('redacts')) {
       context.handle(_redactsMeta,
-          redacts.isAcceptableOrUnknown(data['redacts'], _redactsMeta));
+          redacts.isAcceptableOrUnknown(data['redacts']!, _redactsMeta));
     }
     if (data.containsKey('in_timeline')) {
       context.handle(
           _inTimelineMeta,
           inTimeline.isAcceptableOrUnknown(
-              data['in_timeline'], _inTimelineMeta));
+              data['in_timeline']!, _inTimelineMeta));
     } else if (isInserting) {
       context.missing(_inTimelineMeta);
     }
@@ -2061,9 +1959,9 @@ class $RoomEventsTable extends RoomEvents
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  RoomEventRecord map(Map<String, dynamic> data, {String tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return RoomEventRecord.fromData(data, _db, prefix: effectivePrefix);
+  RoomEventRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return RoomEventRecord.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -2076,57 +1974,64 @@ class EphemeralEventRecord extends DataClass
     implements Insertable<EphemeralEventRecord> {
   final String type;
   final String roomId;
-  final String content;
+  final String? content;
   EphemeralEventRecord(
-      {@required this.type, @required this.roomId, this.content});
+      {required this.type, required this.roomId, this.content});
   factory EphemeralEventRecord.fromData(
       Map<String, dynamic> data, GeneratedDatabase db,
-      {String prefix}) {
+      {String? prefix}) {
     final effectivePrefix = prefix ?? '';
-    final stringType = db.typeSystem.forDartType<String>();
     return EphemeralEventRecord(
-      type: stringType.mapFromDatabaseResponse(data['${effectivePrefix}type']),
-      roomId:
-          stringType.mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
-      content:
-          stringType.mapFromDatabaseResponse(data['${effectivePrefix}content']),
+      type: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}type'])!,
+      roomId: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}room_id'])!,
+      content: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}content']),
     );
   }
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (!nullToAbsent || type != null) {
-      map['type'] = Variable<String>(type);
-    }
-    if (!nullToAbsent || roomId != null) {
-      map['room_id'] = Variable<String>(roomId);
-    }
+    map['type'] = Variable<String>(type);
+    map['room_id'] = Variable<String>(roomId);
     if (!nullToAbsent || content != null) {
-      map['content'] = Variable<String>(content);
+      map['content'] = Variable<String?>(content);
     }
     return map;
   }
 
+  EphemeralEventsCompanion toCompanion(bool nullToAbsent) {
+    return EphemeralEventsCompanion(
+      type: Value(type),
+      roomId: Value(roomId),
+      content: content == null && nullToAbsent
+          ? const Value.absent()
+          : Value(content),
+    );
+  }
+
   factory EphemeralEventRecord.fromJson(Map<String, dynamic> json,
-      {ValueSerializer serializer}) {
+      {ValueSerializer? serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return EphemeralEventRecord(
       type: serializer.fromJson<String>(json['type']),
       roomId: serializer.fromJson<String>(json['roomId']),
-      content: serializer.fromJson<String>(json['content']),
+      content: serializer.fromJson<String?>(json['content']),
     );
   }
   @override
-  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'type': serializer.toJson<String>(type),
       'roomId': serializer.toJson<String>(roomId),
-      'content': serializer.toJson<String>(content),
+      'content': serializer.toJson<String?>(content),
     };
   }
 
-  EphemeralEventRecord copyWith({String type, String roomId, String content}) =>
+  EphemeralEventRecord copyWith(
+          {String? type, String? roomId, String? content}) =>
       EphemeralEventRecord(
         type: type ?? this.type,
         roomId: roomId ?? this.roomId,
@@ -2146,7 +2051,7 @@ class EphemeralEventRecord extends DataClass
   int get hashCode =>
       $mrjf($mrjc(type.hashCode, $mrjc(roomId.hashCode, content.hashCode)));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is EphemeralEventRecord &&
           other.type == this.type &&
@@ -2157,22 +2062,22 @@ class EphemeralEventRecord extends DataClass
 class EphemeralEventsCompanion extends UpdateCompanion<EphemeralEventRecord> {
   final Value<String> type;
   final Value<String> roomId;
-  final Value<String> content;
+  final Value<String?> content;
   const EphemeralEventsCompanion({
     this.type = const Value.absent(),
     this.roomId = const Value.absent(),
     this.content = const Value.absent(),
   });
   EphemeralEventsCompanion.insert({
-    @required String type,
-    @required String roomId,
+    required String type,
+    required String roomId,
     this.content = const Value.absent(),
   })  : type = Value(type),
         roomId = Value(roomId);
   static Insertable<EphemeralEventRecord> custom({
-    Expression<String> type,
-    Expression<String> roomId,
-    Expression<String> content,
+    Expression<String>? type,
+    Expression<String>? roomId,
+    Expression<String?>? content,
   }) {
     return RawValuesInsertable({
       if (type != null) 'type': type,
@@ -2182,7 +2087,7 @@ class EphemeralEventsCompanion extends UpdateCompanion<EphemeralEventRecord> {
   }
 
   EphemeralEventsCompanion copyWith(
-      {Value<String> type, Value<String> roomId, Value<String> content}) {
+      {Value<String>? type, Value<String>? roomId, Value<String?>? content}) {
     return EphemeralEventsCompanion(
       type: type ?? this.type,
       roomId: roomId ?? this.roomId,
@@ -2200,58 +2105,47 @@ class EphemeralEventsCompanion extends UpdateCompanion<EphemeralEventRecord> {
       map['room_id'] = Variable<String>(roomId.value);
     }
     if (content.present) {
-      map['content'] = Variable<String>(content.value);
+      map['content'] = Variable<String?>(content.value);
     }
     return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EphemeralEventsCompanion(')
+          ..write('type: $type, ')
+          ..write('roomId: $roomId, ')
+          ..write('content: $content')
+          ..write(')'))
+        .toString();
   }
 }
 
 class $EphemeralEventsTable extends EphemeralEvents
     with TableInfo<$EphemeralEventsTable, EphemeralEventRecord> {
   final GeneratedDatabase _db;
-  final String _alias;
+  final String? _alias;
   $EphemeralEventsTable(this._db, [this._alias]);
   final VerificationMeta _typeMeta = const VerificationMeta('type');
-  GeneratedTextColumn _type;
-  @override
-  GeneratedTextColumn get type => _type ??= _constructType();
-  GeneratedTextColumn _constructType() {
-    return GeneratedTextColumn(
-      'type',
-      $tableName,
-      false,
-    );
-  }
-
+  late final GeneratedColumn<String?> type = GeneratedColumn<String?>(
+      'type', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true);
   final VerificationMeta _roomIdMeta = const VerificationMeta('roomId');
-  GeneratedTextColumn _roomId;
-  @override
-  GeneratedTextColumn get roomId => _roomId ??= _constructRoomId();
-  GeneratedTextColumn _constructRoomId() {
-    return GeneratedTextColumn('room_id', $tableName, false,
-        $customConstraints: 'REFERENCES room_events(id)');
-  }
-
+  late final GeneratedColumn<String?> roomId = GeneratedColumn<String?>(
+      'room_id', aliasedName, false,
+      typeName: 'TEXT',
+      requiredDuringInsert: true,
+      $customConstraints: 'REFERENCES room_events(id)');
   final VerificationMeta _contentMeta = const VerificationMeta('content');
-  GeneratedTextColumn _content;
-  @override
-  GeneratedTextColumn get content => _content ??= _constructContent();
-  GeneratedTextColumn _constructContent() {
-    return GeneratedTextColumn(
-      'content',
-      $tableName,
-      true,
-    );
-  }
-
+  late final GeneratedColumn<String?> content = GeneratedColumn<String?>(
+      'content', aliasedName, true,
+      typeName: 'TEXT', requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [type, roomId, content];
   @override
-  $EphemeralEventsTable get asDslTable => this;
+  String get aliasedName => _alias ?? 'ephemeral_events';
   @override
-  String get $tableName => _alias ?? 'ephemeral_events';
-  @override
-  final String actualTableName = 'ephemeral_events';
+  String get actualTableName => 'ephemeral_events';
   @override
   VerificationContext validateIntegrity(
       Insertable<EphemeralEventRecord> instance,
@@ -2260,19 +2154,19 @@ class $EphemeralEventsTable extends EphemeralEvents
     final data = instance.toColumns(true);
     if (data.containsKey('type')) {
       context.handle(
-          _typeMeta, type.isAcceptableOrUnknown(data['type'], _typeMeta));
+          _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
     } else if (isInserting) {
       context.missing(_typeMeta);
     }
     if (data.containsKey('room_id')) {
       context.handle(_roomIdMeta,
-          roomId.isAcceptableOrUnknown(data['room_id'], _roomIdMeta));
+          roomId.isAcceptableOrUnknown(data['room_id']!, _roomIdMeta));
     } else if (isInserting) {
       context.missing(_roomIdMeta);
     }
     if (data.containsKey('content')) {
       context.handle(_contentMeta,
-          content.isAcceptableOrUnknown(data['content'], _contentMeta));
+          content.isAcceptableOrUnknown(data['content']!, _contentMeta));
     }
     return context;
   }
@@ -2280,9 +2174,9 @@ class $EphemeralEventsTable extends EphemeralEvents
   @override
   Set<GeneratedColumn> get $primaryKey => {type, roomId};
   @override
-  EphemeralEventRecord map(Map<String, dynamic> data, {String tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return EphemeralEventRecord.fromData(data, _db, prefix: effectivePrefix);
+  EphemeralEventRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return EphemeralEventRecord.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -2294,81 +2188,91 @@ class $EphemeralEventsTable extends EphemeralEvents
 class DeviceRecord extends DataClass implements Insertable<DeviceRecord> {
   final String id;
   final String userId;
-  final String name;
-  final DateTime lastSeen;
-  final String lastIpAddress;
+  final String? name;
+  final DateTime? lastSeen;
+  final String? lastIpAddress;
   DeviceRecord(
-      {@required this.id,
-      @required this.userId,
+      {required this.id,
+      required this.userId,
       this.name,
       this.lastSeen,
       this.lastIpAddress});
   factory DeviceRecord.fromData(Map<String, dynamic> data, GeneratedDatabase db,
-      {String prefix}) {
+      {String? prefix}) {
     final effectivePrefix = prefix ?? '';
-    final stringType = db.typeSystem.forDartType<String>();
-    final dateTimeType = db.typeSystem.forDartType<DateTime>();
     return DeviceRecord(
-      id: stringType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
-      userId:
-          stringType.mapFromDatabaseResponse(data['${effectivePrefix}user_id']),
-      name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name']),
-      lastSeen: dateTimeType
+      id: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
+      userId: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}user_id'])!,
+      name: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}name']),
+      lastSeen: const DateTimeType()
           .mapFromDatabaseResponse(data['${effectivePrefix}last_seen']),
-      lastIpAddress: stringType
+      lastIpAddress: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}last_ip_address']),
     );
   }
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (!nullToAbsent || id != null) {
-      map['id'] = Variable<String>(id);
-    }
-    if (!nullToAbsent || userId != null) {
-      map['user_id'] = Variable<String>(userId);
-    }
+    map['id'] = Variable<String>(id);
+    map['user_id'] = Variable<String>(userId);
     if (!nullToAbsent || name != null) {
-      map['name'] = Variable<String>(name);
+      map['name'] = Variable<String?>(name);
     }
     if (!nullToAbsent || lastSeen != null) {
-      map['last_seen'] = Variable<DateTime>(lastSeen);
+      map['last_seen'] = Variable<DateTime?>(lastSeen);
     }
     if (!nullToAbsent || lastIpAddress != null) {
-      map['last_ip_address'] = Variable<String>(lastIpAddress);
+      map['last_ip_address'] = Variable<String?>(lastIpAddress);
     }
     return map;
   }
 
+  DevicesCompanion toCompanion(bool nullToAbsent) {
+    return DevicesCompanion(
+      id: Value(id),
+      userId: Value(userId),
+      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      lastSeen: lastSeen == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSeen),
+      lastIpAddress: lastIpAddress == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastIpAddress),
+    );
+  }
+
   factory DeviceRecord.fromJson(Map<String, dynamic> json,
-      {ValueSerializer serializer}) {
+      {ValueSerializer? serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return DeviceRecord(
       id: serializer.fromJson<String>(json['id']),
       userId: serializer.fromJson<String>(json['userId']),
-      name: serializer.fromJson<String>(json['name']),
-      lastSeen: serializer.fromJson<DateTime>(json['lastSeen']),
-      lastIpAddress: serializer.fromJson<String>(json['lastIpAddress']),
+      name: serializer.fromJson<String?>(json['name']),
+      lastSeen: serializer.fromJson<DateTime?>(json['lastSeen']),
+      lastIpAddress: serializer.fromJson<String?>(json['lastIpAddress']),
     );
   }
   @override
-  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'userId': serializer.toJson<String>(userId),
-      'name': serializer.toJson<String>(name),
-      'lastSeen': serializer.toJson<DateTime>(lastSeen),
-      'lastIpAddress': serializer.toJson<String>(lastIpAddress),
+      'name': serializer.toJson<String?>(name),
+      'lastSeen': serializer.toJson<DateTime?>(lastSeen),
+      'lastIpAddress': serializer.toJson<String?>(lastIpAddress),
     };
   }
 
   DeviceRecord copyWith(
-          {String id,
-          String userId,
-          String name,
-          DateTime lastSeen,
-          String lastIpAddress}) =>
+          {String? id,
+          String? userId,
+          String? name,
+          DateTime? lastSeen,
+          String? lastIpAddress}) =>
       DeviceRecord(
         id: id ?? this.id,
         userId: userId ?? this.userId,
@@ -2396,7 +2300,7 @@ class DeviceRecord extends DataClass implements Insertable<DeviceRecord> {
           $mrjc(name.hashCode,
               $mrjc(lastSeen.hashCode, lastIpAddress.hashCode)))));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is DeviceRecord &&
           other.id == this.id &&
@@ -2409,9 +2313,9 @@ class DeviceRecord extends DataClass implements Insertable<DeviceRecord> {
 class DevicesCompanion extends UpdateCompanion<DeviceRecord> {
   final Value<String> id;
   final Value<String> userId;
-  final Value<String> name;
-  final Value<DateTime> lastSeen;
-  final Value<String> lastIpAddress;
+  final Value<String?> name;
+  final Value<DateTime?> lastSeen;
+  final Value<String?> lastIpAddress;
   const DevicesCompanion({
     this.id = const Value.absent(),
     this.userId = const Value.absent(),
@@ -2420,19 +2324,19 @@ class DevicesCompanion extends UpdateCompanion<DeviceRecord> {
     this.lastIpAddress = const Value.absent(),
   });
   DevicesCompanion.insert({
-    @required String id,
-    @required String userId,
+    required String id,
+    required String userId,
     this.name = const Value.absent(),
     this.lastSeen = const Value.absent(),
     this.lastIpAddress = const Value.absent(),
   })  : id = Value(id),
         userId = Value(userId);
   static Insertable<DeviceRecord> custom({
-    Expression<String> id,
-    Expression<String> userId,
-    Expression<String> name,
-    Expression<DateTime> lastSeen,
-    Expression<String> lastIpAddress,
+    Expression<String>? id,
+    Expression<String>? userId,
+    Expression<String?>? name,
+    Expression<DateTime?>? lastSeen,
+    Expression<String?>? lastIpAddress,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2444,11 +2348,11 @@ class DevicesCompanion extends UpdateCompanion<DeviceRecord> {
   }
 
   DevicesCompanion copyWith(
-      {Value<String> id,
-      Value<String> userId,
-      Value<String> name,
-      Value<DateTime> lastSeen,
-      Value<String> lastIpAddress}) {
+      {Value<String>? id,
+      Value<String>? userId,
+      Value<String?>? name,
+      Value<DateTime?>? lastSeen,
+      Value<String?>? lastIpAddress}) {
     return DevicesCompanion(
       id: id ?? this.id,
       userId: userId ?? this.userId,
@@ -2468,123 +2372,92 @@ class DevicesCompanion extends UpdateCompanion<DeviceRecord> {
       map['user_id'] = Variable<String>(userId.value);
     }
     if (name.present) {
-      map['name'] = Variable<String>(name.value);
+      map['name'] = Variable<String?>(name.value);
     }
     if (lastSeen.present) {
-      map['last_seen'] = Variable<DateTime>(lastSeen.value);
+      map['last_seen'] = Variable<DateTime?>(lastSeen.value);
     }
     if (lastIpAddress.present) {
-      map['last_ip_address'] = Variable<String>(lastIpAddress.value);
+      map['last_ip_address'] = Variable<String?>(lastIpAddress.value);
     }
     return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DevicesCompanion(')
+          ..write('id: $id, ')
+          ..write('userId: $userId, ')
+          ..write('name: $name, ')
+          ..write('lastSeen: $lastSeen, ')
+          ..write('lastIpAddress: $lastIpAddress')
+          ..write(')'))
+        .toString();
   }
 }
 
 class $DevicesTable extends Devices
     with TableInfo<$DevicesTable, DeviceRecord> {
   final GeneratedDatabase _db;
-  final String _alias;
+  final String? _alias;
   $DevicesTable(this._db, [this._alias]);
   final VerificationMeta _idMeta = const VerificationMeta('id');
-  GeneratedTextColumn _id;
-  @override
-  GeneratedTextColumn get id => _id ??= _constructId();
-  GeneratedTextColumn _constructId() {
-    return GeneratedTextColumn(
-      'id',
-      $tableName,
-      false,
-    );
-  }
-
+  late final GeneratedColumn<String?> id = GeneratedColumn<String?>(
+      'id', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true);
   final VerificationMeta _userIdMeta = const VerificationMeta('userId');
-  GeneratedTextColumn _userId;
-  @override
-  GeneratedTextColumn get userId => _userId ??= _constructUserId();
-  GeneratedTextColumn _constructUserId() {
-    return GeneratedTextColumn(
-      'user_id',
-      $tableName,
-      false,
-    );
-  }
-
+  late final GeneratedColumn<String?> userId = GeneratedColumn<String?>(
+      'user_id', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true);
   final VerificationMeta _nameMeta = const VerificationMeta('name');
-  GeneratedTextColumn _name;
-  @override
-  GeneratedTextColumn get name => _name ??= _constructName();
-  GeneratedTextColumn _constructName() {
-    return GeneratedTextColumn(
-      'name',
-      $tableName,
-      true,
-    );
-  }
-
+  late final GeneratedColumn<String?> name = GeneratedColumn<String?>(
+      'name', aliasedName, true,
+      typeName: 'TEXT', requiredDuringInsert: false);
   final VerificationMeta _lastSeenMeta = const VerificationMeta('lastSeen');
-  GeneratedDateTimeColumn _lastSeen;
-  @override
-  GeneratedDateTimeColumn get lastSeen => _lastSeen ??= _constructLastSeen();
-  GeneratedDateTimeColumn _constructLastSeen() {
-    return GeneratedDateTimeColumn(
-      'last_seen',
-      $tableName,
-      true,
-    );
-  }
-
+  late final GeneratedColumn<DateTime?> lastSeen = GeneratedColumn<DateTime?>(
+      'last_seen', aliasedName, true,
+      typeName: 'INTEGER', requiredDuringInsert: false);
   final VerificationMeta _lastIpAddressMeta =
       const VerificationMeta('lastIpAddress');
-  GeneratedTextColumn _lastIpAddress;
-  @override
-  GeneratedTextColumn get lastIpAddress =>
-      _lastIpAddress ??= _constructLastIpAddress();
-  GeneratedTextColumn _constructLastIpAddress() {
-    return GeneratedTextColumn(
-      'last_ip_address',
-      $tableName,
-      true,
-    );
-  }
-
+  late final GeneratedColumn<String?> lastIpAddress = GeneratedColumn<String?>(
+      'last_ip_address', aliasedName, true,
+      typeName: 'TEXT', requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns =>
       [id, userId, name, lastSeen, lastIpAddress];
   @override
-  $DevicesTable get asDslTable => this;
+  String get aliasedName => _alias ?? 'devices';
   @override
-  String get $tableName => _alias ?? 'devices';
-  @override
-  final String actualTableName = 'devices';
+  String get actualTableName => 'devices';
   @override
   VerificationContext validateIntegrity(Insertable<DeviceRecord> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
     }
     if (data.containsKey('user_id')) {
       context.handle(_userIdMeta,
-          userId.isAcceptableOrUnknown(data['user_id'], _userIdMeta));
+          userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
     } else if (isInserting) {
       context.missing(_userIdMeta);
     }
     if (data.containsKey('name')) {
       context.handle(
-          _nameMeta, name.isAcceptableOrUnknown(data['name'], _nameMeta));
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
     }
     if (data.containsKey('last_seen')) {
       context.handle(_lastSeenMeta,
-          lastSeen.isAcceptableOrUnknown(data['last_seen'], _lastSeenMeta));
+          lastSeen.isAcceptableOrUnknown(data['last_seen']!, _lastSeenMeta));
     }
     if (data.containsKey('last_ip_address')) {
       context.handle(
           _lastIpAddressMeta,
           lastIpAddress.isAcceptableOrUnknown(
-              data['last_ip_address'], _lastIpAddressMeta));
+              data['last_ip_address']!, _lastIpAddressMeta));
     }
     return context;
   }
@@ -2592,9 +2465,9 @@ class $DevicesTable extends Devices
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  DeviceRecord map(Map<String, dynamic> data, {String tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return DeviceRecord.fromData(data, _db, prefix: effectivePrefix);
+  DeviceRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return DeviceRecord.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -2605,21 +2478,15 @@ class $DevicesTable extends Devices
 
 abstract class _$Database extends GeneratedDatabase {
   _$Database(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
-  $MyUsersTable _myUsers;
-  $MyUsersTable get myUsers => _myUsers ??= $MyUsersTable(this);
-  $RoomsTable _rooms;
-  $RoomsTable get rooms => _rooms ??= $RoomsTable(this);
-  $RoomEventsTable _roomEvents;
-  $RoomEventsTable get roomEvents => _roomEvents ??= $RoomEventsTable(this);
-  $EphemeralEventsTable _ephemeralEvents;
-  $EphemeralEventsTable get ephemeralEvents =>
-      _ephemeralEvents ??= $EphemeralEventsTable(this);
-  $DevicesTable _devices;
-  $DevicesTable get devices => _devices ??= $DevicesTable(this);
+  late final $MyUsersTable myUsers = $MyUsersTable(this);
+  late final $RoomsTable rooms = $RoomsTable(this);
+  late final $RoomEventsTable roomEvents = $RoomEventsTable(this);
+  late final $EphemeralEventsTable ephemeralEvents =
+      $EphemeralEventsTable(this);
+  late final $DevicesTable devices = $DevicesTable(this);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
       [myUsers, rooms, roomEvents, ephemeralEvents, devices];
 }
-// ignore_for_file: avoid_catches_without_on_clauses,type_annotate_public_apis,lines_longer_than_80_chars,avoid_equals_and_hash_code_on_mutable_classes

@@ -15,15 +15,15 @@ class DeviceId extends Id {
 @immutable
 class Device with Identifiable<DeviceId> {
   @override
-  final DeviceId id;
+  final DeviceId? id;
 
-  final UserId userId;
+  final UserId? userId;
 
-  final String name;
+  final String? name;
 
-  final DateTime lastSeen;
+  final DateTime? lastSeen;
 
-  final String lastIpAddress;
+  final String? lastIpAddress;
 
   Device({
     this.id,
@@ -34,11 +34,11 @@ class Device with Identifiable<DeviceId> {
   });
 
   Device copyWith({
-    DeviceId id,
-    UserId userId,
-    String name,
-    DateTime lastSeen,
-    String lastIpAddress,
+    DeviceId? id,
+    UserId? userId,
+    String? name,
+    DateTime? lastSeen,
+    String? lastIpAddress,
   }) {
     return Device(
       id: id ?? this.id,
@@ -49,8 +49,10 @@ class Device with Identifiable<DeviceId> {
     );
   }
 
-  Device merge(Device other) {
-    if (other == null) return this;
+  Device merge(Device? other) {
+    if (other == null) {
+      return this;
+    }
 
     return copyWith(
       id: other.id,

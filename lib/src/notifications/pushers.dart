@@ -8,6 +8,7 @@ import '../context.dart';
 import '../my_user.dart';
 
 import 'pusher.dart';
+import '../util/nullable_extension.dart';
 
 class Pushers {
   final Context _context;
@@ -16,8 +17,9 @@ class Pushers {
 
   bool get isReady => _context.updater?.isReady ?? false;
 
-  Future<void> _set(Map<String, dynamic> pusherJson) =>
-      _context.updater.setPusher(pusherJson);
+  Future<void> _set(Map<String, dynamic> pusherJson) {
+    return _context.updater?.setPusher(pusherJson) ?? Future.value();
+  }
 
   /// Set a pusher for this [MyUser]. Returns true if successfully set.
   Future<void> set(Pusher pusher) => _set(pusher.toJson());

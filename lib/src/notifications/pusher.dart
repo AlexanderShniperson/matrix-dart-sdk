@@ -73,12 +73,12 @@ class HttpPusher extends Pusher {
   final Uri url;
 
   HttpPusher({
-    @required this.appId,
-    @required this.appName,
-    @required this.deviceName,
-    @required this.key,
+    required this.appId,
+    required this.appName,
+    required this.deviceName,
+    required this.key,
     this.language = 'en-US',
-    @required this.url,
+    required this.url,
   })  : assert(url.path.contains('/_matrix/push/v1/notify')),
         assert(url.isScheme('https'));
 }
@@ -109,9 +109,9 @@ class EmailPusher extends Pusher {
   final String emailAddress;
 
   EmailPusher({
-    @required this.appName,
-    @required this.deviceName,
-    @required this.emailAddress,
+    required this.appName,
+    required this.deviceName,
+    required this.emailAddress,
     this.language = 'en-US',
   });
 }

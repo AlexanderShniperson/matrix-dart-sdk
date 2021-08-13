@@ -20,9 +20,9 @@ class PowerLevelsChangeEvent extends StateEvent implements HasDiff {
   final String type = matrixType;
 
   @override
-  final PowerLevelsChange content;
+  final PowerLevelsChange? content;
   @override
-  final PowerLevelsChange previousContent;
+  final PowerLevelsChange? previousContent;
 
   @override
   final PowerLevelsChangeDiff diff;
@@ -34,10 +34,10 @@ class PowerLevelsChangeEvent extends StateEvent implements HasDiff {
     this.diff,
   ) : super(args, stateKey: '');
 
-  factory PowerLevelsChangeEvent(
+  static PowerLevelsChangeEvent? instance(
     RoomEventArgs args, {
-    @required PowerLevelsChange content,
-    PowerLevelsChange previousContent,
+    PowerLevelsChange? content,
+    PowerLevelsChange? previousContent,
   }) {
     final diff = PowerLevelsChangeDiff(previousContent, content);
     final changes = diff.changes;
@@ -69,7 +69,7 @@ class PowerLevelsChangeEvent extends StateEvent implements HasDiff {
           diff,
         );
       } else if (change.runtimeType == diff.eventLevels.runtimeType &&
-          diff.eventLevels.values.whereType<Edited>().length == 1) {
+          diff.eventLevels?.values.whereType<Edited>().length == 1) {
         return EventLevelChangeEvent._(args, content, previousContent, diff);
       } else if (change == diff.userDefaultLevel) {
         return UserDefaultLevelChangeEvent._(
@@ -80,7 +80,7 @@ class PowerLevelsChangeEvent extends StateEvent implements HasDiff {
         );
         // Just check the type for maps
       } else if (change.runtimeType == diff.userLevels.runtimeType &&
-          diff.userLevels.values.whereType<Edited>().length == 1) {
+          diff.userLevels?.values.whereType<Edited>().length == 1) {
         return UserLevelChangeEvent._(args, content, previousContent, diff);
       } else if (change == diff.roomNotificationLevel) {
         return RoomNotificationLevelChangeEvent._(
@@ -107,10 +107,10 @@ class PowerLevelsChange extends EventContent {
 
   final int stateEventsDefaultLevel;
   final int eventsDefaultLevel;
-  final Map<Type, int> eventLevels;
+  final Map<Type, int>? eventLevels;
 
   final int userDefaultLevel;
-  final Map<UserId, int> userLevels;
+  final Map<UserId, int>? userLevels;
 
   final int roomNotificationLevel;
 
@@ -152,8 +152,10 @@ class PowerLevelsChange extends EventContent {
         roomNotificationLevel,
       ]);
 
-  factory PowerLevelsChange.fromJson(Map<String, dynamic> content) {
-    if (content == null) return null;
+  static PowerLevelsChange? fromJson(Map<String, dynamic>? content) {
+    if (content == null) {
+      return null;
+    }
 
     final int ban = content['ban'] ?? 50;
     final int invite = content['invite'] ?? 50;
@@ -163,21 +165,21 @@ class PowerLevelsChange extends EventContent {
     final int eventsDefault = content['events_default'] ?? 0;
     final jsonEvents = content['events'];
 
-    Map<Type, int> events;
+    Map<Type, int>? events;
 
     if (jsonEvents != null) {
       jsonEvents.removeWhere((type, powerLevel) => Event.typeOf(type) == null);
 
       events = jsonEvents?.map((eventType, powerLevel) {
         powerLevel = powerLevel is String ? int.parse(powerLevel) : powerLevel;
-        return MapEntry<Type, int>(Event.typeOf(eventType), powerLevel);
+        return MapEntry<Type, int>(Event.typeOf(eventType)!, powerLevel);
       })?.cast<Type, int>();
     }
 
     final int stateDefault = content['state_default'] ?? 50;
 
     final int userDefault = content['users_default'] ?? 0;
-    final Map<UserId, int> users = content['users'].map((userId, powerLevel) {
+    final Map<UserId, int>? users = content['users'].map((userId, powerLevel) {
       powerLevel = powerLevel is String ? int.parse(powerLevel) : powerLevel;
       return MapEntry(UserId(userId), powerLevel);
     }).cast<UserId, int>();
@@ -195,7 +197,7 @@ class PowerLevelsChange extends EventContent {
       eventsDefaultLevel: eventsDefault,
       eventLevels: events ?? {},
       userDefaultLevel: userDefault,
-      userLevels: users ?? [],
+      userLevels: users ?? {},
       roomNotificationLevel: roomNotifications,
     );
   }
@@ -213,23 +215,23 @@ class PowerLevelsChange extends EventContent {
           ?.map((type, power) => MapEntry(Event.matrixTypeOf(type), power)),
       'users_default': userDefaultLevel,
       'users':
-          userLevels.map((userId, power) => MapEntry(userId.toString(), power)),
+          userLevels?.map((userId, power) => MapEntry(userId.toString(), power)),
       'notifications': {
         'room': roomNotificationLevel,
       },
     });
 
   PowerLevelsChange copyWith({
-    int banLevel,
-    int inviteLevel,
-    int kickLevel,
-    int redactLevel,
-    int stateEventsDefaultLevel,
-    int eventsDefaultLevel,
-    Map<Type, int> eventLevels,
-    int userDefaultLevel,
-    Map<UserId, int> userLevels,
-    int roomNotificationLevel,
+    int? banLevel,
+    int? inviteLevel,
+    int? kickLevel,
+    int? redactLevel,
+    int? stateEventsDefaultLevel,
+    int? eventsDefaultLevel,
+    Map<Type, int>? eventLevels,
+    int? userDefaultLevel,
+    Map<UserId, int>? userLevels,
+    int? roomNotificationLevel,
   }) {
     return PowerLevelsChange(
       banLevel: banLevel ?? this.banLevel,
@@ -249,8 +251,8 @@ class PowerLevelsChange extends EventContent {
 }
 
 class PowerLevelsChangeDiff extends Diff {
-  final PowerLevelsChange _previous;
-  final PowerLevelsChange _current;
+  final PowerLevelsChange? _previous;
+  final PowerLevelsChange? _current;
 
   @override
   List get props => [
@@ -268,42 +270,43 @@ class PowerLevelsChangeDiff extends Diff {
 
   PowerLevelsChangeDiff(this._previous, this._current);
 
-  Change<int> get banLevel => Change(_previous?.banLevel, _current.banLevel);
+  Change<int> get banLevel => Change(_previous?.banLevel, _current?.banLevel);
 
   Change<int> get inviteLevel =>
-      Change(_previous?.inviteLevel, _current.inviteLevel);
+      Change(_previous?.inviteLevel, _current?.inviteLevel);
 
-  Change<int> get kickLevel => Change(_previous?.kickLevel, _current.kickLevel);
+  Change<int> get kickLevel =>
+      Change(_previous?.kickLevel, _current?.kickLevel);
 
   Change<int> get redactLevel =>
-      Change(_previous?.redactLevel, _current.redactLevel);
+      Change(_previous?.redactLevel, _current?.redactLevel);
 
   Change<int> get stateEventsDefaultLevel => Change(
         _previous?.stateEventsDefaultLevel,
-        _current.stateEventsDefaultLevel,
+        _current?.stateEventsDefaultLevel,
       );
 
   Change<int> get eventsDefaultLevel =>
-      Change(_previous?.eventsDefaultLevel, _current.eventsDefaultLevel);
+      Change(_previous?.eventsDefaultLevel, _current?.eventsDefaultLevel);
 
-  Map<Type, Change<int>> get eventLevels =>
-      Change.map(_previous?.eventLevels, _current.eventLevels)
-          .toEdited(defaultValue: _current.eventsDefaultLevel);
+  Map<Type, Change<int>>? get eventLevels =>
+      Change.map(_previous?.eventLevels, _current?.eventLevels)
+          ?.toEdited(defaultValue: _current?.eventsDefaultLevel);
 
   Change<int> get userDefaultLevel =>
-      Change(_previous?.userDefaultLevel, _current.userDefaultLevel);
+      Change(_previous?.userDefaultLevel, _current?.userDefaultLevel);
 
-  Map<UserId, Change<int>> get userLevels =>
-      Change.map(_previous?.userLevels, _current.userLevels)
-          .toEdited(defaultValue: _current.userDefaultLevel);
+  Map<UserId, Change<int>>? get userLevels =>
+      Change.map(_previous?.userLevels, _current?.userLevels)
+          ?.toEdited(defaultValue: _current?.userDefaultLevel);
 
   Change<int> get roomNotificationLevel =>
-      Change(_previous?.roomNotificationLevel, _current.roomNotificationLevel);
+      Change(_previous?.roomNotificationLevel, _current?.roomNotificationLevel);
 }
 
 extension _ChangeMapExtension<K, V> on Map<K, Change<V>> {
   /// Handle removals and additions as changes to or from a [defaultValue].
-  Map<K, Change<V>> toEdited({@required V defaultValue}) {
+  Map<K, Change<V>> toEdited({V? defaultValue}) {
     return map((key, change) => change is Removed
         ? MapEntry(key, Edited(change.value, defaultValue))
         : change is Added
@@ -313,81 +316,81 @@ extension _ChangeMapExtension<K, V> on Map<K, Change<V>> {
 }
 
 class BanLevelChangeEvent extends PowerLevelsChangeEvent {
-  Edited<int> get change => diff.banLevel;
+  Change<int>? get change => diff.banLevel;
 
   BanLevelChangeEvent._(
     RoomEventArgs args,
-    PowerLevelsChange content,
-    PowerLevelsChange previousContent,
+    PowerLevelsChange? content,
+    PowerLevelsChange? previousContent,
     PowerLevelsChangeDiff diff,
   ) : super._(args, content, previousContent, diff);
 }
 
 class InviteLevelChangeEvent extends PowerLevelsChangeEvent {
-  Edited<int> get change => diff.inviteLevel;
+  Change<int> get change => diff.inviteLevel;
 
   InviteLevelChangeEvent._(
     RoomEventArgs args,
-    PowerLevelsChange content,
-    PowerLevelsChange previousContent,
+    PowerLevelsChange? content,
+    PowerLevelsChange? previousContent,
     PowerLevelsChangeDiff diff,
   ) : super._(args, content, previousContent, diff);
 }
 
 class KickLevelChangeEvent extends PowerLevelsChangeEvent {
-  Edited<int> get change => diff.kickLevel;
+  Change<int> get change => diff.kickLevel;
 
   KickLevelChangeEvent._(
     RoomEventArgs args,
-    PowerLevelsChange content,
-    PowerLevelsChange previousContent,
+    PowerLevelsChange? content,
+    PowerLevelsChange? previousContent,
     PowerLevelsChangeDiff diff,
   ) : super._(args, content, previousContent, diff);
 }
 
 class RedactLevelChangeEvent extends PowerLevelsChangeEvent {
-  Edited<int> get change => diff.redactLevel;
+  Change<int> get change => diff.redactLevel;
 
   RedactLevelChangeEvent._(
     RoomEventArgs args,
-    PowerLevelsChange content,
-    PowerLevelsChange previousContent,
+    PowerLevelsChange? content,
+    PowerLevelsChange? previousContent,
     PowerLevelsChangeDiff diff,
   ) : super._(args, content, previousContent, diff);
 }
 
 class StateEventsDefaultLevelChangeEvent extends PowerLevelsChangeEvent {
-  Edited<int> get change => diff.stateEventsDefaultLevel;
+  Change<int> get change => diff.stateEventsDefaultLevel;
 
   StateEventsDefaultLevelChangeEvent._(
     RoomEventArgs args,
-    PowerLevelsChange content,
-    PowerLevelsChange previousContent,
+    PowerLevelsChange? content,
+    PowerLevelsChange? previousContent,
     PowerLevelsChangeDiff diff,
   ) : super._(args, content, previousContent, diff);
 }
 
 class EventsDefaultLevelChangeEvent extends PowerLevelsChangeEvent {
-  Edited<int> get change => diff.eventsDefaultLevel;
+  Change<int> get change => diff.eventsDefaultLevel;
 
   EventsDefaultLevelChangeEvent._(
     RoomEventArgs args,
-    PowerLevelsChange content,
-    PowerLevelsChange previousContent,
+    PowerLevelsChange? content,
+    PowerLevelsChange? previousContent,
     PowerLevelsChangeDiff diff,
   ) : super._(args, content, previousContent, diff);
 }
 
 class EventLevelChangeEvent extends PowerLevelsChangeEvent {
-  EventLevelChange get change => diff.eventLevels.entries
+  EventLevelChange? get change => diff.eventLevels?.entries
       .where((e) => e.value is Edited<int>)
       .map((e) => EventLevelChange._(e.key, e.value as Edited<int>))
       .first;
 
   EventLevelChangeEvent._(
     RoomEventArgs args,
-    PowerLevelsChange content,
-    PowerLevelsChange previousContent,
+    PowerLevelsChange? content,
+    PowerLevelsChange? previousContent,
     PowerLevelsChangeDiff diff,
   ) : super._(args, content, previousContent, diff);
 }
@@ -400,26 +403,26 @@ class EventLevelChange extends Edited<int> {
 }
 
 class UserDefaultLevelChangeEvent extends PowerLevelsChangeEvent {
-  Edited<int> get change => diff.userDefaultLevel;
+  Change<int> get change => diff.userDefaultLevel;
 
   UserDefaultLevelChangeEvent._(
     RoomEventArgs args,
-    PowerLevelsChange content,
-    PowerLevelsChange previousContent,
+    PowerLevelsChange? content,
+    PowerLevelsChange? previousContent,
     PowerLevelsChangeDiff diff,
   ) : super._(args, content, previousContent, diff);
 }
 
 class UserLevelChangeEvent extends PowerLevelsChangeEvent {
-  UserLevelChange get change => diff.userLevels.entries
+  UserLevelChange? get change => diff.userLevels?.entries
       .where((e) => e.value is Edited<int>)
       .map((e) => UserLevelChange._(e.key, e.value as Edited<int>))
       .first;
 
   UserLevelChangeEvent._(
     RoomEventArgs args,
-    PowerLevelsChange content,
-    PowerLevelsChange previousContent,
+    PowerLevelsChange? content,
+    PowerLevelsChange? previousContent,
     PowerLevelsChangeDiff diff,
   ) : super._(args, content, previousContent, diff);
 }
@@ -432,12 +435,12 @@ class UserLevelChange extends Edited<int> {
 }
 
 class RoomNotificationLevelChangeEvent extends PowerLevelsChangeEvent {
-  Edited<int> get change => diff.roomNotificationLevel;
+  Change<int> get change => diff.roomNotificationLevel;
 
   RoomNotificationLevelChangeEvent._(
     RoomEventArgs args,
-    PowerLevelsChange content,
-    PowerLevelsChange previousContent,
+    PowerLevelsChange? content,
+    PowerLevelsChange? previousContent,
     PowerLevelsChangeDiff diff,
   ) : super._(args, content, previousContent, diff);
 }

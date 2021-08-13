@@ -26,7 +26,7 @@ abstract class MatrixId extends Id {
   MatrixId._(this.sigil, String value) : super(value);
 
   final String sigil;
-  static final String seperator = ':';
+  static const String seperator = ':';
 
   @override
   String toString() => value;
@@ -35,11 +35,11 @@ abstract class MatrixId extends Id {
 
   /// Local part of the id (without [sigil]), is null if the id is
   /// not valid.
-  String get localPart => _split.length == 2 ? _split[0]?.substring(1) : null;
+  String? get localPart => _split.length == 2 ? _split[0].substring(1) : null;
 
   /// Server part of the id, is null if the id is
   /// not valid, or an event id.
-  String get server => _split.length == 2 ? _split[1] : null;
+  String? get server => _split.length == 2 ? _split[1] : null;
 
   @override
   bool operator ==(Object other) {
@@ -69,7 +69,7 @@ abstract class MatrixId extends Id {
   /// local part of a user identifier.
   static bool isValidLocalPart(String input) => _localPartRegex.hasMatch(input);
 
-  static bool _isValidFullyQualified(String input, String sigil) {
+  static bool _isValidFullyQualified(String? input, String sigil) {
     if (input == null) {
       return false;
     }
@@ -81,7 +81,7 @@ abstract class MatrixId extends Id {
     if (input.startsWith(sigil) && input.contains(seperator)) {
       String local, server;
 
-      var seperatorIndex = input.indexOf(seperator);
+      final seperatorIndex = input.indexOf(seperator);
       server = input.substring(seperatorIndex + 1);
       local = input.split(seperator)[0].substring(1);
 
@@ -187,7 +187,12 @@ class UserId extends MatrixId implements UserIdentifier {
 
   /// The [Username] of this ID, so in the case of `@joe:matrix.org`:
   /// `Username('joe')`.
-  Username get username => Username(localPart);
+  Username? get username {
+    if (localPart == null) {
+      return null;
+    }
+    return Username(localPart!);
+  }
 
   /// Checks whether the given string is a valid
   /// local part of a user identifier.
@@ -290,10 +295,10 @@ abstract class UserIdentifier {
 /// An object that can be identified with the [I] type of
 /// identifier.
 mixin Identifiable<I extends Id> {
-  I get id;
+  I? get id;
 
   /// Returns true if [id] and [other.id] are equal. In other words,
   /// whether this object represents the same as [other], even if their current
   /// state is different.
-  bool equals(Identifiable other) => id == other?.id;
+  bool equals(Identifiable? other) => id == other?.id;
 }
