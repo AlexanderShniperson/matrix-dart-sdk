@@ -264,13 +264,12 @@ class Homeserver {
     Device? device,
     bool isolated = false,
   }) async {
-    final body = await api.login({
-      'type': 'm.login.password',
-      'identifier': user.toIdentifierJson(),
-      'password': password,
-      'device_id': device?.id?.toString(),
-      'initial_device_display_name': device?.name,
-    });
+    final body = await api.login(
+      userIdentifier: user.toIdentifierJson(),
+      password: password,
+      deviceId: device?.id?.toString(),
+      deviceDisplayName: device?.name,
+    );
 
     return _prepareUser(
       body,

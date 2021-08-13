@@ -55,8 +55,20 @@ class Api {
     _pushers = Pushers._(_clientService);
   }
 
-  Future<Map<String, dynamic>> login(Map<String, dynamic> body) async {
-    final response = await _clientService.login(json.encode(body));
+  Future<Map<String, dynamic>> login({
+    String loginType = "m.login.password",
+    required Map<String, dynamic> userIdentifier,
+    required String password,
+    String? deviceId,
+    String? deviceDisplayName,
+  }) async {
+    final response = await _clientService.login(json.encode({
+      'type': loginType,
+      'identifier': userIdentifier,
+      'password': password,
+      'device_id': deviceId,
+      'initial_device_display_name': deviceDisplayName,
+    }));
 
     response.throwIfNeeded();
 
