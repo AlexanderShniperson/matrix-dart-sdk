@@ -8,6 +8,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:matrix_sdk/src/model/api_call_statistics.dart';
 import 'package:meta/meta.dart';
 import 'package:http/http.dart' as http;
 
@@ -37,7 +38,7 @@ class Homeserver {
 
   final Api api;
 
-  Stream<String> get outApiCallStats => api.outApiCallStats;
+  Stream<ApiCallStatistics> get outApiCallStats => api.outApiCallStats;
 
   /// Returns a homeserver based on `.well-known` info.
   /// If there is no well-known info (404), just uses [url].

@@ -7,6 +7,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:matrix_sdk/src/model/api_call_statistics.dart';
 import 'package:mime/mime.dart';
 import 'package:pedantic/pedantic.dart';
 import 'package:async/async.dart';
@@ -66,6 +67,8 @@ class Updater {
 
   final _errorSubject = StreamController<ErrorWithStackTraceString>.broadcast();
   Stream<ErrorWithStackTraceString> get outError => _errorSubject.stream;
+
+  Stream<ApiCallStatistics> get outApiCallStatistics => homeserver.outApiCallStats;
 
   bool get isReady => _store.isOpen && !_updatesSubject.isClosed;
 

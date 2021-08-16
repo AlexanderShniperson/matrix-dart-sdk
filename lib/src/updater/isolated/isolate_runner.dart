@@ -33,7 +33,7 @@ abstract class IsolateRunner {
         StreamSubscription? subscription;
         subscription = messageStream.listen((message) {
           if (message is UpdaterArgs) {
-            HttpOverrides.global = ProxyHttpOverrides("192.168.1.6", 8080);
+            //HttpOverrides.global = ProxyHttpOverrides("192.168.1.6", 8080);
             updater = Updater(
               message.myUser,
               Homeserver(message.homeserverUrl),
@@ -53,6 +53,8 @@ abstract class IsolateRunner {
         updater?.updates.listen(
           (u) => sendPort.send(u.minimize()),
         );
+
+        updater?.outApiCallStatistics.listen(sendPort.send);
 
         sendPort.send(IsolateInitialized());
 

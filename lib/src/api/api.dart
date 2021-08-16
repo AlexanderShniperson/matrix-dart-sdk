@@ -10,6 +10,7 @@ import 'dart:io';
 
 import 'package:matrix_sdk/src/event/room/message_event.dart';
 import 'package:matrix_sdk/src/homeserver.dart';
+import 'package:matrix_sdk/src/model/api_call_statistics.dart';
 import 'package:meta/meta.dart';
 import 'package:chopper/chopper.dart';
 import 'package:http/http.dart' as http;
@@ -41,10 +42,10 @@ class Api {
   Rooms get rooms => _rooms;
 
   // ignore: close_sinks
-  final _apiStatsSubject = StreamController<String>.broadcast();
+  final _apiStatsSubject = StreamController<ApiCallStatistics>.broadcast();
 
-  Stream<String> get outApiCallStats => _apiStatsSubject.stream;
-  Sink<String> get _inApiCallStats => _apiStatsSubject.sink;
+  Stream<ApiCallStatistics> get outApiCallStats => _apiStatsSubject.stream;
+  Sink<ApiCallStatistics> get _inApiCallStats => _apiStatsSubject.sink;
 
   Api({
     required Uri url,
@@ -239,7 +240,7 @@ class Api {
 @immutable
 class Media {
   final MediaService _service;
-  final Sink<String> _inApiCallStats;
+  final Sink<ApiCallStatistics> _inApiCallStats;
 
   const Media._(
     this._service,
@@ -325,7 +326,7 @@ class Media {
 @immutable
 class Profile {
   final ClientService _service;
-  final Sink<String> _inApiCallStats;
+  final Sink<ApiCallStatistics> _inApiCallStats;
 
   const Profile._(
     this._service,
@@ -382,7 +383,7 @@ class Profile {
 @immutable
 class Rooms {
   final ClientService _service;
-  final Sink<String> _inApiCallStats;
+  final Sink<ApiCallStatistics> _inApiCallStats;
 
   const Rooms._(
     this._service,
@@ -670,7 +671,7 @@ class Rooms {
 @immutable
 class Pushers {
   final ClientService _service;
-  final Sink<String> _inApiCallStats;
+  final Sink<ApiCallStatistics> _inApiCallStats;
 
   const Pushers._(
     this._service,
@@ -736,17 +737,21 @@ extension on Response {
   }
 }
 
-extension on Sink<String> {
+extension on Sink<ApiCallStatistics> {
   void sendApiCallStats(
     String method,
     int timeMillis,
     Response response,
   ) {
     final request = response.base.request;
-    final responseError = response.getMatrixException();
-    final responseResult = (responseError == null)
-        ? "${response.bodyBytes.length} bytes"
-        : responseError.message;
-    add("Method: $method\nAPI ${request?.method}: ${request?.url}\nResponse ${timeMillis}ms: ${response.statusCode} $responseResult");
+    add(ApiCallStatistics(
+      method: method,
+      requestMethod: request?.method ?? "",
+      requestUrl: request?.url.toString() ?? "",
+      responseTimeMillis: timeMillis,
+      responseStatusCode: response.statusCode,
+      bytesSend: request?.contentLength ?? 0,
+      bytesReceived: response.bodyBytes.length,
+    ));
   }
 }

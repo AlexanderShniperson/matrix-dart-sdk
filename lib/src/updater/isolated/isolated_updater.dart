@@ -5,10 +5,10 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import 'dart:async';
-import 'dart:io';
 import 'dart:isolate';
 
 import 'package:matrix_sdk/src/event/room/message_event.dart';
+import 'package:matrix_sdk/src/model/api_call_statistics.dart';
 import 'package:meta/meta.dart';
 
 import '../../context.dart';
@@ -89,6 +89,10 @@ class IsolatedUpdater implements Updater {
         _initializedCompleter.complete();
       }
 
+      if (message is ApiCallStatistics) {
+        _apiCallStatsSubject.add(message);
+      }
+
       if (message is ErrorWithStackTraceString) {
         _errorSubject.add(message);
       }
@@ -110,6 +114,12 @@ class IsolatedUpdater implements Updater {
   final _errorSubject = StreamController<ErrorWithStackTraceString>.broadcast();
   @override
   Stream<ErrorWithStackTraceString> get outError => _errorSubject.stream;
+
+  // ignore: close_sinks
+  final _apiCallStatsSubject = StreamController<ApiCallStatistics>.broadcast();
+  @override
+  Stream<ApiCallStatistics> get outApiCallStatistics =>
+      _apiCallStatsSubject.stream;
 
   final _requestUpdatesBasedOnOthers =
       StreamController<RequestUpdate>.broadcast();
