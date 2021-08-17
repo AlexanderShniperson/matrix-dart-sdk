@@ -874,9 +874,14 @@ class Updater {
       return null;
     }
 
-    final joins = (await process(jRooms[join], type: join)) ?? [];
-    final invites = (await process(jRooms[invite], type: invite)) ?? [];
-    final leaves = (await process(jRooms[leave], type: leave)) ?? [];
+    final joins =
+        jRooms == null ? [] : ((await process(jRooms[join], type: join)) ?? []);
+    final invites = jRooms == null
+        ? []
+        : ((await process(jRooms[invite], type: invite)) ?? []);
+    final leaves = jRooms == null
+        ? []
+        : ((await process(jRooms[leave], type: leave)) ?? []);
     return [
       ...joins,
       ...invites,

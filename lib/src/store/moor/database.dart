@@ -124,14 +124,20 @@ class Database extends _$Database {
   @override
   MigrationStrategy get migration => destructiveFallback;
 
-  Future<MyUserRecordWithDeviceRecord?> getMyUserRecord() {
-    return (select(myUsers).join([
-      leftOuterJoin(
-        devices,
-        devices.id.equalsExp(myUsers.currentDeviceId),
-      )
-    ])
-          ..limit(1))
+  Future<MyUserRecordWithDeviceRecord?> getMyUserRecord(
+    String userID,
+  ) {
+    final query = select(myUsers);
+    query.where((u) => u.id.like('$userID'));
+    query.limit(1);
+
+    return query
+        .join([
+          leftOuterJoin(
+            devices,
+            devices.id.equalsExp(myUsers.currentDeviceId),
+          )
+        ])
         .map(
           (r) => MyUserRecordWithDeviceRecord(
             myUserRecord: r.readTable(myUsers),
