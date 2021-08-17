@@ -5,26 +5,19 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import 'package:matrix_sdk/src/event/room/message_event.dart';
+import 'package:matrix_sdk/src/model/instruction.dart';
+import 'package:matrix_sdk/src/model/request_update.dart';
 
-import '../../context.dart';
+import '../../model/context.dart';
 import '../../event/ephemeral/ephemeral.dart';
-import 'package:meta/meta.dart';
 
 import '../../event/event.dart';
 import '../../room/room.dart';
 import '../../room/rooms.dart';
 import '../../room/member/member_timeline.dart';
 import '../../room/timeline.dart';
-import '../../identifier.dart';
-import '../../my_user.dart';
-import '../updater.dart';
-
-@immutable
-abstract class Instruction<T> {
-  /// Whether the instruction expects a return value. Can also be true if
-  /// it needs to await on a Future, even though it returns nothing (void).
-  bool get expectsReturnValue => true;
-}
+import '../../model/identifier.dart';
+import '../../model/my_user.dart';
 
 class StartSyncInstruction extends Instruction<void> {
   @override

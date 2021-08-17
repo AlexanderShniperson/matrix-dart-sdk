@@ -7,7 +7,7 @@
 import 'package:meta/meta.dart';
 
 import 'ephemeral_event.dart';
-import '../../identifier.dart';
+import '../../model/identifier.dart';
 import '../event.dart';
 
 class TypingEvent extends EphemeralEvent {

@@ -4,8 +4,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-import '../context.dart';
-import '../my_user.dart';
+import '../model/context.dart';
+import '../model/my_user.dart';
 
 import 'pusher.dart';
 import '../util/nullable_extension.dart';

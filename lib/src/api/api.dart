@@ -17,7 +17,7 @@ import 'package:http/http.dart' as http;
 
 import 'client.dart';
 import 'media.dart';
-import '../exception.dart';
+import '../util/exception.dart';
 
 /// Low level access to all supported API calls on a homeserver.
 class Api {

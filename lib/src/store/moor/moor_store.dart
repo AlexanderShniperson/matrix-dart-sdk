@@ -17,9 +17,9 @@ import 'package:moor/moor.dart';
 import 'package:pedantic/pedantic.dart';
 
 import '../../../matrix_sdk.dart';
-import '../../context.dart';
+import '../../model/context.dart';
 import '../../room/member/member.dart';
-import '../../my_user.dart';
+import '../../model/my_user.dart';
 import '../../room/rooms.dart';
 import '../../room/timeline.dart';
 
@@ -94,8 +94,6 @@ class MoorStore extends Store {
 
     final myId = UserId(myUserRecord.id!);
 
-    final homeserver = Homeserver(Uri.parse(myUserRecord.homeserver!));
-
     final context = Context(myId: myId);
 
     final user = MyUser(
@@ -122,22 +120,15 @@ class MoorStore extends Store {
 
     await close();
 
-    Updater updater;
-    if (isolated) {
-      updater = await Updater.isolated(user, homeserver, storeLocation);
-    } else {
-      updater = Updater(user, homeserver, storeLocation);
-    }
-
-    return updater.user;
+    return user;
   }
 
   @override
   Future<void> setMyUserDelta(MyUser myUser) async {
     await _db?.setMyUser(
       MyUsersCompanion(
-        homeserver: myUser.context?.homeServer != null
-            ? Value(myUser.context?.homeServer?.url.toString())
+        homeserver: myUser.context?.updater?.homeServer != null
+            ? Value(myUser.context?.updater?.homeServer.url.toString())
             : Value.absent(),
         id: myUser.id.value.isNotEmpty
             ? Value(myUser.id.toString())

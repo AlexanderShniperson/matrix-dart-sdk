@@ -6,8 +6,8 @@
 
 import 'package:collection/collection.dart';
 
-import '../../my_user.dart';
-import '../../context.dart';
+import '../../model/my_user.dart';
+import '../../model/context.dart';
 import 'ephemeral_event.dart';
 import '../../room/room.dart';
 

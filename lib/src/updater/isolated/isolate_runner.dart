@@ -5,14 +5,16 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import 'dart:async';
-import 'dart:io';
 import 'dart:isolate';
 
+import 'package:matrix_sdk/src/model/instruction.dart';
+import 'package:matrix_sdk/src/model/request_update.dart';
+import 'package:matrix_sdk/src/model/update.dart';
 import 'package:meta/meta.dart';
 
 import '../../model/error_with_stacktrace.dart';
 import '../../homeserver.dart';
-import '../../my_user.dart';
+import '../../model/my_user.dart';
 import '../proxy_http_overrides.dart';
 import '../updater.dart';
 import '../../store/store.dart';
@@ -159,7 +161,7 @@ abstract class IsolateRunner {
     } else if (instruction is LeaveRoomInstruction) {
       operation = () => updater.leaveRoom(instruction.id);
     } else if (instruction is SetNameInstruction) {
-      operation = () => updater.setName(name: instruction.name);
+      operation = () => updater.setDisplayName(name: instruction.name);
     } else if (instruction is SetPusherInstruction) {
       operation = () => updater.setPusher(instruction.pusher);
     } else if (instruction is EditTextEventInstruction) {

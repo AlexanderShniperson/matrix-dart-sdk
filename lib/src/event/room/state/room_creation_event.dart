@@ -10,7 +10,7 @@ import 'package:quiver/core.dart';
 import '../../event.dart';
 import '../room_event.dart';
 import 'state_event.dart';
-import '../../../identifier.dart';
+import '../../../model/identifier.dart';
 
 class RoomCreationEvent extends StateEvent {
   static const matrixType = 'm.room.create';

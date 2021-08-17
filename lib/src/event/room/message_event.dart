@@ -11,7 +11,7 @@ import 'package:quiver/core.dart';
 
 import '../event.dart';
 import 'room_event.dart';
-import '../../identifier.dart';
+import '../../model/identifier.dart';
 
 class MessageEvent extends RoomEvent {
   static const matrixType = 'm.room.message';

@@ -5,13 +5,13 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import 'package:collection/collection.dart';
+import 'package:matrix_sdk/src/model/request_update.dart';
 
-import '../context.dart';
+import '../model/context.dart';
 import '../event/room/room_event.dart';
-import '../identifier.dart';
+import '../model/identifier.dart';
 import 'room.dart';
-import '../my_user.dart';
-import '../updater/updater.dart';
+import '../model/my_user.dart';
 import '../event/event.dart';
 import '../event/room/raw_room_event.dart';
 import '../util/nullable_extension.dart';

@@ -5,13 +5,13 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import 'package:collection/collection.dart';
+import 'package:matrix_sdk/src/model/request_update.dart';
 
-import '../context.dart';
+import '../model/context.dart';
 import '../homeserver.dart';
-import '../identifier.dart';
-import '../my_user.dart';
+import '../model/identifier.dart';
+import '../model/my_user.dart';
 import 'room.dart';
-import '../updater/updater.dart';
 import '../util/nullable_extension.dart';
 
 class Rooms extends DelegatingIterable<Room> implements Contextual<Rooms> {

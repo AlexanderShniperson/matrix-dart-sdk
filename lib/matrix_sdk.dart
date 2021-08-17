@@ -6,11 +6,13 @@
 
 export 'src/homeserver.dart';
 export 'src/updater/updater.dart';
-export 'src/matrix_user.dart';
-export 'src/my_user.dart';
-export 'src/exception.dart';
-export 'src/identifier.dart';
-export 'src/device.dart';
+export 'src/model/update.dart';
+export 'src/model/request_update.dart';
+export 'src/model/matrix_user.dart';
+export 'src/model/my_user.dart';
+export 'src/util/exception.dart';
+export 'src/model/identifier.dart';
+export 'src/model/device.dart';
 
 export 'src/public_rooms.dart';
 
@@ -53,3 +55,6 @@ export 'src/util/mxc_url.dart' show MatrixUrl;
 
 export 'src/encryption/olm.dart';
 export 'src/encryption/account.dart';
+export 'src/util/update_extension.dart';
+
+export 'src/matrix_client.dart';

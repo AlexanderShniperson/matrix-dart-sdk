@@ -4,12 +4,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import 'package:matrix_sdk/src/updater/updater.dart';
 import 'package:meta/meta.dart';
-
-import 'homeserver.dart';
+import '../homeserver.dart';
 import 'identifier.dart';
 import 'my_user.dart';
-import 'updater/updater.dart';
 
 /// Context that certain objects have like [Room]s to determine what
 /// [Homeserver] or [MyUser] they're associated with.
@@ -23,8 +22,6 @@ class Context {
     }
     return Updater.get(myId!);
   }
-
-  Homeserver? get homeServer => updater?.homeserver;
 
   const Context({
     required this.myId,
