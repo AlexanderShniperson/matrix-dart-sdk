@@ -128,7 +128,7 @@ abstract class ClientService extends ChopperService {
     @Body() required String body,
   });
 
-  @Post(path: 'rooms/{roomId}/leave')
+  @Post(path: 'rooms/{roomId}/leave', optionalBody: true)
   Future<Response> leave({
     @Header('Authorization') required String authorization,
     @Path('roomId') required String roomId,
@@ -140,14 +140,14 @@ abstract class ClientService extends ChopperService {
     @Body() required String body,
   });
 
-  @Post(path: 'join/{roomIdOrAlias}')
+  @Post(path: 'join/{roomIdOrAlias}', optionalBody: true)
   Future<Response> join({
     @Header('Authorization') required String authorization,
     @Path('roomIdOrAlias') required String roomIdOrAlias,
     @Query('server_name') required String serverName,
   });
 
-  @Post(path: 'logout')
+  @Post(path: 'logout', optionalBody: true)
   Future<Response> logout({
     @Header('Authorization') required String authorization,
   });

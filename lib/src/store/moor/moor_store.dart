@@ -104,7 +104,7 @@ class MoorStore extends Store {
           : null,
       accessToken: myUserRecord.accessToken,
       syncToken: myUserRecord.syncToken!,
-      currentDevice: deviceRecord.toDevice(),
+      currentDevice: deviceRecord?.toDevice(),
       rooms: Rooms(
         await getRooms(
           roomIds,

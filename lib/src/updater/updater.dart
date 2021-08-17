@@ -734,7 +734,7 @@ class Updater {
     // );
   }
 
-  void _addError(dynamic error, [StackTrace? stackTrace]) {
+  void _addError(String error, [StackTrace? stackTrace]) {
     _errorSubject.add(ErrorWithStackTraceString(
       error,
       stackTrace?.toString() ?? '',
@@ -1009,7 +1009,7 @@ class Syncer {
 
       return body;
     } on Exception catch (e) {
-      _updater._addError(e, StackTrace.current);
+      _updater._addError(e.toString(), StackTrace.current);
 
       return null;
     }

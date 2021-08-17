@@ -88,7 +88,7 @@ abstract class IsolateRunner {
       (error, stackTrace) {
         sendPort.send(
           ErrorWithStackTraceString(
-            error,
+            error.toString(),
             stackTrace.toString(),
           ),
         );
