@@ -89,7 +89,8 @@ class MyUser extends MatrixUser implements Contextual<MyUser> {
   /// If [isolated] is true, sync and other requests are processed in a
   /// different [Isolate].
   static Future<MyUser?> fromStore(
-    StoreLocation storeLocation, {
+    StoreLocation storeLocation,
+    String userID, {
     Iterable<RoomId>? roomIds,
     int timelineLimit = 15,
     bool isolated = false,
@@ -99,6 +100,7 @@ class MyUser extends MatrixUser implements Contextual<MyUser> {
     store.open();
 
     return store.getMyUser(
+      userID,
       roomIds: roomIds,
       timelineLimit: timelineLimit,
       isolated: isolated,

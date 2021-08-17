@@ -77,13 +77,15 @@ class MoorStore extends Store {
   /// If [isolated] is true, will create an [IsolatedUpdater] to manage
   /// the user's updates.
   @override
-  Future<MyUser?> getMyUser({
+  Future<MyUser?> getMyUser(
+      String userID,
+      {
     Iterable<RoomId>? roomIds,
     int timelineLimit = 15,
     bool isolated = false,
     required StoreLocation storeLocation,
   }) async {
-    final myUserWithDeviceRecord = await _db?.getMyUserRecord();
+    final myUserWithDeviceRecord = await _db?.getMyUserRecord(userID);
 
     if (myUserWithDeviceRecord == null) {
       return null;
