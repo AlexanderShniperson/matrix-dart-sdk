@@ -168,11 +168,12 @@ class Updater {
   Stream<RequestUpdate<Timeline>?> send(
     RoomId roomId,
     EventContent content, {
+    Room? room,
     String? transactionId,
     String stateKey = '',
     String type = '',
   }) async* {
-    final currentRoom = _user.rooms![roomId];
+    final Room? currentRoom = room ??= _user.rooms![roomId];
 
     transactionId ??= randomString();
 
@@ -217,8 +218,8 @@ class Updater {
       (user, delta) => RequestUpdate(
         user,
         delta,
-        data: user.rooms?[roomId]?.timeline,
-        deltaData: user.rooms?[roomId]?.timeline,
+        data: currentRoom?.timeline,
+        deltaData: currentRoom?.timeline,
         type: RequestType.sendRoomEvent,
       ),
     );
@@ -317,8 +318,8 @@ class Updater {
       (user, delta) => RequestUpdate(
         user,
         delta,
-        data: user.rooms?[roomId]?.timeline,
-        deltaData: user.rooms?[roomId]?.timeline,
+        data: currentRoom?.timeline,
+        deltaData: currentRoom?.timeline,
         type: RequestType.sendRoomEvent,
       ),
     );
