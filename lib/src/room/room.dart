@@ -572,13 +572,11 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
     if (context?.updater == null) {
       return Future.value(null).asStream();
     }
-    return context!.updater!.send(
-      id,
-      content,
-      transactionId: transactionId,
-      stateKey: stateKey,
-      type: type,
-    );
+    return context!.updater!.send(id, content,
+        transactionId: transactionId,
+        stateKey: stateKey,
+        type: type,
+        room: this);
   }
 
   Future<RequestUpdate<Timeline>?> edit(
@@ -594,7 +592,7 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
   Future<RequestUpdate<Timeline>?> delete(
     EventId eventId, {
     String? transactionId,
-     String? reason,
+    String? reason,
   }) {
     final result = context?.updater.let((value) {
       return value.delete(

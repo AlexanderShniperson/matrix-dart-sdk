@@ -92,6 +92,7 @@ class SendInstruction extends RequestInstruction<Timeline> {
   final String? transactionId;
   final String stateKey;
   final String type;
+  final Room? room;
 
   SendInstruction(
     this.roomId,
@@ -99,6 +100,7 @@ class SendInstruction extends RequestInstruction<Timeline> {
     this.transactionId,
     this.stateKey,
     this.type,
+    this.room,
   );
 }
 

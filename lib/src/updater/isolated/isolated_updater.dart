@@ -232,6 +232,7 @@ class IsolatedUpdater implements Updater {
   Stream<RequestUpdate<Timeline>?> send(
     RoomId roomId,
     EventContent content, {
+    Room? room,
     String? transactionId,
     String stateKey = '',
     String type = '',
@@ -243,6 +244,7 @@ class IsolatedUpdater implements Updater {
           transactionId,
           stateKey,
           type,
+          room,
         ),
         // 2 updates are sent, one for local echo and one for being sent.
         updateCount: 2,
