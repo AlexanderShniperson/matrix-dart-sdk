@@ -141,7 +141,7 @@ class Database extends _$Database {
         .map(
           (r) => MyUserRecordWithDeviceRecord(
             myUserRecord: r.readTable(myUsers),
-            deviceRecord: r.readTable(devices),
+            deviceRecord: r.readTableOrNull(devices),
           ),
         )
         .getSingleOrNull();
@@ -365,11 +365,11 @@ class Database extends _$Database {
 
 class MyUserRecordWithDeviceRecord {
   final MyUserRecord myUserRecord;
-  final DeviceRecord deviceRecord;
+  final DeviceRecord? deviceRecord;
 
   MyUserRecordWithDeviceRecord({
     required this.myUserRecord,
-    required this.deviceRecord,
+    this.deviceRecord,
   });
 }
 

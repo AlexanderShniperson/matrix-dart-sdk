@@ -9,7 +9,7 @@ import 'dart:convert';
 
 import 'package:meta/meta.dart';
 
-import '../../identifier.dart';
+import '../../model/identifier.dart';
 import '../event.dart';
 import 'ephemeral_event.dart';
 

@@ -7,11 +7,15 @@
 import 'dart:async';
 import 'dart:isolate';
 
+import 'package:matrix_sdk/src/model/instruction.dart';
+import 'package:matrix_sdk/src/model/request_update.dart';
+import 'package:matrix_sdk/src/model/update.dart';
 import 'package:meta/meta.dart';
 
 import '../../model/error_with_stacktrace.dart';
 import '../../homeserver.dart';
-import '../../my_user.dart';
+import '../../model/my_user.dart';
+import '../proxy_http_overrides.dart';
 import '../updater.dart';
 import '../../store/store.dart';
 
@@ -31,6 +35,7 @@ abstract class IsolateRunner {
         StreamSubscription? subscription;
         subscription = messageStream.listen((message) {
           if (message is UpdaterArgs) {
+            //HttpOverrides.global = ProxyHttpOverrides("192.168.1.6", 8080);
             updater = Updater(
               message.myUser,
               Homeserver(message.homeserverUrl),
@@ -50,6 +55,8 @@ abstract class IsolateRunner {
         updater?.updates.listen(
           (u) => sendPort.send(u.minimize()),
         );
+
+        updater?.outApiCallStatistics.listen(sendPort.send);
 
         sendPort.send(IsolateInitialized());
 
@@ -81,7 +88,7 @@ abstract class IsolateRunner {
       (error, stackTrace) {
         sendPort.send(
           ErrorWithStackTraceString(
-            error,
+            error.toString(),
             stackTrace.toString(),
           ),
         );
@@ -154,7 +161,7 @@ abstract class IsolateRunner {
     } else if (instruction is LeaveRoomInstruction) {
       operation = () => updater.leaveRoom(instruction.id);
     } else if (instruction is SetNameInstruction) {
-      operation = () => updater.setName(name: instruction.name);
+      operation = () => updater.setDisplayName(name: instruction.name);
     } else if (instruction is SetPusherInstruction) {
       operation = () => updater.setPusher(instruction.pusher);
     } else if (instruction is EditTextEventInstruction) {

@@ -7,36 +7,30 @@
 
 import 'dart:async';
 import 'dart:convert';
-
+import 'package:matrix_sdk/src/model/api_call_statistics.dart';
 import 'package:meta/meta.dart';
 import 'package:http/http.dart' as http;
-
 import 'api/media.dart';
-
-import 'authentication_session.dart';
-
-import 'identifier.dart';
+import 'model/authentication_session.dart';
+import 'model/identifier.dart';
 import 'store/store.dart';
-
 import 'api/api.dart' show Api;
-import 'device.dart';
-import 'my_user.dart';
-
-import 'updater/updater.dart';
-
+import 'model/device.dart';
+import 'model/my_user.dart';
 import 'util/mxc_url.dart';
 
 /// Represents a Matrix homeserver. Also used as the main entry point
 /// of the SDK.
 @immutable
 class Homeserver {
-
   static const String editedEventPrefix = ' * ';
 
   final Uri url;
   final Uri? wellKnownUrl;
 
   final Api api;
+
+  Stream<ApiCallStatistics> get outApiCallStats => api.outApiCallStats;
 
   /// Returns a homeserver based on `.well-known` info.
   /// If there is no well-known info (404), just uses [url].
@@ -142,7 +136,6 @@ class Homeserver {
 
   Future<MyUser> _prepareUser(
     Map<String, dynamic> body, {
-    bool isolated = false,
     Device? device,
     required StoreLocation store,
   }) async {
@@ -182,24 +175,9 @@ class Homeserver {
       isLoggedOut: false,
     );
 
-    Updater updater;
-    if (isolated) {
-      updater = await Updater.isolated(
-        myUser,
-        this,
-        store,
-        saveMyUserToStore: true,
-      );
-    } else {
-      updater = Updater(
-        myUser,
-        this,
-        store,
-        saveMyUserToStore: true,
-      );
-    }
+    /// TODO(alex): saveMyUserToStore
 
-    return updater.user;
+    return myUser;
   }
 
   /// Register a user on this homeserver.
@@ -236,7 +214,6 @@ class Homeserver {
         return _prepareUser(
           body,
           store: store,
-          isolated: isolated,
           device: device,
         );
       },
@@ -262,7 +239,6 @@ class Homeserver {
     String password, {
     required StoreLocation store,
     Device? device,
-    bool isolated = false,
   }) async {
     final body = await api.login(
       userIdentifier: user.toIdentifierJson(),
@@ -274,7 +250,6 @@ class Homeserver {
     return _prepareUser(
       body,
       store: store,
-      isolated: isolated,
       device: device,
     );
   }

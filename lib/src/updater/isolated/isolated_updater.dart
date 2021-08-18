@@ -5,19 +5,21 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import 'dart:async';
-import 'dart:io';
 import 'dart:isolate';
 
 import 'package:matrix_sdk/src/event/room/message_event.dart';
-import 'package:meta/meta.dart';
+import 'package:matrix_sdk/src/model/api_call_statistics.dart';
+import 'package:matrix_sdk/src/model/instruction.dart';
+import 'package:matrix_sdk/src/model/minimized_update.dart';
+import 'package:matrix_sdk/src/model/request_update.dart';
+import 'package:matrix_sdk/src/model/update.dart';
 
-import '../../context.dart';
 import '../../event/ephemeral/ephemeral.dart';
 import '../../event/event.dart';
 import '../../homeserver.dart';
-import '../../identifier.dart';
+import '../../model/identifier.dart';
 import '../../room/member/member_timeline.dart';
-import '../../my_user.dart';
+import '../../model/my_user.dart';
 import '../../room/room.dart';
 import '../../room/rooms.dart';
 import '../../store/store.dart';
@@ -32,13 +34,13 @@ import 'isolate_runner.dart';
 class IsolatedUpdater implements Updater {
   static Future<IsolatedUpdater> create(
     MyUser myUser,
-    Homeserver homeserver,
+    Homeserver homeServer,
     StoreLocation storeLocation, {
     bool saveMyUserToStore = false,
   }) async {
     final updater = IsolatedUpdater._(
       myUser,
-      homeserver,
+      homeServer,
       storeLocation,
       saveMyUserToStore: saveMyUserToStore,
     );
@@ -50,7 +52,7 @@ class IsolatedUpdater implements Updater {
 
   IsolatedUpdater._(
     this._user,
-    this.homeserver,
+    this._homeServer,
     StoreLocation storeLocation, {
     bool saveMyUserToStore = false,
   }) {
@@ -78,7 +80,7 @@ class IsolatedUpdater implements Updater {
         _sendPort?.send(
           UpdaterArgs(
             myUser: _user,
-            homeserverUrl: homeserver.url,
+            homeserverUrl: _homeServer.url,
             storeLocation: storeLocation,
             saveMyUserToStore: saveMyUserToStore,
           ),
@@ -87,6 +89,10 @@ class IsolatedUpdater implements Updater {
 
       if (message is IsolateInitialized) {
         _initializedCompleter.complete();
+      }
+
+      if (message is ApiCallStatistics) {
+        _apiCallStatsSubject.add(message);
       }
 
       if (message is ErrorWithStackTraceString) {
@@ -111,6 +117,12 @@ class IsolatedUpdater implements Updater {
   @override
   Stream<ErrorWithStackTraceString> get outError => _errorSubject.stream;
 
+  // ignore: close_sinks
+  final _apiCallStatsSubject = StreamController<ApiCallStatistics>.broadcast();
+  @override
+  Stream<ApiCallStatistics> get outApiCallStatistics =>
+      _apiCallStatsSubject.stream;
+
   final _requestUpdatesBasedOnOthers =
       StreamController<RequestUpdate>.broadcast();
 
@@ -122,8 +134,10 @@ class IsolatedUpdater implements Updater {
   @override
   MyUser get user => _user;
 
+  final Homeserver _homeServer;
+
   @override
-  final Homeserver homeserver;
+  Homeserver get homeServer => _homeServer;
 
   late final IsolatedSyncer _syncer = IsolatedSyncer(this);
 
@@ -255,7 +269,7 @@ class IsolatedUpdater implements Updater {
       _execute(LeaveRoomInstruction(id));
 
   @override
-  Future<RequestUpdate<MyUser>?> setName({
+  Future<RequestUpdate<MyUser>?> setDisplayName({
     required String name,
   }) =>
       _execute(SetNameInstruction(name));
@@ -316,51 +330,5 @@ class IsolatedSyncer implements Syncer {
   Future<void> stop() async {
     await _updater._execute(StopSyncInstruction());
     _isSyncing = false;
-  }
-}
-
-@immutable
-abstract class MinimizedUpdate<T extends Update> {
-  final MyUser delta;
-
-  MinimizedUpdate(this.delta);
-
-  T deminimize(MyUser user);
-}
-
-class MinimizedSyncUpdate extends MinimizedUpdate<SyncUpdate> {
-  MinimizedSyncUpdate({
-    required MyUser delta,
-  }) : super(delta);
-
-  @override
-  SyncUpdate deminimize(MyUser user) => SyncUpdate(user, delta);
-}
-
-class MinimizedRequestUpdate<T extends Contextual<T>>
-    extends MinimizedUpdate<RequestUpdate<T>> {
-  final T? deltaData;
-  final RequestType type;
-  final bool basedOnUpdate;
-
-  MinimizedRequestUpdate({
-    required MyUser delta,
-    required this.deltaData,
-    required this.type,
-    required this.basedOnUpdate,
-  }) : super(delta);
-
-  @override
-  RequestUpdate<T> deminimize(MyUser user) {
-    final deltaData = this.deltaData;
-
-    return RequestUpdate<T>(
-      user,
-      delta,
-      data: deltaData is Contextual<T> ? deltaData.propertyOf(user) : null,
-      deltaData: deltaData,
-      type: type,
-      basedOnUpdate: basedOnUpdate,
-    );
   }
 }

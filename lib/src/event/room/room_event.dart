@@ -23,7 +23,7 @@ import 'state/canonical_alias_change_event.dart';
 
 import 'raw_room_event.dart';
 
-import '../../identifier.dart';
+import '../../model/identifier.dart';
 
 import '../../util/map.dart';
 

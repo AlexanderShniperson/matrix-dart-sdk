@@ -8,8 +8,8 @@ import 'package:quiver/core.dart';
 
 import '../../event/room/state/member_change_event.dart';
 
-import '../../identifier.dart';
-import '../../matrix_user.dart';
+import '../../model/identifier.dart';
+import '../../model/matrix_user.dart';
 
 import 'membership.dart';
 

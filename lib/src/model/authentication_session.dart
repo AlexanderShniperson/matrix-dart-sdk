@@ -5,7 +5,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import 'package:meta/meta.dart';
-import 'exception.dart';
+import '../util/exception.dart';
 import 'package:collection/collection.dart';
 
 typedef _Submit = Future<AuthenticationSession> Function(

@@ -6,18 +6,14 @@
 
 import 'package:meta/meta.dart';
 import 'package:quiver/core.dart';
-
 import 'context.dart';
-import 'room/room.dart';
-import 'room/rooms.dart';
+import '../room/room.dart';
+import '../room/rooms.dart';
 import 'device.dart';
 import 'identifier.dart';
-import 'notifications/pushers.dart';
-import 'store/store.dart';
-import 'updater/updater.dart';
+import '../notifications/pushers.dart';
+import '../store/store.dart';
 import 'matrix_user.dart';
-import 'model/error_with_stacktrace.dart';
-import 'util/nullable_extension.dart';
 
 /// A user which is authenticated and can send messages, join rooms etc.
 @immutable
@@ -208,92 +204,6 @@ class MyUser extends MatrixUser implements Contextual<MyUser> {
         rooms,
         isLoggedOut,
       ]);
-
-  /// Get all invites for this user. Note that for now this will load
-  /// all rooms to memory.
-  /*Future<List<Invite>> get invites async =>
-      (await _rooms.get(where: (r) => r is InvitedRoom))
-          .map((r) => Invite._(scope, r))
-          .toList(growable: false);*/
-
-  /// Set the display name of this user to the given value.
-  ///
-  /// Returns the [Update] where [MyUser] has it's name set to [name]`,
-  /// if successful.
-  Future<RequestUpdate<MyUser>?> setName(String name) {
-    final result = context?.updater.let((value) {
-      return value.setName(name: name);
-    });
-    return result ?? Future.value(null);
-  }
-
-  /// Invalidates the access token of the user. Makes all
-  /// [MyUser] calls unusable.
-  ///
-  /// Returns the [Update] where [MyUser] has logged out, if successful.
-  Future<RequestUpdate<MyUser>?> logout() {
-    final result = context?.updater.let((value) {
-      return value.logout();
-    });
-    return result ?? Future.value(null);
-  }
-
-  /// Send all unsent messages still in the [Store].
-  /*Future<void> sendAllUnsent() async {
-    for (Room room in await rooms.get()) {
-      if (room is JoinedRoom) {
-        for (RoomEvent event in await _store.getUnsentEvents(room)) {
-          await for (final _ in room.send(
-            event.content,
-            transactionId: event.transactionId,
-          )) {}
-        }
-      }
-    }
-  }*/
-
-  /// Unlike other contextual methods, depends on the current [accessToken] and
-  /// [isLoggedOut].
-  Future<Uri?> upload({
-    required Stream<List<int>> bytes,
-    required int length,
-    required String contentType,
-    required String fileName,
-  }) {
-    final result = context?.homeServer.let((value) {
-      return value.upload(
-        as: this,
-        bytes: bytes,
-        length: length,
-        contentType: contentType,
-        fileName: fileName,
-      );
-    });
-    return result ?? Future.value(null);
-  }
-
-  Stream<Update>? get updates => context?.updater?.updates;
-
-  Stream<ErrorWithStackTraceString>? get outError => context?.updater?.outError;
-
-  bool get isSyncing => context?.updater?.syncer.isSyncing ?? false;
-
-  void startSync({
-    Duration maxRetryAfter = const Duration(seconds: 30),
-    int timelineLimit = 30,
-  }) {
-    context?.updater?.syncer.start(
-      maxRetryAfter: maxRetryAfter,
-      timelineLimit: timelineLimit,
-    );
-  }
-
-  Future<void> stopSync() {
-    final result = context?.updater.let((value) {
-      return value.syncer.stop();
-    });
-    return result ?? Future.value();
-  }
 
   @override
   MyUser propertyOf(MyUser user) => user;

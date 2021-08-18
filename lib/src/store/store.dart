@@ -7,14 +7,14 @@
 
 import 'package:meta/meta.dart';
 
-import '../context.dart';
+import '../model/context.dart';
 import '../event/room/room_event.dart';
-import '../identifier.dart';
+import '../model/identifier.dart';
 import '../room/member/member.dart';
 import '../room/room.dart';
 import '../homeserver.dart';
 import '../updater/updater.dart';
-import '../my_user.dart';
+import '../model/my_user.dart';
 import 'package:collection/collection.dart';
 
 /// Stores all data (rooms, users, events) somewhere.

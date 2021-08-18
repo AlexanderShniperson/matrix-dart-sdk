@@ -6,10 +6,12 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import 'package:collection/collection.dart';
+import 'package:matrix_sdk/src/model/request_update.dart';
+import 'package:matrix_sdk/src/model/update.dart';
 
 import 'package:meta/meta.dart';
 
-import '../context.dart';
+import '../model/context.dart';
 import '../event/event.dart';
 import '../event/room/message_event.dart';
 import '../event/room/room_event.dart';
@@ -31,15 +33,14 @@ import '../event/room/raw_room_event.dart';
 import '../event/ephemeral/ephemeral.dart';
 
 import '../homeserver.dart';
-import '../identifier.dart';
-import '../matrix_user.dart';
+import '../model/identifier.dart';
+import '../model/matrix_user.dart';
 
 import 'member/member.dart';
 import 'member/member_timeline.dart';
 import 'member/membership.dart';
-import '../my_user.dart';
+import '../model/my_user.dart';
 import 'timeline.dart';
-import '../updater/updater.dart';
 import '../util/nullable_extension.dart';
 
 @immutable

@@ -8,10 +8,10 @@ import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
 import 'homeserver.dart';
-import 'identifier.dart';
-import 'my_user.dart';
+import 'model/identifier.dart';
+import 'model/request_update.dart';
+import 'model/my_user.dart';
 import 'room/room.dart';
-import 'updater/updater.dart';
 import 'util/nullable_extension.dart';
 
 class PublicRooms extends DelegatingIterable<RoomResult> {
@@ -84,7 +84,7 @@ class PublicRooms extends DelegatingIterable<RoomResult> {
       !hasLoaded || searchTerm == null || this.searchTerm == searchTerm,
     );
 
-    final body = await as.context?.homeServer?.api.publicRooms(
+    final body = await as.context?.updater?.homeServer.api.publicRooms(
       accessToken: as.accessToken ?? '',
       server: (server?.wellKnownUrl ?? server?.url)?.host ?? '',
       since: nextBatch ?? '',

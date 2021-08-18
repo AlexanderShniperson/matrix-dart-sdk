@@ -8,7 +8,7 @@
 import 'package:meta/meta.dart';
 
 import 'state/state_event.dart';
-import '../../identifier.dart';
+import '../../model/identifier.dart';
 import '../event.dart';
 import 'room_event.dart';
 

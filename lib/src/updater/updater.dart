@@ -6,15 +6,16 @@
 
 import 'dart:async';
 import 'dart:io';
-
+import 'package:async/async.dart';
+import 'package:matrix_sdk/src/model/api_call_statistics.dart';
+import 'package:matrix_sdk/src/model/request_update.dart';
+import 'package:matrix_sdk/src/model/sync_update.dart';
+import 'package:matrix_sdk/src/model/update.dart';
 import 'package:mime/mime.dart';
 import 'package:pedantic/pedantic.dart';
-import 'package:async/async.dart';
-import 'package:meta/meta.dart';
 import 'package:image/image.dart';
 import 'package:synchronized/synchronized.dart';
-
-import '../context.dart';
+import '../model/context.dart';
 import '../event/ephemeral/ephemeral.dart';
 import '../event/ephemeral/typing_event.dart';
 import '../event/event.dart';
@@ -24,15 +25,14 @@ import '../event/room/room_event.dart';
 import '../event/room/state/room_creation_event.dart';
 import '../event/room/state/state_event.dart';
 import '../homeserver.dart';
-import '../identifier.dart';
+import '../model/identifier.dart';
 import '../room/member/member_timeline.dart';
 import '../room/member/membership.dart';
-import '../my_user.dart';
+import '../model/my_user.dart';
 import '../room/room.dart';
 import '../room/rooms.dart';
 import '../store/store.dart';
 import '../room/timeline.dart';
-import 'isolated/isolated_updater.dart';
 import '../util/random.dart';
 import '../model/error_with_stacktrace.dart';
 import 'package:collection/collection.dart';
@@ -49,7 +49,7 @@ class Updater {
     _register[id] = updater;
   }
 
-  final Homeserver homeserver;
+  final Homeserver homeServer;
 
   final Store _store;
 
@@ -59,6 +59,7 @@ class Updater {
   MyUser _user;
 
   late final Syncer _syncer = Syncer(this);
+
   Syncer get syncer => _syncer;
 
   final _updatesSubject = StreamController<Update>.broadcast();
@@ -66,6 +67,9 @@ class Updater {
 
   final _errorSubject = StreamController<ErrorWithStackTraceString>.broadcast();
   Stream<ErrorWithStackTraceString> get outError => _errorSubject.stream;
+
+  Stream<ApiCallStatistics> get outApiCallStatistics =>
+      homeServer.outApiCallStats;
 
   bool get isReady => _store.isOpen && !_updatesSubject.isClosed;
 
@@ -75,11 +79,11 @@ class Updater {
   /// Will also make the [_store] ready to use.
   Updater(
     this._user,
-    this.homeserver,
+    this.homeServer,
     StoreLocation storeLocation, {
     bool saveMyUserToStore = false,
   }) : _store = storeLocation.create() {
-    register(_user.id, this);
+    Updater.register(_user.id, this);
 
     _store.open();
 
@@ -87,19 +91,6 @@ class Updater {
       unawaited(_store.setMyUserDelta(_user));
     }
   }
-
-  static Future<IsolatedUpdater> isolated(
-    MyUser myUser,
-    Homeserver homeserver,
-    StoreLocation storeLocation, {
-    bool saveMyUserToStore = false,
-  }) =>
-      IsolatedUpdater.create(
-        myUser,
-        homeserver,
-        storeLocation,
-        saveMyUserToStore: saveMyUserToStore,
-      );
 
   final _lock = Lock();
 
@@ -120,10 +111,10 @@ class Updater {
     });
   }
 
-  Future<RequestUpdate<MyUser>?> setName({
+  Future<RequestUpdate<MyUser>?> setDisplayName({
     required String name,
   }) async {
-    await homeserver.api.profile.putDisplayName(
+    await homeServer.api.profile.putDisplayName(
       accessToken: _user.accessToken!,
       userId: _user.id.toString(),
       value: name,
@@ -154,7 +145,7 @@ class Updater {
       );
     }
 
-    await homeserver.api.rooms.kick(
+    await homeServer.api.rooms.kick(
       accessToken: _user.accessToken!,
       roomId: from.toString(),
       userId: id.toString(),
@@ -241,7 +232,8 @@ class Updater {
 
       final fileName = file.path.split(Platform.pathSeparator).last;
 
-      final matrixUrl = await _user.upload(
+      final matrixUrl = await _user.context?.updater?.homeServer.upload(
+        as: _user,
         bytes: file.openRead(),
         length: await file.length(),
         contentType: lookupMimeType(file.path) ?? '',
@@ -272,7 +264,7 @@ class Updater {
 
     Map<String, dynamic> body;
     if (event is StateEvent) {
-      body = await homeserver.api.rooms.sendState(
+      body = await homeServer.api.rooms.sendState(
         accessToken: _user.accessToken!,
         roomId: roomId.toString(),
         eventType: event.type,
@@ -280,7 +272,7 @@ class Updater {
         content: event.content?.toJson() ?? {},
       );
     } else {
-      body = await homeserver.api.rooms.send(
+      body = await homeServer.api.rooms.send(
         accessToken: _user.accessToken!,
         roomId: roomId.toString(),
         eventType: event.type,
@@ -347,7 +339,7 @@ class Updater {
 
     transactionId ??= randomString();
 
-    await homeserver.api.rooms.edit(
+    await homeServer.api.rooms.edit(
       accessToken: _user.accessToken ?? "",
       roomId: roomId.value,
       transactionId: transactionId,
@@ -388,7 +380,7 @@ class Updater {
 
     transactionId ??= randomString();
 
-    await homeserver.api.rooms.redact(
+    await homeServer.api.rooms.redact(
         accessToken: _user.accessToken ?? '',
         roomId: roomId.value,
         eventId: eventId.value,
@@ -440,7 +432,7 @@ class Updater {
       }
     }
 
-    await homeserver.api.rooms.readMarkers(
+    await homeServer.api.rooms.readMarkers(
       accessToken: _user.accessToken!,
       roomId: roomId.toString(),
       fullyRead: until.toString(),
@@ -471,7 +463,7 @@ class Updater {
 
   Future<RequestUpdate<MyUser>?> logout() async {
     await syncer.stop();
-    await homeserver.api.logout(accessToken: _user.accessToken!);
+    await homeServer.api.logout(accessToken: _user.accessToken!);
 
     final update = await _update(
       _user.delta(isLoggedOut: true)!,
@@ -541,7 +533,7 @@ class Updater {
     if (timeline.length < count) {
       count -= timeline.length;
 
-      final body = await homeserver.api.rooms.messages(
+      final body = await homeServer.api.rooms.messages(
         accessToken: _user.accessToken ?? '',
         roomId: roomId.toString(),
         limit: count,
@@ -615,7 +607,7 @@ class Updater {
     if (members.length < count) {
       count -= members.length;
 
-      final body = await homeserver.api.rooms.members(
+      final body = await homeServer.api.rooms.members(
         accessToken: _user.accessToken ?? '',
         roomId: roomId.toString(),
         at: currentRoom.timeline?.previousBatch ?? '',
@@ -654,7 +646,7 @@ class Updater {
     required bool isTyping,
     Duration timeout = const Duration(seconds: 30),
   }) async {
-    await homeserver.api.rooms.typing(
+    await homeServer.api.rooms.typing(
       accessToken: _user.accessToken ?? '',
       roomId: roomId.toString(),
       userId: _user.id.toString(),
@@ -662,24 +654,30 @@ class Updater {
       timeout: timeout.inMilliseconds,
     );
 
-    return RequestUpdate.fromUpdate(
-      await _user.updates!.firstWhere((u) {
-        final containsMe = u.delta.rooms?[roomId]?.ephemeral
-            ?.get<TypingEvent>()
-            .content
-            ?.typerIds
-            .contains(_user.id);
+    final updates = _user.context?.updater?.updates;
 
-        return containsMe == null
-            ? false
-            : isTyping
-                ? containsMe
-                : !containsMe;
-      }),
-      data: (u) => u.rooms?[roomId]?.ephemeral!,
-      deltaData: (u) => u.rooms?[roomId]?.ephemeral,
-      type: RequestType.setIsTyping,
-    );
+    if (updates == null) {
+      return null;
+    } else {
+      return RequestUpdate.fromUpdate(
+        await updates.firstWhere((u) {
+          final containsMe = u.delta.rooms?[roomId]?.ephemeral
+              ?.get<TypingEvent>()
+              .content
+              ?.typerIds
+              .contains(_user.id);
+
+          return containsMe == null
+              ? false
+              : isTyping
+                  ? containsMe
+                  : !containsMe;
+        }),
+        data: (u) => u.rooms?[roomId]?.ephemeral!,
+        deltaData: (u) => u.rooms?[roomId]?.ephemeral,
+        type: RequestType.setIsTyping,
+      );
+    }
   }
 
   Future<RequestUpdate<Room>?> joinRoom({
@@ -687,7 +685,7 @@ class Updater {
     RoomAlias? alias,
     required Uri serverUrl,
   }) async {
-    final body = await homeserver.api.join(
+    final body = await homeServer.api.join(
       accessToken: _user.accessToken ?? '',
       roomIdOrAlias: id?.toString() ?? alias?.toString() ?? '',
       serverName: serverUrl.host,
@@ -706,7 +704,7 @@ class Updater {
   }
 
   Future<RequestUpdate<Room>?> leaveRoom(RoomId id) async {
-    await homeserver.api.rooms.leave(
+    await homeServer.api.rooms.leave(
       accessToken: _user.accessToken ?? '',
       roomId: id.toString(),
     );
@@ -723,7 +721,7 @@ class Updater {
 
   /// Note: Will return RequestUpdate<Pushers> in the future.
   Future<void> setPusher(Map<String, dynamic> pusher) {
-    return homeserver.api.pushers.set(
+    return homeServer.api.pushers.set(
       accessToken: _user.accessToken ?? '',
       body: pusher,
     );
@@ -736,7 +734,7 @@ class Updater {
     // );
   }
 
-  void _addError(dynamic error, [StackTrace? stackTrace]) {
+  void _addError(String error, [StackTrace? stackTrace]) {
     _errorSubject.add(ErrorWithStackTraceString(
       error,
       stackTrace?.toString() ?? '',
@@ -890,106 +888,10 @@ class Updater {
   }
 }
 
-/// An update to [MyUser], either because of a sync or because of a request.
-@immutable
-abstract class Update {
-  final MyUser user;
-
-  /// The delta [MyUser]. All properties of [delta] are null except
-  /// those that are changed with this update. It's `context` and `id` will
-  /// also never be null, even if unchanged, which they won't.
-  ///
-  /// This is useful to find out what changed between an update.
-  final MyUser delta;
-
-  Update._(this.user, this.delta);
-
-  MinimizedUpdate minimize();
-}
-
-/// An update caused by a sync.
-class SyncUpdate extends Update {
-  SyncUpdate(
-    MyUser user,
-    MyUser delta,
-  ) : super._(user, delta);
-
-  @override
-  MinimizedSyncUpdate minimize() => MinimizedSyncUpdate(delta: delta);
-}
-
-extension UpdatesExtension on Stream<Update> {
-  Future<Update> get firstSync => firstWhere((u) => u is SyncUpdate);
-
-  Stream<SyncUpdate> get onlySync => where((u) => u is SyncUpdate).cast();
-}
-
-/// An update caused by a request, which has the relevant updated [data] at
-/// hand for easy access, and also a [deltaData].
-class RequestUpdate<T extends Contextual<T>> extends Update {
-  final T? data;
-  final T? deltaData;
-
-  /// Type that caused this request.
-  final RequestType type;
-
-  /// True if this RequestUpdate was based on another update.
-  final bool basedOnUpdate;
-
-  RequestUpdate(
-    MyUser user,
-    MyUser deltaUser, {
-    this.data,
-    this.deltaData,
-    required this.type,
-    // Must not be set to true in most cases.
-    this.basedOnUpdate = false,
-  }) : super._(user, deltaUser);
-
-  /// If this constructor is used, its respective [RequestInstruction] should
-  /// have `basedOnSyncUpdate` set to true.
-  RequestUpdate.fromUpdate(
-    Update update, {
-    T? Function(MyUser user)? data,
-    T? Function(MyUser delta)? deltaData,
-    required RequestType type,
-  }) : this(
-          update.user,
-          update.delta,
-          data: data?.call(update.user),
-          deltaData: deltaData?.call(update.delta),
-          type: type,
-          basedOnUpdate: true,
-        );
-
-  @override
-  MinimizedRequestUpdate<T> minimize() => MinimizedRequestUpdate<T>(
-        delta: delta,
-        deltaData: deltaData,
-        type: type,
-        basedOnUpdate: basedOnUpdate,
-      );
-}
-
-enum RequestType {
-  kick,
-  loadRoomEvents,
-  loadMembers,
-  loadRooms,
-  logout,
-  markRead,
-  sendRoomEvent,
-  setIsTyping,
-  joinRoom,
-  leaveRoom,
-  setName,
-  setPusher,
-}
-
 class Syncer {
   final Updater _updater;
 
-  Homeserver get _homeserver => _updater.homeserver;
+  Homeserver get _homeserver => _updater.homeServer;
   MyUser get _user => _updater.user;
 
   bool _isSyncing = false;
@@ -1046,6 +948,7 @@ class Syncer {
       if (body == null) {
         await Future.delayed(Duration(milliseconds: retryAfter));
 
+        // ignore: invariant_booleans
         if (_shouldStopSync) {
           return;
         }
@@ -1111,7 +1014,7 @@ class Syncer {
 
       return body;
     } on Exception catch (e) {
-      _updater._addError(e, StackTrace.current);
+      _updater._addError(e.toString(), StackTrace.current);
 
       return null;
     }
