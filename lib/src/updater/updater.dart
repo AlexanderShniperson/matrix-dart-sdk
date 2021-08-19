@@ -934,7 +934,7 @@ class Syncer {
 
     // This var is used to implements exponential backoff
     // until it reaches maxRetryAfter
-    var retryAfter = 500;
+    var retryAfter = 1000;
 
     while (!_shouldStopSync) {
       final body = await _sync(
@@ -962,7 +962,9 @@ class Syncer {
         await _updater._processSync(body);
 
         // Reset exponential backoff.
-        retryAfter = 500;
+        retryAfter = 1000;
+
+        await Future.delayed(Duration(milliseconds: retryAfter));
       }
     }
   }
