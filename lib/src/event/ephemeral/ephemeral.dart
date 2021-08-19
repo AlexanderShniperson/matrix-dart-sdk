@@ -23,10 +23,17 @@ class Ephemeral extends DelegatingIterable<EphemeralEvent>
   final Map<Type, EphemeralEvent> _map;
 
   Ephemeral(
-    Iterable<EphemeralEvent> events, {
+    Iterable<EphemeralEvent?> events, {
     this.context,
-  })  : _map = {for (final event in events) event.runtimeType: event},
-        super(events.toList());
+  })  : _map = events.fold(<Type, EphemeralEvent>{}, (previousValue, element) {
+          if (element == null) {
+            return previousValue;
+          } else {
+            return previousValue
+              ..putIfAbsent(element.runtimeType, () => element);
+          }
+        }),
+        super(events.whereNotNull());
 
   /// Either [context] or [roomId] is required.
   factory Ephemeral.fromJson(
