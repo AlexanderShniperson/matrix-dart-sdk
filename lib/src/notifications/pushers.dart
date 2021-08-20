@@ -6,9 +6,7 @@
 
 import '../model/context.dart';
 import '../model/my_user.dart';
-
 import 'pusher.dart';
-import '../util/nullable_extension.dart';
 
 class Pushers {
   final Context _context;

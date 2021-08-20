@@ -6,13 +6,11 @@
 
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
-
 import 'homeserver.dart';
 import 'model/identifier.dart';
 import 'model/request_update.dart';
 import 'model/my_user.dart';
 import 'room/room.dart';
-import 'util/nullable_extension.dart';
 
 class PublicRooms extends DelegatingIterable<RoomResult> {
   /// The server these rooms belong to.
@@ -196,9 +194,7 @@ class RoomResult with Identifiable<RoomId> {
   Future<RequestUpdate<Room>?> join({
     required MyUser as,
   }) {
-    final result = as.rooms.let((value) {
-      value.enter(id: id);
-    });
+    final result = as.rooms?.enter(id: id);
     return result ?? Future.value(null);
   }
 

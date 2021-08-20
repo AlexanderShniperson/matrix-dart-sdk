@@ -5,7 +5,6 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import '../homeserver.dart';
-import 'nullable_extension.dart';
 
 extension MatrixUrl on Uri {
   /// Returns true if the `scheme` is `mxc`.
@@ -32,8 +31,6 @@ Uri? tryParseMxcUrl(String? input) {
   if (input == null) {
     return null;
   }
-  return input.let((it) {
-    final uri = Uri.tryParse(it);
-    return uri?.isMxc == true ? uri! : null;
-  });
+  final uri = Uri.tryParse(input);
+  return uri?.isMxc == true ? uri! : null;
 }

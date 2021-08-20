@@ -8,16 +8,13 @@ import 'package:matrix_sdk/src/event/room/message_event.dart';
 import 'package:matrix_sdk/src/model/instruction.dart';
 import 'package:matrix_sdk/src/model/request_update.dart';
 
-import '../../model/context.dart';
 import '../../event/ephemeral/ephemeral.dart';
-
 import '../../event/event.dart';
 import '../../room/room.dart';
 import '../../room/rooms.dart';
 import '../../room/member/member_timeline.dart';
 import '../../room/timeline.dart';
-import '../../model/identifier.dart';
-import '../../model/my_user.dart';
+import '../../model/models.dart';
 
 class StartSyncInstruction extends Instruction<void> {
   @override

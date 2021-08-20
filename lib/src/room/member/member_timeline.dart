@@ -6,7 +6,6 @@
 
 import 'package:collection/collection.dart';
 import 'package:matrix_sdk/src/model/request_update.dart';
-
 import '../../model/my_user.dart';
 import '../../model/context.dart';
 import '../../event/room/room_event.dart';
@@ -15,7 +14,6 @@ import '../../model/identifier.dart';
 import 'member.dart';
 import 'membership.dart';
 import '../room.dart';
-import '../../util/nullable_extension.dart';
 
 /// Collection of present or past user states ([Member]s) of a room.
 class MemberTimeline extends DelegatingIterable<Member>
@@ -65,12 +63,10 @@ class MemberTimeline extends DelegatingIterable<Member>
   Future<RequestUpdate<MemberTimeline>?> load({
     int count = 20,
   }) async {
-    final result = context?.updater.let((value) {
-      return value.loadMembers(
-        roomId: context!.roomId,
-        count: count,
-      );
-    });
+    final result = context?.updater?.loadMembers(
+      roomId: context!.roomId,
+      count: count,
+    );
     return result ?? Future.value(null);
   }
 
