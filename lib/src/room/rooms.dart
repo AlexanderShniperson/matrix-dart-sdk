@@ -6,13 +6,11 @@
 
 import 'package:collection/collection.dart';
 import 'package:matrix_sdk/src/model/request_update.dart';
-
 import '../model/context.dart';
 import '../homeserver.dart';
 import '../model/identifier.dart';
 import '../model/my_user.dart';
 import 'room.dart';
-import '../util/nullable_extension.dart';
 
 class Rooms extends DelegatingIterable<Room> implements Contextual<Rooms> {
   @override
@@ -36,9 +34,7 @@ class Rooms extends DelegatingIterable<Room> implements Contextual<Rooms> {
     required Iterable<RoomId> roomIds,
     int timelineLimit = 10,
   }) {
-    final result = context?.updater.let((value) {
-      return value.loadRooms(roomIds, timelineLimit);
-    });
+    final result = context?.updater?.loadRooms(roomIds, timelineLimit);
     return result ?? Future.value(null);
   }
 
@@ -128,13 +124,11 @@ class Rooms extends DelegatingIterable<Room> implements Contextual<Rooms> {
     Homeserver? through,
   }) {
     assert((id != null && alias == null) || (id == null && alias != null));
-    final result = context?.updater.let((value) {
-      return value.joinRoom(
-        id: id,
-        alias: alias,
-        serverUrl: through?.wellKnownUrl ?? through?.url ?? Uri(),
-      );
-    });
+    final result = context?.updater?.joinRoom(
+      id: id,
+      alias: alias,
+      serverUrl: through?.wellKnownUrl ?? through?.url ?? Uri(),
+    );
     return result ?? Future.value(null);
   }
 }

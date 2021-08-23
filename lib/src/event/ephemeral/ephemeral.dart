@@ -5,15 +5,12 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import 'package:collection/collection.dart';
-
 import '../../model/my_user.dart';
 import '../../model/context.dart';
 import 'ephemeral_event.dart';
 import '../../room/room.dart';
-
 import 'receipt_event.dart';
 import 'typing_event.dart';
-import '../../util/nullable_extension.dart';
 
 class Ephemeral extends DelegatingIterable<EphemeralEvent>
     implements Contextual<Ephemeral> {
@@ -25,15 +22,8 @@ class Ephemeral extends DelegatingIterable<EphemeralEvent>
   Ephemeral(
     Iterable<EphemeralEvent?> events, {
     this.context,
-  })  : _map = events.fold(<Type, EphemeralEvent>{}, (previousValue, element) {
-          if (element == null) {
-            return previousValue;
-          } else {
-            return previousValue
-              ..putIfAbsent(element.runtimeType, () => element);
-          }
-        }),
-        super(events.whereNotNull());
+  })  : _map = {for (final event in events.whereNotNull()) event.runtimeType: event},
+        super(events.whereNotNull().toList());
 
   /// Either [context] or [roomId] is required.
   factory Ephemeral.fromJson(
@@ -116,6 +106,10 @@ class Ephemeral extends DelegatingIterable<EphemeralEvent>
 
   @override
   Ephemeral? propertyOf(MyUser user) {
-    return context?.roomId.let((value) => user.rooms?[value]?.ephemeral);
+    if (context?.roomId != null) {
+      return user.rooms?[context!.roomId]?.ephemeral;
+    } else {
+      return null;
+    }
   }
 }

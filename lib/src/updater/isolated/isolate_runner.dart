@@ -6,19 +6,13 @@
 
 import 'dart:async';
 import 'dart:isolate';
-
-import 'package:matrix_sdk/src/model/instruction.dart';
-import 'package:matrix_sdk/src/model/request_update.dart';
-import 'package:matrix_sdk/src/model/update.dart';
+import 'dart:math';
+import 'package:matrix_sdk/src/model/models.dart';
 import 'package:meta/meta.dart';
-
-import '../../model/error_with_stacktrace.dart';
 import '../../homeserver.dart';
-import '../../model/my_user.dart';
 import '../proxy_http_overrides.dart';
 import '../updater.dart';
 import '../../store/store.dart';
-
 import 'instruction.dart';
 
 abstract class IsolateRunner {
@@ -52,9 +46,7 @@ abstract class IsolateRunner {
         await updaterAvailable.future;
 
         // Send updates back to main isolate
-        updater?.updates.listen(
-          (u) => sendPort.send(u.minimize()),
-        );
+        updater?.updates.listen((u) => sendPort.send(u.minimize()));
 
         updater?.outApiCallStatistics.listen(sendPort.send);
 

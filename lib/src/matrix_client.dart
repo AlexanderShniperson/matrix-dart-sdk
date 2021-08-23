@@ -5,7 +5,6 @@ import 'package:matrix_sdk/src/updater/isolated/isolated_updater.dart';
 import 'model/api_call_statistics.dart';
 import 'model/request_update.dart';
 import 'model/update.dart';
-import 'util/nullable_extension.dart';
 
 class MatrixClient {
   final bool isIsolated;
@@ -88,9 +87,7 @@ class MatrixClient {
   ///
   /// Returns the [Update] where [MyUser] has logged out, if successful.
   Future<RequestUpdate<MyUser>?> logout(MyUser user) async {
-    final result = user.context?.updater.let((value) {
-      return value.logout();
-    });
+    final result = user.context?.updater?.logout();
     await stopSync(user);
     return result ?? Future.value(null);
   }
@@ -128,9 +125,7 @@ class MatrixClient {
       e.cancel();
     });
     _streamSubscription.clear();
-    final result = user.context?.updater.let((value) {
-      return value.syncer.stop();
-    });
+    final result = user.context?.updater?.syncer.stop();
     return result ?? Future.value();
   }
 

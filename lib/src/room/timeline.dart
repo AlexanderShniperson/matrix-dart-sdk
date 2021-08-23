@@ -14,7 +14,6 @@ import 'room.dart';
 import '../model/my_user.dart';
 import '../event/event.dart';
 import '../event/room/raw_room_event.dart';
-import '../util/nullable_extension.dart';
 
 class Timeline extends DelegatingIterable<RoomEvent>
     implements Contextual<Timeline> {
@@ -42,7 +41,7 @@ class Timeline extends DelegatingIterable<RoomEvent>
 
   Timeline.empty({
     required this.context,
-  })   : previousBatch = null,
+  })  : previousBatch = null,
         previousBatchSetBySync = null,
         super([]);
 
@@ -79,10 +78,10 @@ class Timeline extends DelegatingIterable<RoomEvent>
   Future<RequestUpdate<Timeline>?> load({
     int count = 20,
   }) {
-    final result = context?.updater.let((value) => value.loadRoomEvents(
-          roomId: context!.roomId,
-          count: count,
-        ));
+    final result = context?.updater?.loadRoomEvents(
+      roomId: context!.roomId,
+      count: count,
+    );
     return result ?? Future.value(null);
   }
 
@@ -149,7 +148,11 @@ class Timeline extends DelegatingIterable<RoomEvent>
 
   @override
   Timeline? propertyOf(MyUser user) {
-    return context?.roomId.let((value) => user.rooms?[value]?.timeline);
+    if (context?.roomId != null) {
+      return user.rooms?[context!.roomId]?.timeline;
+    } else {
+      return null;
+    }
   }
 }
 

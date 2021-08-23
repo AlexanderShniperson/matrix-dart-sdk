@@ -8,17 +8,13 @@
 import 'package:collection/collection.dart';
 import 'package:matrix_sdk/src/model/request_update.dart';
 import 'package:matrix_sdk/src/model/update.dart';
-
 import 'package:meta/meta.dart';
-
 import '../model/context.dart';
 import '../event/event.dart';
 import '../event/room/message_event.dart';
 import '../event/room/room_event.dart';
-
 import '../event/ephemeral/ephemeral_event.dart';
 import '../event/ephemeral/receipt_event.dart';
-
 import '../event/room/state/join_rules_change_event.dart';
 import '../event/room/state/power_levels_change_event.dart';
 import '../event/room/state/room_creation_event.dart';
@@ -29,19 +25,15 @@ import '../event/room/state/room_avatar_change_event.dart';
 import '../event/room/state/room_name_change_event.dart';
 import '../event/room/state/canonical_alias_change_event.dart';
 import '../event/room/raw_room_event.dart';
-
 import '../event/ephemeral/ephemeral.dart';
-
 import '../homeserver.dart';
 import '../model/identifier.dart';
 import '../model/matrix_user.dart';
-
 import 'member/member.dart';
 import 'member/member_timeline.dart';
 import 'member/membership.dart';
 import '../model/my_user.dart';
 import 'timeline.dart';
-import '../util/nullable_extension.dart';
 
 @immutable
 class Room with Identifiable<RoomId> implements Contextual<Room> {
@@ -602,14 +594,12 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
     String? transactionId,
     String? reason,
   }) {
-    final result = context?.updater.let((value) {
-      return value.delete(
-        id,
-        eventId,
-        transactionId: transactionId,
-        reason: reason,
-      );
-    });
+    final result = context?.updater?.delete(
+      id,
+      eventId,
+      transactionId: transactionId,
+      reason: reason,
+    );
     return result ?? Future.value(null);
   }
 
@@ -689,17 +679,24 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
   /// Leave this room, if not left already.
   Future<RequestUpdate<Room>?> leave() {
     assert(!(me?.hasLeft ?? false));
-    final result = context?.updater.let((value) => value.leaveRoom(id));
+    final result = context?.updater?.leaveRoom(id);
     return result ?? Future.value(null);
   }
 
   /// Receive updates that contain a change to this room.
-  Stream<Update>? get updates => context?.updater.let((value) =>
-      value.updates.where((u) => u.delta.rooms?.containsWithId(id) == true));
+  Stream<Update>? get updates {
+    return context?.updater?.updates
+        .where((u) => u.delta.rooms?.containsWithId(id) == true);
+  }
 
   @override
-  Room? propertyOf(MyUser user) =>
-      context?.roomId.let((value) => user.rooms?[value]);
+  Room? propertyOf(MyUser user) {
+    if (context?.roomId != null) {
+      return user.rooms?[context!.roomId];
+    } else {
+      return null;
+    }
+  }
 }
 
 /// Class that contains the most recent state events of each type.
@@ -959,7 +956,11 @@ class ReadReceipts extends DelegatingIterable<Receipt>
 
   @override
   ReadReceipts? propertyOf(MyUser user) {
-    return context?.roomId.let((value) => user.rooms?[value]?.readReceipts);
+    if (context?.roomId != null) {
+      return user.rooms?[context!.roomId]?.readReceipts;
+    } else {
+      return null;
+    }
   }
 }
 
