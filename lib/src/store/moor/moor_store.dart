@@ -83,7 +83,6 @@ class MoorStore extends Store {
     Iterable<RoomId>? roomIds,
     int timelineLimit = 15,
     bool isolated = false,
-    required StoreLocation storeLocation,
   }) async {
     final myUserWithDeviceRecord = await _db?.getMyUserRecord(userID);
 
@@ -175,8 +174,10 @@ class MoorStore extends Store {
         );
       }
 
-      await _db!.setRooms(
-          myUser.rooms!.map((r) => r.toCompanion()).whereNotNull().toList());
+      if (myUser.rooms != null) {
+        await _db?.setRooms(
+            myUser.rooms!.map((r) => r.toCompanion()).whereNotNull().toList());
+      }
 
       // Set room state
       await _db?.setRoomEventRecords(

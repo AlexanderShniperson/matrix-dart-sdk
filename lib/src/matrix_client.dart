@@ -114,7 +114,7 @@ class MatrixClient {
     Duration maxRetryAfter = const Duration(seconds: 30),
     int timelineLimit = 30,
   }) {
-    user.context?.updater?.syncer.start(
+    user.context?.updater?.startSync(
       maxRetryAfter: maxRetryAfter,
       timelineLimit: timelineLimit,
     );

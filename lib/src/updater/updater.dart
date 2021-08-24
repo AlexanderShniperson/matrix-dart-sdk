@@ -87,6 +87,10 @@ class Updater {
 
     _store.open();
 
+    _store.getMyUser(_user.id.value).then((value) {
+      _user.merge(value);
+    });
+
     if (saveMyUserToStore) {
       unawaited(_store.setMyUserDelta(_user));
     }
@@ -109,6 +113,22 @@ class Updater {
       _updatesSubject.add(update);
       return update;
     });
+  }
+
+  Future<void> startSync(
+      {Duration maxRetryAfter = const Duration(seconds: 30),
+      int timelineLimit = 30,
+      String? token}) async {
+    String? syncToken = _user.syncToken ?? token;
+    if ((syncToken ?? "").isEmpty) {
+      final user = await _store.getMyUser(_user.id.value);
+      syncToken = user?.syncToken;
+    }
+
+    syncer.start(
+        maxRetryAfter: maxRetryAfter,
+        timelineLimit: timelineLimit,
+        syncToken: syncToken);
   }
 
   Future<RequestUpdate<MyUser>?> setDisplayName({
@@ -745,16 +765,16 @@ class Updater {
   Future<void> _processSync(Map<String, dynamic> body) async {
     final roomDeltas = await _processRooms(body);
 
-    if (roomDeltas.isNotEmpty) {
-      await _update(
-        _user.delta(
-          syncToken: body['next_batch'],
-          rooms: roomDeltas,
-          hasSynced: !(_user.hasSynced ?? false) ? true : null,
-        )!,
-        (user, delta) => SyncUpdate(user, delta),
-      );
-    }
+//    if (roomDeltas.isNotEmpty) {
+    await _update(
+      _user.delta(
+        syncToken: body['next_batch'],
+        rooms: roomDeltas,
+        hasSynced: !(_user.hasSynced ?? false) ? true : null,
+      )!,
+      (user, delta) => SyncUpdate(user, delta),
+    );
+//    }
   }
 
   /// Returns list of room delta.
@@ -905,10 +925,10 @@ class Syncer {
   CancelableOperation<Map<String, dynamic>>? _cancelableSyncOnceResponse;
 
   /// Syncs data with the user's [_homeserver].
-  void start({
-    Duration maxRetryAfter = const Duration(seconds: 30),
-    int timelineLimit = 30,
-  }) {
+  void start(
+      {Duration maxRetryAfter = const Duration(seconds: 30),
+      int timelineLimit = 30,
+      String? syncToken}) {
     if (_user.isLoggedOut ?? false) {
       throw StateError('The user can not be logged out');
     }
@@ -920,6 +940,7 @@ class Syncer {
     _syncFuture = _startSync(
       maxRetryAfter: maxRetryAfter,
       timelineLimit: timelineLimit,
+      syncToken: syncToken,
     );
   }
 
@@ -928,6 +949,7 @@ class Syncer {
   Future<void> _startSync({
     Duration maxRetryAfter = const Duration(seconds: 30),
     int timelineLimit = 30,
+    String? syncToken,
   }) async {
     _shouldStopSync = false;
     _isSyncing = true;
@@ -940,6 +962,7 @@ class Syncer {
       final body = await _sync(
         timeout: Duration(seconds: 10),
         timelineLimit: timelineLimit,
+        syncToken: syncToken,
       );
 
       if (_shouldStopSync) {
@@ -973,6 +996,7 @@ class Syncer {
     timeout = Duration.zero,
     int timelineLimit = 30,
     bool fullState = false,
+    String? syncToken,
   }) async {
     if (_user.isLoggedOut ?? false) {
       throw StateError('The user can not be logged out');
@@ -983,10 +1007,18 @@ class Syncer {
     }
 
     try {
+      String? token = "";
+      if (token.isEmpty == true) {
+        token = _user.syncToken;
+      }
+      if (token?.isEmpty == true) {
+        token = syncToken;
+      }
+
       final cancelable = CancelableOperation.fromFuture(
         _homeserver.api.sync(
           accessToken: _user.accessToken ?? '',
-          since: _user.syncToken ?? '',
+          since: token!,
           fullState: fullState,
           filter: {
             'room': {

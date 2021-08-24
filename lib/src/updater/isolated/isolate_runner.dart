@@ -6,7 +6,6 @@
 
 import 'dart:async';
 import 'dart:isolate';
-import 'dart:math';
 import 'package:matrix_sdk/src/model/models.dart';
 import 'package:meta/meta.dart';
 import '../../homeserver.dart';
@@ -58,10 +57,7 @@ abstract class IsolateRunner {
           final instruction = message as Instruction;
 
           if (instruction is StartSyncInstruction) {
-            updater?.syncer.start(
-              maxRetryAfter: instruction.maxRetryAfter,
-              timelineLimit: instruction.timelineLimit,
-            );
+            await _executeInstruction(updater, sendPort, instruction);
           }
 
           if (instruction is StopSyncInstruction) {
@@ -86,6 +82,28 @@ abstract class IsolateRunner {
         );
       },
     );
+  }
+
+  static Future<void> _executeInstruction(
+      Updater? updater,
+      SendPort sendPort,
+      Instruction instruction,
+      ) async {
+    if (updater == null) {
+      return Future.value();
+    }
+
+    Future<dynamic> Function()? operation;
+
+    if (instruction is StartSyncInstruction) {
+      operation = () => updater.startSync(
+        maxRetryAfter: instruction.maxRetryAfter,
+        timelineLimit: instruction.timelineLimit,
+        token: instruction.syncToken,
+      );
+    }
+
+    await operation?.call();
   }
 
   static Future<void> _executeRequest(
@@ -118,6 +136,12 @@ abstract class IsolateRunner {
           );
     } else if (instruction is LogoutInstruction) {
       operation = () => updater.logout();
+    }  else if (instruction is StartSyncInstruction) {
+      operation = () => updater.startSync(
+        maxRetryAfter: (instruction as StartSyncInstruction).maxRetryAfter,
+        timelineLimit: (instruction as StartSyncInstruction).timelineLimit,
+        token: (instruction as StartSyncInstruction).syncToken,
+      );
     } else if (instruction is MarkReadInstruction) {
       operation = () => updater.markRead(
             roomId: instruction.roomId,

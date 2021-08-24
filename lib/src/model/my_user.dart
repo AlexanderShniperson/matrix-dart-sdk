@@ -104,7 +104,6 @@ class MyUser extends MatrixUser implements Contextual<MyUser> {
       roomIds: roomIds,
       timelineLimit: timelineLimit,
       isolated: isolated,
-      storeLocation: storeLocation,
     );
   }
 

@@ -305,6 +305,15 @@ class IsolatedUpdater implements Updater {
     return _execute(
         DeleteEventInstruction(roomId, eventId, transactionId, reason));
   }
+
+  @override
+  Future<void> startSync(
+      {Duration maxRetryAfter = const Duration(seconds: 30),
+      int timelineLimit = 30,
+      String? token}) {
+    return _execute(
+        StartSyncInstruction(maxRetryAfter, timelineLimit, token));
+  }
 }
 
 class IsolatedSyncer implements Syncer {
@@ -318,12 +327,12 @@ class IsolatedSyncer implements Syncer {
   bool get isSyncing => _isSyncing;
 
   @override
-  void start({
-    Duration maxRetryAfter = const Duration(seconds: 30),
-    int timelineLimit = 30,
-  }) {
+  void start(
+      {Duration maxRetryAfter = const Duration(seconds: 30),
+      int timelineLimit = 30,
+      String? syncToken}) {
     _updater._execute(
-      StartSyncInstruction(maxRetryAfter, timelineLimit),
+      StartSyncInstruction(maxRetryAfter, timelineLimit, syncToken),
     );
     _isSyncing = true;
   }
