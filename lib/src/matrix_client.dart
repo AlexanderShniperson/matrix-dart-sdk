@@ -128,4 +128,44 @@ class MatrixClient {
     final result = user.context?.updater?.syncer.stop();
     return result ?? Future.value();
   }
+
+  Future<Room?> loadRoomEvents({
+    required Room room,
+    int limit = 20,
+  }) async {
+    if (_updater == null || room.timeline == null) {
+      return Future.value(null);
+    }
+
+    final body = await homeServer.api.rooms.messages(
+      accessToken: _updater!.user.accessToken ?? '',
+      roomId: room.id.toString(),
+      limit: limit,
+      from: '',
+      filter: {
+        'lazy_load_members': true,
+      },
+    );
+
+    final receivedTimeline = Timeline.fromJson(
+      (body['chunk'] as List<dynamic>).cast(),
+      context: room.context,
+      previousBatch: body['end'],
+      previousBatchSetBySync: false,
+    );
+
+    final newRoom = Room(
+      context: _updater!.user.context!,
+      id: room.id,
+      timeline: receivedTimeline,
+      memberTimeline: MemberTimeline.fromEvents([
+        ...receivedTimeline,
+        ...(body['state'] as List<dynamic>)
+            .cast<Map<String, dynamic>>()
+            .map((e) => RoomEvent.fromJson(e, roomId: room.id)!),
+      ]),
+    );
+
+    return newRoom;
+  }
 }

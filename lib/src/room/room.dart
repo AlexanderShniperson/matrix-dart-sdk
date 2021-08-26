@@ -343,6 +343,14 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
   }
 
   @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+          other is Room && runtimeType == other.runtimeType && id.value == other.id.value;
+
+  @override
+  int get hashCode => id.value.hashCode;
+
+  @override
   Room? delta({
     Membership? myMembership,
     RoomStateEvents? stateEvents,
