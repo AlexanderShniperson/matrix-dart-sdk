@@ -106,13 +106,15 @@ class EditTextEventInstruction extends RequestInstruction<Timeline> {
   final TextMessageEvent event;
   final String? transactionId;
   final String newContent;
+  final Room? room;
 
   EditTextEventInstruction(
     this.roomId,
     this.event,
     this.newContent,
-    this.transactionId,
-  );
+    this.transactionId, {
+    this.room,
+  });
 
   @override
   final bool basedOnUpdate = true;

@@ -329,9 +329,10 @@ class Updater {
     RoomId roomId,
     TextMessageEvent event,
     String newContent, {
+    Room? room,
     String? transactionId,
   }) async {
-    final currentRoom =
+    final Room? currentRoom = room ??=
         _user.rooms?.firstWhereOrNull((element) => element.id == roomId);
 
     if (currentRoom == null) {
