@@ -62,10 +62,12 @@ class MemberTimeline extends DelegatingIterable<Member>
   /// with a member timeline containing more members.
   Future<RequestUpdate<MemberTimeline>?> load({
     int count = 20,
+    Room? room,
   }) async {
     final result = context?.updater?.loadMembers(
       roomId: context!.roomId,
       count: count,
+      room: room,
     );
     return result ?? Future.value(null);
   }

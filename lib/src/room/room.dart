@@ -599,6 +599,7 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
       eventId,
       transactionId: transactionId,
       reason: reason,
+      room: this,
     );
     return result ?? Future.value(null);
   }
@@ -657,6 +658,7 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
       roomId: id,
       until: until,
       receipt: receipt,
+      room: this,
     );
   }
 

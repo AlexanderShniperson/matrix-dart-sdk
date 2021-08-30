@@ -51,15 +51,17 @@ class KickInstruction extends RequestInstruction<MemberTimeline> {
 class LoadRoomEventsInstruction extends RequestInstruction<Timeline> {
   final RoomId? roomId;
   final int count;
+  final Room? room;
 
-  LoadRoomEventsInstruction(this.roomId, this.count);
+  LoadRoomEventsInstruction(this.roomId, this.count, this.room);
 }
 
 class LoadMembersInstruction extends RequestInstruction<MemberTimeline> {
   final RoomId? roomId;
   final int count;
+  final Room? room;
 
-  LoadMembersInstruction(this.roomId, this.count);
+  LoadMembersInstruction(this.roomId, this.count, this.room);
 }
 
 class LoadRoomsInstruction extends RequestInstruction<Rooms> {
@@ -75,9 +77,10 @@ class MarkReadInstruction extends RequestInstruction<ReadReceipts> {
   final RoomId roomId;
   final EventId until;
   final bool receipt;
+  final Room? room;
 
   // ignore: avoid_positional_boolean_parameters
-  MarkReadInstruction(this.roomId, this.until, this.receipt);
+  MarkReadInstruction(this.roomId, this.until, this.receipt, this.room);
 
   @override
   final bool basedOnUpdate = true;
@@ -125,13 +128,10 @@ class DeleteEventInstruction extends RequestInstruction<Timeline> {
   final EventId eventId;
   final String? transactionId;
   final String? reason;
+  final Room? room;
 
   DeleteEventInstruction(
-    this.roomId,
-    this.eventId,
-    this.transactionId,
-    this.reason,
-  );
+      this.roomId, this.eventId, this.transactionId, this.reason, this.room);
 
   @override
   final bool basedOnUpdate = true;
