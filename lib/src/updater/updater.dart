@@ -587,6 +587,7 @@ class Updater {
         data: user.rooms?[newRoom.id]?.timeline,
         deltaData: delta.rooms?[newRoom.id]?.timeline,
         type: RequestType.loadRoomEvents,
+        basedOnUpdate: true
       ),
     );
   }

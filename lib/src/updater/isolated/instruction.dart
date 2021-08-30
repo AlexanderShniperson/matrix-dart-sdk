@@ -53,6 +53,9 @@ class LoadRoomEventsInstruction extends RequestInstruction<Timeline> {
   final int count;
   final Room? room;
 
+  @override
+  final bool basedOnUpdate = true;
+
   LoadRoomEventsInstruction(this.roomId, this.count, this.room);
 }
 
@@ -131,7 +134,12 @@ class DeleteEventInstruction extends RequestInstruction<Timeline> {
   final Room? room;
 
   DeleteEventInstruction(
-      this.roomId, this.eventId, this.transactionId, this.reason, this.room);
+    this.roomId,
+    this.eventId,
+    this.transactionId,
+    this.reason,
+      this.room
+  );
 
   @override
   final bool basedOnUpdate = true;
