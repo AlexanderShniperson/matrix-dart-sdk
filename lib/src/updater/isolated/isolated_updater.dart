@@ -285,14 +285,12 @@ class IsolatedUpdater implements Updater {
     RoomId roomId,
     TextMessageEvent event,
     String newContent, {
+    Room? room,
     String? transactionId,
   }) async {
     return _execute(EditTextEventInstruction(
-      roomId,
-      event,
-      newContent,
-      transactionId,
-    ));
+        roomId, event, newContent, transactionId,
+        room: room));
   }
 
   @override

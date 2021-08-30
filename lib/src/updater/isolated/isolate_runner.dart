@@ -163,6 +163,7 @@ abstract class IsolateRunner {
             instruction.event,
             instruction.newContent,
             transactionId: instruction.transactionId,
+            room: instruction.room,
           );
     } else if (instruction is DeleteEventInstruction) {
       operation = () => updater.delete(

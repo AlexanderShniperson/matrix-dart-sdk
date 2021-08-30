@@ -585,7 +585,7 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
     String? transactionId,
   }) async {
     final result = context?.updater
-        ?.edit(id, event, newContent, transactionId: transactionId);
+        ?.edit(id, event, newContent, transactionId: transactionId, room: this);
     return result ?? Future.value();
   }
 
