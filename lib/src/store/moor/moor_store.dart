@@ -81,7 +81,7 @@ class MoorStore extends Store {
       String userID,
       {
     Iterable<RoomId>? roomIds,
-    int timelineLimit = 15,
+    int timelineLimit = 100,
     bool isolated = false,
     required StoreLocation storeLocation,
   }) async {
