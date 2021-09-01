@@ -372,8 +372,9 @@ class Updater {
     EventId eventId, {
     String? transactionId,
     String? reason,
+    Room? room,
   }) async {
-    final currentRoom =
+    final Room? currentRoom = room ??=
         _user.rooms?.firstWhereOrNull((element) => element.id == roomId);
 
     if (currentRoom == null) {
@@ -417,9 +418,12 @@ class Updater {
     required RoomId roomId,
     required EventId until,
     bool receipt = true,
+    Room? room,
   }) async {
     if (receipt) {
-      final isReadAlready = _user.rooms?[roomId]?.readReceipts.any(
+      final Room? currentRoom = room ??=
+          _user.rooms?.firstWhereOrNull((element) => element.id == roomId);
+      final isReadAlready = currentRoom?.readReceipts.any(
             (receipt) => receipt.eventId == until && receipt.userId == _user.id,
           ) ??
           false;
@@ -509,8 +513,10 @@ class Updater {
   Future<RequestUpdate<Timeline>?> loadRoomEvents({
     required RoomId roomId,
     int count = 20,
+    Room? room,
   }) async {
-    final currentRoom = _user.rooms?[roomId];
+    final Room? currentRoom = room ??=
+        _user.rooms?.firstWhereOrNull((element) => element.id == roomId);
 
     if (currentRoom?.timeline == null) {
       return Future.value(null);
@@ -581,6 +587,7 @@ class Updater {
         data: user.rooms?[newRoom.id]?.timeline,
         deltaData: delta.rooms?[newRoom.id]?.timeline,
         type: RequestType.loadRoomEvents,
+        basedOnUpdate: true
       ),
     );
   }
@@ -588,8 +595,10 @@ class Updater {
   Future<RequestUpdate<MemberTimeline>?> loadMembers({
     required RoomId roomId,
     int count = 10,
+    Room? room,
   }) async {
-    final currentRoom = _user.rooms?[roomId];
+    final Room? currentRoom = room ??=
+        _user.rooms?.firstWhereOrNull((element) => element.id == roomId);
 
     if (currentRoom == null) {
       return Future.value(null);

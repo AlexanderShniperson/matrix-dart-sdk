@@ -6,7 +6,6 @@
 
 import 'dart:async';
 import 'dart:isolate';
-import 'dart:math';
 import 'package:matrix_sdk/src/model/models.dart';
 import 'package:meta/meta.dart';
 import '../../homeserver.dart';
@@ -105,11 +104,13 @@ abstract class IsolateRunner {
       operation = () => updater.loadRoomEvents(
             roomId: instruction.roomId!,
             count: instruction.count,
+            room: instruction.room,
           );
     } else if (instruction is LoadMembersInstruction) {
       operation = () => updater.loadMembers(
             roomId: instruction.roomId!,
             count: instruction.count,
+            room: instruction.room,
           );
     } else if (instruction is LoadRoomsInstruction) {
       operation = () => updater.loadRooms(
@@ -123,6 +124,7 @@ abstract class IsolateRunner {
             roomId: instruction.roomId,
             until: instruction.until,
             receipt: instruction.receipt,
+            room: instruction.room,
           );
     } else if (instruction is SendInstruction) {
       await updater
@@ -171,6 +173,7 @@ abstract class IsolateRunner {
             instruction.eventId,
             transactionId: instruction.transactionId,
             reason: instruction.reason,
+            room: instruction.room,
           );
     } else {
       throw UnsupportedError(

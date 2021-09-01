@@ -200,15 +200,17 @@ class IsolatedUpdater implements Updater {
   Future<RequestUpdate<Timeline>?> loadRoomEvents({
     RoomId? roomId,
     int count = 20,
+    Room? room,
   }) =>
-      _execute(LoadRoomEventsInstruction(roomId, count));
+      _execute(LoadRoomEventsInstruction(roomId, count, room));
 
   @override
   Future<RequestUpdate<MemberTimeline>?> loadMembers({
     RoomId? roomId,
     int count = 10,
+    Room? room,
   }) =>
-      _execute(LoadMembersInstruction(roomId, count));
+      _execute(LoadMembersInstruction(roomId, count, room));
 
   @override
   Future<RequestUpdate<Rooms>?> loadRooms(
@@ -225,8 +227,9 @@ class IsolatedUpdater implements Updater {
     required RoomId roomId,
     required EventId until,
     bool receipt = true,
+    Room? room,
   }) =>
-      _execute(MarkReadInstruction(roomId, until, receipt));
+      _execute(MarkReadInstruction(roomId, until, receipt, room));
 
   @override
   Stream<RequestUpdate<Timeline>?> send(
@@ -299,9 +302,10 @@ class IsolatedUpdater implements Updater {
     EventId eventId, {
     String? transactionId,
     String? reason,
+        Room? room,
   }) async {
     return _execute(
-        DeleteEventInstruction(roomId, eventId, transactionId, reason));
+        DeleteEventInstruction(roomId, eventId, transactionId, reason, room));
   }
 }
 

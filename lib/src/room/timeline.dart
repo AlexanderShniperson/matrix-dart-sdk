@@ -77,10 +77,12 @@ class Timeline extends DelegatingIterable<RoomEvent>
   /// with a timeline containing more events.
   Future<RequestUpdate<Timeline>?> load({
     int count = 20,
+    Room? room,
   }) {
     final result = context?.updater?.loadRoomEvents(
       roomId: context!.roomId,
       count: count,
+      room: room,
     );
     return result ?? Future.value(null);
   }
