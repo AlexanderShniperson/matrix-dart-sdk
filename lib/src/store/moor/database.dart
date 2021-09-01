@@ -65,6 +65,8 @@ class Rooms extends Table {
   IntColumn get highlightedUnreadNotificationCount => integer().nullable()();
   IntColumn get totalUnreadNotificationCount => integer().nullable()();
 
+  IntColumn get lastMessageTimeInterval => integer().withDefault(const Constant(0))();
+
   TextColumn get directUserId => text().nullable()();
 
   @override
@@ -119,10 +121,24 @@ class Database extends _$Database {
   Database(DelegatedDatabase delegate) : super(delegate);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
-  MigrationStrategy get migration => destructiveFallback;
+  MigrationStrategy get migration  {
+    if (schemaVersion < 4) {
+      return destructiveFallback;
+    }
+    return MigrationStrategy(
+        onCreate: (Migrator m) {
+          return m.createAll();
+        },
+        onUpgrade: (Migrator m, int from, int to) async {
+          if (from == 3) {
+            await m.addColumn(rooms, rooms.lastMessageTimeInterval);
+          }
+        }
+    );
+  }
 
   Future<MyUserRecordWithDeviceRecord?> getMyUserRecord(
     String userID,
@@ -237,7 +253,7 @@ class Database extends _$Database {
     // TODO: Use insertOnConflictUpdate when released
     await batch((batch) async {
       for (final companion in companions) {
-        batch.insert(rooms, companion, mode: InsertMode.insertOrIgnore);
+        batch.insert(rooms, companion, mode: InsertMode.insertOrReplace);
         batch.update<$RoomsTable, RoomRecord>(
           rooms,
           companion,

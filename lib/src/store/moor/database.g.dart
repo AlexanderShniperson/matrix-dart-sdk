@@ -489,6 +489,7 @@ class RoomRecord extends DataClass implements Insertable<RoomRecord> {
   final String? upgradeEventId;
   final int? highlightedUnreadNotificationCount;
   final int? totalUnreadNotificationCount;
+  final int lastMessageTimeInterval;
   final String? directUserId;
   RoomRecord(
       {this.myMembership,
@@ -507,6 +508,7 @@ class RoomRecord extends DataClass implements Insertable<RoomRecord> {
       this.upgradeEventId,
       this.highlightedUnreadNotificationCount,
       this.totalUnreadNotificationCount,
+      required this.lastMessageTimeInterval,
       this.directUserId});
   factory RoomRecord.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String? prefix}) {
@@ -545,6 +547,8 @@ class RoomRecord extends DataClass implements Insertable<RoomRecord> {
               data['${effectivePrefix}highlighted_unread_notification_count']),
       totalUnreadNotificationCount: const IntType().mapFromDatabaseResponse(
           data['${effectivePrefix}total_unread_notification_count']),
+      lastMessageTimeInterval: const IntType().mapFromDatabaseResponse(
+          data['${effectivePrefix}last_message_time_interval'])!,
       directUserId: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}direct_user_id']),
     );
@@ -606,6 +610,7 @@ class RoomRecord extends DataClass implements Insertable<RoomRecord> {
       map['total_unread_notification_count'] =
           Variable<int?>(totalUnreadNotificationCount);
     }
+    map['last_message_time_interval'] = Variable<int>(lastMessageTimeInterval);
     if (!nullToAbsent || directUserId != null) {
       map['direct_user_id'] = Variable<String?>(directUserId);
     }
@@ -666,6 +671,7 @@ class RoomRecord extends DataClass implements Insertable<RoomRecord> {
           totalUnreadNotificationCount == null && nullToAbsent
               ? const Value.absent()
               : Value(totalUnreadNotificationCount),
+      lastMessageTimeInterval: Value(lastMessageTimeInterval),
       directUserId: directUserId == null && nullToAbsent
           ? const Value.absent()
           : Value(directUserId),
@@ -704,6 +710,8 @@ class RoomRecord extends DataClass implements Insertable<RoomRecord> {
           serializer.fromJson<int?>(json['highlightedUnreadNotificationCount']),
       totalUnreadNotificationCount:
           serializer.fromJson<int?>(json['totalUnreadNotificationCount']),
+      lastMessageTimeInterval:
+          serializer.fromJson<int>(json['lastMessageTimeInterval']),
       directUserId: serializer.fromJson<String?>(json['directUserId']),
     );
   }
@@ -736,6 +744,8 @@ class RoomRecord extends DataClass implements Insertable<RoomRecord> {
           serializer.toJson<int?>(highlightedUnreadNotificationCount),
       'totalUnreadNotificationCount':
           serializer.toJson<int?>(totalUnreadNotificationCount),
+      'lastMessageTimeInterval':
+          serializer.toJson<int>(lastMessageTimeInterval),
       'directUserId': serializer.toJson<String?>(directUserId),
     };
   }
@@ -757,6 +767,7 @@ class RoomRecord extends DataClass implements Insertable<RoomRecord> {
           String? upgradeEventId,
           int? highlightedUnreadNotificationCount,
           int? totalUnreadNotificationCount,
+          int? lastMessageTimeInterval,
           String? directUserId}) =>
       RoomRecord(
         myMembership: myMembership ?? this.myMembership,
@@ -785,6 +796,8 @@ class RoomRecord extends DataClass implements Insertable<RoomRecord> {
                 this.highlightedUnreadNotificationCount,
         totalUnreadNotificationCount:
             totalUnreadNotificationCount ?? this.totalUnreadNotificationCount,
+        lastMessageTimeInterval:
+            lastMessageTimeInterval ?? this.lastMessageTimeInterval,
         directUserId: directUserId ?? this.directUserId,
       );
   @override
@@ -809,6 +822,7 @@ class RoomRecord extends DataClass implements Insertable<RoomRecord> {
               'highlightedUnreadNotificationCount: $highlightedUnreadNotificationCount, ')
           ..write(
               'totalUnreadNotificationCount: $totalUnreadNotificationCount, ')
+          ..write('lastMessageTimeInterval: $lastMessageTimeInterval, ')
           ..write('directUserId: $directUserId')
           ..write(')'))
         .toString();
@@ -851,8 +865,11 @@ class RoomRecord extends DataClass implements Insertable<RoomRecord> {
                                                               $mrjc(
                                                                   totalUnreadNotificationCount
                                                                       .hashCode,
-                                                                  directUserId
-                                                                      .hashCode)))))))))))))))));
+                                                                  $mrjc(
+                                                                      lastMessageTimeInterval
+                                                                          .hashCode,
+                                                                      directUserId
+                                                                          .hashCode))))))))))))))))));
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -877,6 +894,7 @@ class RoomRecord extends DataClass implements Insertable<RoomRecord> {
               this.highlightedUnreadNotificationCount &&
           other.totalUnreadNotificationCount ==
               this.totalUnreadNotificationCount &&
+          other.lastMessageTimeInterval == this.lastMessageTimeInterval &&
           other.directUserId == this.directUserId);
 }
 
@@ -897,6 +915,7 @@ class RoomsCompanion extends UpdateCompanion<RoomRecord> {
   final Value<String?> upgradeEventId;
   final Value<int?> highlightedUnreadNotificationCount;
   final Value<int?> totalUnreadNotificationCount;
+  final Value<int> lastMessageTimeInterval;
   final Value<String?> directUserId;
   const RoomsCompanion({
     this.myMembership = const Value.absent(),
@@ -915,6 +934,7 @@ class RoomsCompanion extends UpdateCompanion<RoomRecord> {
     this.upgradeEventId = const Value.absent(),
     this.highlightedUnreadNotificationCount = const Value.absent(),
     this.totalUnreadNotificationCount = const Value.absent(),
+    this.lastMessageTimeInterval = const Value.absent(),
     this.directUserId = const Value.absent(),
   });
   RoomsCompanion.insert({
@@ -934,6 +954,7 @@ class RoomsCompanion extends UpdateCompanion<RoomRecord> {
     this.upgradeEventId = const Value.absent(),
     this.highlightedUnreadNotificationCount = const Value.absent(),
     this.totalUnreadNotificationCount = const Value.absent(),
+    this.lastMessageTimeInterval = const Value.absent(),
     this.directUserId = const Value.absent(),
   }) : id = Value(id);
   static Insertable<RoomRecord> custom({
@@ -953,6 +974,7 @@ class RoomsCompanion extends UpdateCompanion<RoomRecord> {
     Expression<String?>? upgradeEventId,
     Expression<int?>? highlightedUnreadNotificationCount,
     Expression<int?>? totalUnreadNotificationCount,
+    Expression<int>? lastMessageTimeInterval,
     Expression<String?>? directUserId,
   }) {
     return RawValuesInsertable({
@@ -984,6 +1006,8 @@ class RoomsCompanion extends UpdateCompanion<RoomRecord> {
             highlightedUnreadNotificationCount,
       if (totalUnreadNotificationCount != null)
         'total_unread_notification_count': totalUnreadNotificationCount,
+      if (lastMessageTimeInterval != null)
+        'last_message_time_interval': lastMessageTimeInterval,
       if (directUserId != null) 'direct_user_id': directUserId,
     });
   }
@@ -1005,6 +1029,7 @@ class RoomsCompanion extends UpdateCompanion<RoomRecord> {
       Value<String?>? upgradeEventId,
       Value<int?>? highlightedUnreadNotificationCount,
       Value<int?>? totalUnreadNotificationCount,
+      Value<int>? lastMessageTimeInterval,
       Value<String?>? directUserId}) {
     return RoomsCompanion(
       myMembership: myMembership ?? this.myMembership,
@@ -1032,6 +1057,8 @@ class RoomsCompanion extends UpdateCompanion<RoomRecord> {
           this.highlightedUnreadNotificationCount,
       totalUnreadNotificationCount:
           totalUnreadNotificationCount ?? this.totalUnreadNotificationCount,
+      lastMessageTimeInterval:
+          lastMessageTimeInterval ?? this.lastMessageTimeInterval,
       directUserId: directUserId ?? this.directUserId,
     );
   }
@@ -1098,6 +1125,10 @@ class RoomsCompanion extends UpdateCompanion<RoomRecord> {
       map['total_unread_notification_count'] =
           Variable<int?>(totalUnreadNotificationCount.value);
     }
+    if (lastMessageTimeInterval.present) {
+      map['last_message_time_interval'] =
+          Variable<int>(lastMessageTimeInterval.value);
+    }
     if (directUserId.present) {
       map['direct_user_id'] = Variable<String?>(directUserId.value);
     }
@@ -1126,6 +1157,7 @@ class RoomsCompanion extends UpdateCompanion<RoomRecord> {
               'highlightedUnreadNotificationCount: $highlightedUnreadNotificationCount, ')
           ..write(
               'totalUnreadNotificationCount: $totalUnreadNotificationCount, ')
+          ..write('lastMessageTimeInterval: $lastMessageTimeInterval, ')
           ..write('directUserId: $directUserId')
           ..write(')'))
         .toString();
@@ -1239,6 +1271,13 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, RoomRecord> {
       GeneratedColumn<int?>(
           'total_unread_notification_count', aliasedName, true,
           typeName: 'INTEGER', requiredDuringInsert: false);
+  final VerificationMeta _lastMessageTimeIntervalMeta =
+      const VerificationMeta('lastMessageTimeInterval');
+  late final GeneratedColumn<int?> lastMessageTimeInterval =
+      GeneratedColumn<int?>('last_message_time_interval', aliasedName, false,
+          typeName: 'INTEGER',
+          requiredDuringInsert: false,
+          defaultValue: const Constant(0));
   final VerificationMeta _directUserIdMeta =
       const VerificationMeta('directUserId');
   late final GeneratedColumn<String?> directUserId = GeneratedColumn<String?>(
@@ -1262,6 +1301,7 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, RoomRecord> {
         upgradeEventId,
         highlightedUnreadNotificationCount,
         totalUnreadNotificationCount,
+        lastMessageTimeInterval,
         directUserId
       ];
   @override
@@ -1375,6 +1415,13 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, RoomRecord> {
           totalUnreadNotificationCount.isAcceptableOrUnknown(
               data['total_unread_notification_count']!,
               _totalUnreadNotificationCountMeta));
+    }
+    if (data.containsKey('last_message_time_interval')) {
+      context.handle(
+          _lastMessageTimeIntervalMeta,
+          lastMessageTimeInterval.isAcceptableOrUnknown(
+              data['last_message_time_interval']!,
+              _lastMessageTimeIntervalMeta));
     }
     if (data.containsKey('direct_user_id')) {
       context.handle(

@@ -220,14 +220,20 @@ class MoorStore extends Store {
 
       // Set timeline. If any of the (member) state events were just set,
       // they'll be overridden with inTimeline = true.
+      final eventsList = myUser.rooms!
+          .map((room) => room.timeline)
+          .whereNotNull()
+          .expand((timeline) => timeline)
+          .map((event) => event.toRecord(inTimeline: true))
+          .toList();
       await _db?.setRoomEventRecords(
-        myUser.rooms!
-            .map((room) => room.timeline)
-            .whereNotNull()
-            .expand((timeline) => timeline)
-            .map((event) => event.toRecord(inTimeline: true))
-            .toList(),
+        eventsList,
       );
+
+      //TODO: Find latest message and save time interval to room
+       final result = eventsList.fold(<String, int>{}, (previousValue, element) => {
+         
+       });
     }
   }
 

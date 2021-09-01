@@ -46,6 +46,8 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
   @override
   final RoomId id;
 
+  int lastMessageTimeInterval;
+
   /// Events timeline.
   final Timeline? timeline;
 
@@ -141,6 +143,7 @@ class Room with Identifiable<RoomId> implements Contextual<Room> {
     this.highlightedUnreadNotificationCount,
     this.totalUnreadNotificationCount,
     this.ephemeral,
+    this.lastMessageTimeInterval = 0,
   })  : context =
             context != null ? RoomContext.inherit(context, roomId: id) : null,
         powerLevels = stateEvents?.powerLevelsChange != null
