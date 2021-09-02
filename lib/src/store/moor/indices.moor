@@ -1,0 +1,16 @@
+import './database.dart';
+
+CREATE INDEX IF NOT EXISTS ix_devices_user ON devices(user_id);
+CREATE INDEX IF NOT EXISTS ix_myuser_device ON my_users(current_device_id);
+CREATE INDEX IF NOT EXISTS ix_roomevents_room ON room_events(room_id);
+CREATE INDEX IF NOT EXISTS ix_roomevents_sender ON room_events(sender_id);
+CREATE INDEX IF NOT EXISTS ix_roomevents_transaction ON room_events(transaction_id);
+CREATE INDEX IF NOT EXISTS ix_rooms_namechangeevent ON rooms(name_change_event_id);
+CREATE INDEX IF NOT EXISTS ix_rooms_avatarchangeevent ON rooms(avatar_change_event_id);
+CREATE INDEX IF NOT EXISTS ix_rooms_topicchangeevent ON rooms(topic_change_event_id);
+CREATE INDEX IF NOT EXISTS ix_rooms_powerlevelchangeevent ON rooms(power_levels_change_event_id);
+CREATE INDEX IF NOT EXISTS ix_rooms_joinrulechangeevent ON rooms(join_rules_change_event_id);
+CREATE INDEX IF NOT EXISTS ix_rooms_canonicalaliaschangeevent ON rooms(canonical_alias_change_event_id);
+CREATE INDEX IF NOT EXISTS ix_rooms_creationevent ON rooms(creation_event_id);
+CREATE INDEX IF NOT EXISTS ix_rooms_upgradeevent ON rooms(upgrade_event_id);
+CREATE INDEX IF NOT EXISTS ix_rooms_directuser ON rooms(direct_user_id);

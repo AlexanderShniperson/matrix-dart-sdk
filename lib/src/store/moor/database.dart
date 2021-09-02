@@ -7,7 +7,6 @@
 
 import 'package:moor/backends.dart';
 import 'package:moor/moor.dart';
-
 import '../../event/room/state/member_change_event.dart';
 
 part 'database.g.dart';
@@ -114,12 +113,20 @@ class Devices extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-@UseMoor(tables: [MyUsers, Rooms, RoomEvents, EphemeralEvents, Devices])
+@UseMoor(include: {
+  "indices.moor",
+}, tables: [
+  MyUsers,
+  Rooms,
+  RoomEvents,
+  EphemeralEvents,
+  Devices,
+])
 class Database extends _$Database {
   Database(DelegatedDatabase delegate) : super(delegate);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => destructiveFallback;
