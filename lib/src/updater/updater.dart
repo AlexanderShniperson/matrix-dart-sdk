@@ -511,10 +511,10 @@ class Updater {
   }
 
   Future<RequestUpdate<Rooms>?> loadRooms(
-      int limit,
-      int offset,
-      int timelineLimit,
-      ) async {
+    int limit,
+    int offset,
+    int timelineLimit,
+  ) async {
     final rooms = await _store.getRooms(
       timelineLimit: timelineLimit,
       context: _user.context!,
@@ -523,16 +523,17 @@ class Updater {
       offset: offset,
     );
 
-    return _update(
+    final update = RequestUpdate(
+      _user,
       _user.delta(rooms: rooms)!,
-          (user, delta) => RequestUpdate(
-        user,
-        delta,
-        data: user.rooms!,
-        deltaData: delta.rooms!,
-        type: RequestType.loadRooms,
-      ),
+      data: Rooms(rooms, context: _user.context),
+      deltaData: Rooms(rooms, context: _user.context),
+      type: RequestType.loadRooms,
     );
+
+    _updatesSubject.add(update);
+
+    return update;
   }
 
   Future<RequestUpdate<Timeline>?> loadRoomEvents({
@@ -606,14 +607,11 @@ class Updater {
 
     return _update(
       _user.delta(rooms: [newRoom])!,
-      (user, delta) => RequestUpdate(
-        user,
-        delta,
-        data: user.rooms?[newRoom.id]?.timeline,
-        deltaData: delta.rooms?[newRoom.id]?.timeline,
-        type: RequestType.loadRoomEvents,
-        basedOnUpdate: true
-      ),
+      (user, delta) => RequestUpdate(user, delta,
+          data: user.rooms?[newRoom.id]?.timeline,
+          deltaData: delta.rooms?[newRoom.id]?.timeline,
+          type: RequestType.loadRoomEvents,
+          basedOnUpdate: true),
     );
   }
 

@@ -149,7 +149,7 @@ class MatrixClient {
       return Future.value([]);
     }
     final update = await _updater!.loadRooms(limit, offset, timelineLimit);
-    return update?.data?.toList() ?? [];
+    return update?.deltaData?.toList() ?? [];
   }
 
   Future<List<Room?>> getRoomsByIDs({

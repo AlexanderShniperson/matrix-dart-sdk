@@ -8,6 +8,7 @@ export 'src/homeserver.dart';
 export 'src/updater/updater.dart';
 export 'src/model/update.dart';
 export 'src/model/request_update.dart';
+export 'src/model/sync_update.dart';
 export 'src/model/matrix_user.dart';
 export 'src/model/my_user.dart';
 export 'src/util/exception.dart';
