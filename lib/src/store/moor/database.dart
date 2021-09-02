@@ -263,6 +263,16 @@ class Database extends _$Database {
     });
   }
 
+  Future<void> setRoomsLatestMessages(Map<String, int> data) async {
+    await batch((batch) async {
+      data.forEach((key, value) {
+        batch.update<$RoomsTable, RoomRecord>(rooms, RoomsCompanion(
+          lastMessageTimeInterval: Value(value),
+        ), where: (t) => t.id.like(key));
+      });
+    });
+  }
+
   Future<Iterable<RoomEventRecord>> getRoomEventRecords(
     String roomId, {
     int? count,
