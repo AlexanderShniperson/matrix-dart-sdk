@@ -213,11 +213,19 @@ class IsolatedUpdater implements Updater {
       _execute(LoadMembersInstruction(roomId, count, room));
 
   @override
-  Future<RequestUpdate<Rooms>?> loadRooms(
+  Future<RequestUpdate<Rooms>?> loadRoomsByIDs(
     Iterable<RoomId> roomIds,
     int timelineLimit,
   ) =>
-      _execute(LoadRoomsInstruction(roomIds.toList(), timelineLimit));
+      _execute(LoadRoomsByIDsInstruction(roomIds.toList(), timelineLimit));
+
+  @override
+  Future<RequestUpdate<Rooms>?> loadRooms(
+      int limit,
+      int offset,
+      int timelineLimit,
+      ) =>
+      _execute(LoadRoomsInstruction(limit, offset, timelineLimit));
 
   @override
   Future<RequestUpdate<MyUser>?> logout() => _execute(LogoutInstruction());

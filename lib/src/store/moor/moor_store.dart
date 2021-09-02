@@ -78,8 +78,7 @@ class MoorStore extends Store {
   /// the user's updates.
   @override
   Future<MyUser?> getMyUser(
-      String userID,
-      {
+    String userID, {
     Iterable<RoomId>? roomIds,
     int timelineLimit = 100,
     bool isolated = false,
@@ -108,7 +107,7 @@ class MoorStore extends Store {
       syncToken: myUserRecord.syncToken!,
       currentDevice: deviceRecord?.toDevice(),
       rooms: Rooms(
-        await getRooms(
+        await getRoomsByIDs(
           roomIds,
           timelineLimit: timelineLimit,
           context: context,
@@ -231,36 +230,58 @@ class MoorStore extends Store {
       );
 
       //Find latest message and save time interval to room
-       final Map<String, int> result = eventsList.fold(<String, int>{}, (previousValue, element)  {
-         if (element.time != null) {
-           final roomID = element.roomId;
-           if (previousValue.containsKey(roomID) && previousValue[roomID] != null) {
-             if (previousValue[roomID]! < element.time!.millisecondsSinceEpoch) {
-               previousValue[roomID] = element.time!.millisecondsSinceEpoch;
-             }
-           } else {
-             previousValue[roomID] = element.time!.millisecondsSinceEpoch;
-           }
-         }
-         return previousValue;
-       });
+      final Map<String, int> result =
+          eventsList.fold(<String, int>{}, (previousValue, element) {
+        if (element.time != null) {
+          final roomID = element.roomId;
+          if (previousValue.containsKey(roomID) &&
+              previousValue[roomID] != null) {
+            if (previousValue[roomID]! < element.time!.millisecondsSinceEpoch) {
+              previousValue[roomID] = element.time!.millisecondsSinceEpoch;
+            }
+          } else {
+            previousValue[roomID] = element.time!.millisecondsSinceEpoch;
+          }
+        }
+        return previousValue;
+      });
 
       await _db?.setRoomsLatestMessages(result);
     }
   }
 
   @override
-  Future<Iterable<Room>> getRooms(
+  Future<Iterable<Room>> getRoomsByIDs(
     Iterable<RoomId>? roomIds, {
     Context? context,
     required int timelineLimit,
     Iterable<UserId>? memberIds,
   }) async {
-    final roomRecords = (await _db?.getRoomRecords(
+    final roomRecords = (await _db?.getRoomRecordsByIDs(
           roomIds?.map((id) => id.toString()),
         )) ??
         [];
+    return _processRoomRecords(roomRecords, timelineLimit, memberIds, context);
+  }
 
+  @override
+  Future<Iterable<Room>> getRooms({
+    Context? context,
+    required int limit,
+    required int offset,
+    required int timelineLimit,
+    Iterable<UserId>? memberIds,
+  }) async {
+    final roomRecords = (await _db?.getRoomRecords(limit, offset)) ?? [];
+    return _processRoomRecords(roomRecords, timelineLimit, memberIds, context);
+  }
+
+  Future<Iterable<Room>> _processRoomRecords(
+    List<RoomRecordWithStateRecords> roomRecords,
+    int timelineLimit,
+    Iterable<UserId>? memberIds,
+    Context? context,
+  ) async {
     // TODO: Optimize?
     final rooms = await Future.wait(roomRecords.map((record) async {
       final roomRecord = record.roomRecord;
@@ -312,7 +333,8 @@ class MoorStore extends Store {
           topicChange: record.topicChangeRecord?.toRoomEvent(),
           powerLevelsChange: record.powerLevelsChangeRecord?.toRoomEvent(),
           joinRulesChange: record.joinRulesChangeRecord?.toRoomEvent(),
-          canonicalAliasChange: record.canonicalAliasChangeRecord?.toRoomEvent(),
+          canonicalAliasChange:
+              record.canonicalAliasChangeRecord?.toRoomEvent(),
           creation: record.creationRecord?.toRoomEvent(),
           upgrade: record.upgradeRecord?.toRoomEvent(),
         ),

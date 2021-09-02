@@ -52,9 +52,18 @@ abstract class Store {
 
   /// If [memberIds] is not null, the states of the users with those ids will
   /// always be included, if they're in the room.
-  Future<Iterable<Room>> getRooms(
+  Future<Iterable<Room>> getRoomsByIDs(
     Iterable<RoomId>? roomIds, {
     Context? context,
+    required int timelineLimit,
+    Iterable<UserId>? memberIds,
+  });
+
+  /// Load certain page of rooms, sorted by lastMessageTimeInterval
+  Future<Iterable<Room>> getRooms({
+    Context? context,
+    required int limit,
+    required int offset,
     required int timelineLimit,
     Iterable<UserId>? memberIds,
   });
@@ -65,7 +74,7 @@ abstract class Store {
     required Context context,
     required Iterable<UserId> memberIds,
   }) =>
-      getRooms(
+      getRoomsByIDs(
         [id],
         timelineLimit: timelineLimit,
         context: context,

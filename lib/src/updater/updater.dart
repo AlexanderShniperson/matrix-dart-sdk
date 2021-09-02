@@ -487,11 +487,11 @@ class Updater {
     return update;
   }
 
-  Future<RequestUpdate<Rooms>?> loadRooms(
+  Future<RequestUpdate<Rooms>?> loadRoomsByIDs(
     Iterable<RoomId> roomIds,
     int timelineLimit,
   ) async {
-    final rooms = await _store.getRooms(
+    final rooms = await _store.getRoomsByIDs(
       roomIds,
       timelineLimit: timelineLimit,
       context: _user.context!,
@@ -501,6 +501,31 @@ class Updater {
     return _update(
       _user.delta(rooms: rooms)!,
       (user, delta) => RequestUpdate(
+        user,
+        delta,
+        data: user.rooms!,
+        deltaData: delta.rooms!,
+        type: RequestType.loadRooms,
+      ),
+    );
+  }
+
+  Future<RequestUpdate<Rooms>?> loadRooms(
+      int limit,
+      int offset,
+      int timelineLimit,
+      ) async {
+    final rooms = await _store.getRooms(
+      timelineLimit: timelineLimit,
+      context: _user.context!,
+      memberIds: [_user.id],
+      limit: limit,
+      offset: offset,
+    );
+
+    return _update(
+      _user.delta(rooms: rooms)!,
+          (user, delta) => RequestUpdate(
         user,
         delta,
         data: user.rooms!,

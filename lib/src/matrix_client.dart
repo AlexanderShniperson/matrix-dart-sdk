@@ -136,18 +136,32 @@ class MatrixClient {
     if (_updater == null) {
       return Future.value(null);
     }
-    final update = await _updater!.loadRooms([RoomId(roomID)], limit);
+    final update = await _updater!.loadRoomsByIDs([RoomId(roomID)], limit);
     return update?.data?.firstWhere((e) => e.id.value == roomID);
   }
 
-  Future<List<Room?>> getRooms({
-    required Iterable<RoomId> roomIDs,
-    int limit = 20,
+  Future<List<Room>> getRooms({
+    int limit = 50,
+    int offset = 0,
+    int timelineLimit = 20,
   }) async {
     if (_updater == null) {
       return Future.value([]);
     }
-    final update = await _updater!.loadRooms(roomIDs, limit);
+    final update = await _updater!.loadRooms(limit, offset, timelineLimit);
+    return update?.data?.toList() ?? [];
+  }
+
+  Future<List<Room?>> getRoomsByIDs({
+    required Iterable<RoomId> roomIDs,
+    int limit = 40,
+    int offset = 0,
+    int timelineLimit = 20,
+  }) async {
+    if (_updater == null) {
+      return Future.value([]);
+    }
+    final update = await _updater!.loadRoomsByIDs(roomIDs, timelineLimit);
     return update?.data?.toList() ?? [];
   }
 

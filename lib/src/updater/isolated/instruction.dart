@@ -67,11 +67,19 @@ class LoadMembersInstruction extends RequestInstruction<MemberTimeline> {
   LoadMembersInstruction(this.roomId, this.count, this.room);
 }
 
-class LoadRoomsInstruction extends RequestInstruction<Rooms> {
+class LoadRoomsByIDsInstruction extends RequestInstruction<Rooms> {
   final List<RoomId> roomIds;
   final int timelineLimit;
 
-  LoadRoomsInstruction(this.roomIds, this.timelineLimit);
+  LoadRoomsByIDsInstruction(this.roomIds, this.timelineLimit);
+}
+
+class LoadRoomsInstruction extends RequestInstruction<Rooms> {
+  final int timelineLimit;
+  final int limit;
+  final int offset;
+
+  LoadRoomsInstruction(this.limit, this.offset, this.timelineLimit);
 }
 
 class LogoutInstruction extends RequestInstruction<MyUser> {}

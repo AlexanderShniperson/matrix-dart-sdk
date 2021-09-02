@@ -34,7 +34,7 @@ class Rooms extends DelegatingIterable<Room> implements Contextual<Rooms> {
     required Iterable<RoomId> roomIds,
     int timelineLimit = 10,
   }) {
-    final result = context?.updater?.loadRooms(roomIds, timelineLimit);
+    final result = context?.updater?.loadRoomsByIDs(roomIds, timelineLimit);
     return result ?? Future.value(null);
   }
 

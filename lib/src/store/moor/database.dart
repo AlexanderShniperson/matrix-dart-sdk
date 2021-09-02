@@ -164,18 +164,12 @@ class Database extends _$Database {
   }
 
   Future<void> setMyUser(MyUsersCompanion companion) async {
-    // TODO: Use insertOnConflictUpdate when released
     await batch((batch) {
-      batch.insert(myUsers, companion, mode: InsertMode.insertOrIgnore);
-      batch.update<$MyUsersTable, MyUserRecord>(
-        myUsers,
-        companion,
-        where: (tbl) => tbl.id.equals(companion.id.value),
-      );
+      batch.insert(myUsers, companion, mode: InsertMode.insertOrReplace);
     });
   }
 
-  Future<List<RoomRecordWithStateRecords>> getRoomRecords(
+  Future<List<RoomRecordWithStateRecords>> getRoomRecordsByIDs(
     Iterable<String>? roomIds,
   ) {
     final nameChangeAlias = alias(roomEvents, 'name_change');
@@ -249,17 +243,82 @@ class Database extends _$Database {
         .get();
   }
 
+  Future<List<RoomRecordWithStateRecords>> getRoomRecords(
+      int limit,
+      int offset
+      ) {
+    final nameChangeAlias = alias(roomEvents, 'name_change');
+    final avatarChangeAlias = alias(roomEvents, 'avatar_change');
+    final topicChangeAlias = alias(roomEvents, 'topic_change');
+    final powerLevelsChangeAlias = alias(roomEvents, 'power_levels_change');
+    final joinRulesChangeAlias = alias(roomEvents, 'join_rules_change');
+    final canonicalAliasChangeAlias = alias(
+      roomEvents,
+      'canonical_alias_change',
+    );
+    final creationAlias = alias(roomEvents, 'creation');
+    final upgradeAlias = alias(roomEvents, 'upgrade');
+
+    final query = select(rooms).join([
+      leftOuterJoin(
+        nameChangeAlias,
+        nameChangeAlias.id.equalsExp(rooms.nameChangeEventId),
+      ),
+      leftOuterJoin(
+        avatarChangeAlias,
+        avatarChangeAlias.id.equalsExp(rooms.avatarChangeEventId),
+      ),
+      leftOuterJoin(
+        topicChangeAlias,
+        topicChangeAlias.id.equalsExp(rooms.topicChangeEventId),
+      ),
+      leftOuterJoin(
+        powerLevelsChangeAlias,
+        powerLevelsChangeAlias.id.equalsExp(rooms.powerLevelsChangeEventId),
+      ),
+      leftOuterJoin(
+        joinRulesChangeAlias,
+        joinRulesChangeAlias.id.equalsExp(rooms.joinRulesChangeEventId),
+      ),
+      leftOuterJoin(
+        canonicalAliasChangeAlias,
+        canonicalAliasChangeAlias.id.equalsExp(
+          rooms.canonicalAliasChangeEventId,
+        ),
+      ),
+      leftOuterJoin(
+        creationAlias,
+        creationAlias.id.equalsExp(rooms.creationEventId),
+      ),
+      leftOuterJoin(
+        upgradeAlias,
+        upgradeAlias.id.equalsExp(rooms.upgradeEventId),
+      ),
+    ]);
+    query.orderBy([OrderingTerm(expression: rooms.lastMessageTimeInterval, mode: OrderingMode.desc)]);
+    query.limit(limit, offset: offset);
+
+    return query
+        .map(
+          (r) => RoomRecordWithStateRecords(
+        roomRecord: r.readTable(rooms),
+        nameChangeRecord: r.readTableOrNull(nameChangeAlias),
+        avatarChangeRecord: r.readTableOrNull(avatarChangeAlias),
+        topicChangeRecord: r.readTableOrNull(topicChangeAlias),
+        powerLevelsChangeRecord: r.readTableOrNull(powerLevelsChangeAlias),
+        joinRulesChangeRecord: r.readTableOrNull(joinRulesChangeAlias),
+        canonicalAliasChangeRecord:
+        r.readTableOrNull(canonicalAliasChangeAlias),
+        creationRecord: r.readTableOrNull(creationAlias),
+        upgradeRecord: r.readTableOrNull(upgradeAlias),
+      ),
+    )
+        .get();
+  }
+
   Future<void> setRooms(List<RoomsCompanion> companions) async {
-    // TODO: Use insertOnConflictUpdate when released
     await batch((batch) async {
-      for (final companion in companions) {
-        batch.insert(rooms, companion, mode: InsertMode.insertOrReplace);
-        batch.update<$RoomsTable, RoomRecord>(
-          rooms,
-          companion,
-          where: (tbl) => tbl.id.equals(companion.id.value),
-        );
-      }
+      batch.insertAllOnConflictUpdate(rooms, companions);
     });
   }
 
@@ -311,17 +370,7 @@ class Database extends _$Database {
 
   Future<void> setRoomEventRecords(List<RoomEventRecord> records) async {
     await batch((batch) async {
-      batch.insertAll(
-        roomEvents,
-        records,
-        mode: InsertMode.insertOrReplace,
-      );
-      batch.deleteWhere<$RoomEventsTable, RoomEventRecord>(
-        roomEvents,
-        (tbl) => tbl.id.isIn(
-          records.map((r) => r.transactionId).where((txnId) => txnId != null),
-        ),
-      );
+      batch.insertAllOnConflictUpdate(roomEvents, records);
     });
   }
 
@@ -355,25 +404,19 @@ class Database extends _$Database {
     List<EphemeralEventRecord> records,
   ) async {
     await batch((batch) async {
-      batch.insertAll(
+      batch.insertAllOnConflictUpdate(
         ephemeralEvents,
         records,
-        mode: InsertMode.insertOrReplace,
       );
     });
   }
 
   Future<void> setDeviceRecords(List<DevicesCompanion> companions) async {
-    // TODO: Use insertOnConflictUpdate when released
     await batch((batch) async {
-      for (final companion in companions) {
-        batch.insert(devices, companion, mode: InsertMode.insertOrIgnore);
-        batch.update<$DevicesTable, DeviceRecord>(
-          devices,
-          companion,
-          where: (tbl) => tbl.id.equals(companion.id.value),
-        );
-      }
+      batch.insertAllOnConflictUpdate(
+        devices,
+        companions,
+      );
     });
   }
 
