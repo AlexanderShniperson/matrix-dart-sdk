@@ -1,0 +1,6 @@
+import './database.dart';
+
+CREATE INDEX IF NOT EXISTS ix_devices_user ON devices(user_id);
+CREATE INDEX IF NOT EXISTS ix_myuser_device ON my_users(current_device_id);
+CREATE INDEX IF NOT EXISTS ix_roomevents ON room_events(room_id, sender_id, transaction_id);
+CREATE INDEX IF NOT EXISTS ix_rooms ON rooms(name_change_event_id, avatar_change_event_id, topic_change_event_id, power_levels_change_event_id, join_rules_change_event_id, canonical_alias_change_event_id, creation_event_id, upgrade_event_id, direct_user_id);

@@ -7,6 +7,297 @@ part of 'database.dart';
 // **************************************************************************
 
 // ignore_for_file: unnecessary_brace_in_string_interps, unnecessary_this
+class DeviceRecord extends DataClass implements Insertable<DeviceRecord> {
+  final String id;
+  final String userId;
+  final String? name;
+  final DateTime? lastSeen;
+  final String? lastIpAddress;
+  DeviceRecord(
+      {required this.id,
+      required this.userId,
+      this.name,
+      this.lastSeen,
+      this.lastIpAddress});
+  factory DeviceRecord.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return DeviceRecord(
+      id: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
+      userId: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}user_id'])!,
+      name: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}name']),
+      lastSeen: const DateTimeType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}last_seen']),
+      lastIpAddress: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}last_ip_address']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['user_id'] = Variable<String>(userId);
+    if (!nullToAbsent || name != null) {
+      map['name'] = Variable<String?>(name);
+    }
+    if (!nullToAbsent || lastSeen != null) {
+      map['last_seen'] = Variable<DateTime?>(lastSeen);
+    }
+    if (!nullToAbsent || lastIpAddress != null) {
+      map['last_ip_address'] = Variable<String?>(lastIpAddress);
+    }
+    return map;
+  }
+
+  DevicesCompanion toCompanion(bool nullToAbsent) {
+    return DevicesCompanion(
+      id: Value(id),
+      userId: Value(userId),
+      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      lastSeen: lastSeen == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSeen),
+      lastIpAddress: lastIpAddress == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastIpAddress),
+    );
+  }
+
+  factory DeviceRecord.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return DeviceRecord(
+      id: serializer.fromJson<String>(json['id']),
+      userId: serializer.fromJson<String>(json['userId']),
+      name: serializer.fromJson<String?>(json['name']),
+      lastSeen: serializer.fromJson<DateTime?>(json['lastSeen']),
+      lastIpAddress: serializer.fromJson<String?>(json['lastIpAddress']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'userId': serializer.toJson<String>(userId),
+      'name': serializer.toJson<String?>(name),
+      'lastSeen': serializer.toJson<DateTime?>(lastSeen),
+      'lastIpAddress': serializer.toJson<String?>(lastIpAddress),
+    };
+  }
+
+  DeviceRecord copyWith(
+          {String? id,
+          String? userId,
+          String? name,
+          DateTime? lastSeen,
+          String? lastIpAddress}) =>
+      DeviceRecord(
+        id: id ?? this.id,
+        userId: userId ?? this.userId,
+        name: name ?? this.name,
+        lastSeen: lastSeen ?? this.lastSeen,
+        lastIpAddress: lastIpAddress ?? this.lastIpAddress,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('DeviceRecord(')
+          ..write('id: $id, ')
+          ..write('userId: $userId, ')
+          ..write('name: $name, ')
+          ..write('lastSeen: $lastSeen, ')
+          ..write('lastIpAddress: $lastIpAddress')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(
+      id.hashCode,
+      $mrjc(
+          userId.hashCode,
+          $mrjc(name.hashCode,
+              $mrjc(lastSeen.hashCode, lastIpAddress.hashCode)))));
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DeviceRecord &&
+          other.id == this.id &&
+          other.userId == this.userId &&
+          other.name == this.name &&
+          other.lastSeen == this.lastSeen &&
+          other.lastIpAddress == this.lastIpAddress);
+}
+
+class DevicesCompanion extends UpdateCompanion<DeviceRecord> {
+  final Value<String> id;
+  final Value<String> userId;
+  final Value<String?> name;
+  final Value<DateTime?> lastSeen;
+  final Value<String?> lastIpAddress;
+  const DevicesCompanion({
+    this.id = const Value.absent(),
+    this.userId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.lastSeen = const Value.absent(),
+    this.lastIpAddress = const Value.absent(),
+  });
+  DevicesCompanion.insert({
+    required String id,
+    required String userId,
+    this.name = const Value.absent(),
+    this.lastSeen = const Value.absent(),
+    this.lastIpAddress = const Value.absent(),
+  })  : id = Value(id),
+        userId = Value(userId);
+  static Insertable<DeviceRecord> custom({
+    Expression<String>? id,
+    Expression<String>? userId,
+    Expression<String?>? name,
+    Expression<DateTime?>? lastSeen,
+    Expression<String?>? lastIpAddress,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (userId != null) 'user_id': userId,
+      if (name != null) 'name': name,
+      if (lastSeen != null) 'last_seen': lastSeen,
+      if (lastIpAddress != null) 'last_ip_address': lastIpAddress,
+    });
+  }
+
+  DevicesCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? userId,
+      Value<String?>? name,
+      Value<DateTime?>? lastSeen,
+      Value<String?>? lastIpAddress}) {
+    return DevicesCompanion(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      name: name ?? this.name,
+      lastSeen: lastSeen ?? this.lastSeen,
+      lastIpAddress: lastIpAddress ?? this.lastIpAddress,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String?>(name.value);
+    }
+    if (lastSeen.present) {
+      map['last_seen'] = Variable<DateTime?>(lastSeen.value);
+    }
+    if (lastIpAddress.present) {
+      map['last_ip_address'] = Variable<String?>(lastIpAddress.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DevicesCompanion(')
+          ..write('id: $id, ')
+          ..write('userId: $userId, ')
+          ..write('name: $name, ')
+          ..write('lastSeen: $lastSeen, ')
+          ..write('lastIpAddress: $lastIpAddress')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DevicesTable extends Devices
+    with TableInfo<$DevicesTable, DeviceRecord> {
+  final GeneratedDatabase _db;
+  final String? _alias;
+  $DevicesTable(this._db, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  late final GeneratedColumn<String?> id = GeneratedColumn<String?>(
+      'id', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true);
+  final VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  late final GeneratedColumn<String?> userId = GeneratedColumn<String?>(
+      'user_id', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true);
+  final VerificationMeta _nameMeta = const VerificationMeta('name');
+  late final GeneratedColumn<String?> name = GeneratedColumn<String?>(
+      'name', aliasedName, true,
+      typeName: 'TEXT', requiredDuringInsert: false);
+  final VerificationMeta _lastSeenMeta = const VerificationMeta('lastSeen');
+  late final GeneratedColumn<DateTime?> lastSeen = GeneratedColumn<DateTime?>(
+      'last_seen', aliasedName, true,
+      typeName: 'INTEGER', requiredDuringInsert: false);
+  final VerificationMeta _lastIpAddressMeta =
+      const VerificationMeta('lastIpAddress');
+  late final GeneratedColumn<String?> lastIpAddress = GeneratedColumn<String?>(
+      'last_ip_address', aliasedName, true,
+      typeName: 'TEXT', requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, userId, name, lastSeen, lastIpAddress];
+  @override
+  String get aliasedName => _alias ?? 'devices';
+  @override
+  String get actualTableName => 'devices';
+  @override
+  VerificationContext validateIntegrity(Insertable<DeviceRecord> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(_userIdMeta,
+          userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
+    } else if (isInserting) {
+      context.missing(_userIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    }
+    if (data.containsKey('last_seen')) {
+      context.handle(_lastSeenMeta,
+          lastSeen.isAcceptableOrUnknown(data['last_seen']!, _lastSeenMeta));
+    }
+    if (data.containsKey('last_ip_address')) {
+      context.handle(
+          _lastIpAddressMeta,
+          lastIpAddress.isAcceptableOrUnknown(
+              data['last_ip_address']!, _lastIpAddressMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DeviceRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return DeviceRecord.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  $DevicesTable createAlias(String alias) {
+    return $DevicesTable(_db, alias);
+  }
+}
+
 class MyUserRecord extends DataClass implements Insertable<MyUserRecord> {
   final String? homeserver;
   final String? id;
@@ -469,6 +760,577 @@ class $MyUsersTable extends MyUsers
   @override
   $MyUsersTable createAlias(String alias) {
     return $MyUsersTable(_db, alias);
+  }
+}
+
+class RoomEventRecord extends DataClass implements Insertable<RoomEventRecord> {
+  final String id;
+  final String type;
+  final String roomId;
+  final String senderId;
+  final DateTime? time;
+  final String? content;
+  final String? previousContent;
+  final String? sentState;
+  final String? transactionId;
+  final String? stateKey;
+  final String? redacts;
+  final bool inTimeline;
+  RoomEventRecord(
+      {required this.id,
+      required this.type,
+      required this.roomId,
+      required this.senderId,
+      this.time,
+      this.content,
+      this.previousContent,
+      this.sentState,
+      this.transactionId,
+      this.stateKey,
+      this.redacts,
+      required this.inTimeline});
+  factory RoomEventRecord.fromData(
+      Map<String, dynamic> data, GeneratedDatabase db,
+      {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return RoomEventRecord(
+      id: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
+      type: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}type'])!,
+      roomId: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}room_id'])!,
+      senderId: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}sender_id'])!,
+      time: const DateTimeType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}time']),
+      content: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}content']),
+      previousContent: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}previous_content']),
+      sentState: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}sent_state']),
+      transactionId: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}transaction_id']),
+      stateKey: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}state_key']),
+      redacts: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}redacts']),
+      inTimeline: const BoolType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}in_timeline'])!,
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['type'] = Variable<String>(type);
+    map['room_id'] = Variable<String>(roomId);
+    map['sender_id'] = Variable<String>(senderId);
+    if (!nullToAbsent || time != null) {
+      map['time'] = Variable<DateTime?>(time);
+    }
+    if (!nullToAbsent || content != null) {
+      map['content'] = Variable<String?>(content);
+    }
+    if (!nullToAbsent || previousContent != null) {
+      map['previous_content'] = Variable<String?>(previousContent);
+    }
+    if (!nullToAbsent || sentState != null) {
+      map['sent_state'] = Variable<String?>(sentState);
+    }
+    if (!nullToAbsent || transactionId != null) {
+      map['transaction_id'] = Variable<String?>(transactionId);
+    }
+    if (!nullToAbsent || stateKey != null) {
+      map['state_key'] = Variable<String?>(stateKey);
+    }
+    if (!nullToAbsent || redacts != null) {
+      map['redacts'] = Variable<String?>(redacts);
+    }
+    map['in_timeline'] = Variable<bool>(inTimeline);
+    return map;
+  }
+
+  RoomEventsCompanion toCompanion(bool nullToAbsent) {
+    return RoomEventsCompanion(
+      id: Value(id),
+      type: Value(type),
+      roomId: Value(roomId),
+      senderId: Value(senderId),
+      time: time == null && nullToAbsent ? const Value.absent() : Value(time),
+      content: content == null && nullToAbsent
+          ? const Value.absent()
+          : Value(content),
+      previousContent: previousContent == null && nullToAbsent
+          ? const Value.absent()
+          : Value(previousContent),
+      sentState: sentState == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sentState),
+      transactionId: transactionId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(transactionId),
+      stateKey: stateKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(stateKey),
+      redacts: redacts == null && nullToAbsent
+          ? const Value.absent()
+          : Value(redacts),
+      inTimeline: Value(inTimeline),
+    );
+  }
+
+  factory RoomEventRecord.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return RoomEventRecord(
+      id: serializer.fromJson<String>(json['id']),
+      type: serializer.fromJson<String>(json['type']),
+      roomId: serializer.fromJson<String>(json['roomId']),
+      senderId: serializer.fromJson<String>(json['senderId']),
+      time: serializer.fromJson<DateTime?>(json['time']),
+      content: serializer.fromJson<String?>(json['content']),
+      previousContent: serializer.fromJson<String?>(json['previousContent']),
+      sentState: serializer.fromJson<String?>(json['sentState']),
+      transactionId: serializer.fromJson<String?>(json['transactionId']),
+      stateKey: serializer.fromJson<String?>(json['stateKey']),
+      redacts: serializer.fromJson<String?>(json['redacts']),
+      inTimeline: serializer.fromJson<bool>(json['inTimeline']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'type': serializer.toJson<String>(type),
+      'roomId': serializer.toJson<String>(roomId),
+      'senderId': serializer.toJson<String>(senderId),
+      'time': serializer.toJson<DateTime?>(time),
+      'content': serializer.toJson<String?>(content),
+      'previousContent': serializer.toJson<String?>(previousContent),
+      'sentState': serializer.toJson<String?>(sentState),
+      'transactionId': serializer.toJson<String?>(transactionId),
+      'stateKey': serializer.toJson<String?>(stateKey),
+      'redacts': serializer.toJson<String?>(redacts),
+      'inTimeline': serializer.toJson<bool>(inTimeline),
+    };
+  }
+
+  RoomEventRecord copyWith(
+          {String? id,
+          String? type,
+          String? roomId,
+          String? senderId,
+          DateTime? time,
+          String? content,
+          String? previousContent,
+          String? sentState,
+          String? transactionId,
+          String? stateKey,
+          String? redacts,
+          bool? inTimeline}) =>
+      RoomEventRecord(
+        id: id ?? this.id,
+        type: type ?? this.type,
+        roomId: roomId ?? this.roomId,
+        senderId: senderId ?? this.senderId,
+        time: time ?? this.time,
+        content: content ?? this.content,
+        previousContent: previousContent ?? this.previousContent,
+        sentState: sentState ?? this.sentState,
+        transactionId: transactionId ?? this.transactionId,
+        stateKey: stateKey ?? this.stateKey,
+        redacts: redacts ?? this.redacts,
+        inTimeline: inTimeline ?? this.inTimeline,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('RoomEventRecord(')
+          ..write('id: $id, ')
+          ..write('type: $type, ')
+          ..write('roomId: $roomId, ')
+          ..write('senderId: $senderId, ')
+          ..write('time: $time, ')
+          ..write('content: $content, ')
+          ..write('previousContent: $previousContent, ')
+          ..write('sentState: $sentState, ')
+          ..write('transactionId: $transactionId, ')
+          ..write('stateKey: $stateKey, ')
+          ..write('redacts: $redacts, ')
+          ..write('inTimeline: $inTimeline')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(
+      id.hashCode,
+      $mrjc(
+          type.hashCode,
+          $mrjc(
+              roomId.hashCode,
+              $mrjc(
+                  senderId.hashCode,
+                  $mrjc(
+                      time.hashCode,
+                      $mrjc(
+                          content.hashCode,
+                          $mrjc(
+                              previousContent.hashCode,
+                              $mrjc(
+                                  sentState.hashCode,
+                                  $mrjc(
+                                      transactionId.hashCode,
+                                      $mrjc(
+                                          stateKey.hashCode,
+                                          $mrjc(redacts.hashCode,
+                                              inTimeline.hashCode))))))))))));
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is RoomEventRecord &&
+          other.id == this.id &&
+          other.type == this.type &&
+          other.roomId == this.roomId &&
+          other.senderId == this.senderId &&
+          other.time == this.time &&
+          other.content == this.content &&
+          other.previousContent == this.previousContent &&
+          other.sentState == this.sentState &&
+          other.transactionId == this.transactionId &&
+          other.stateKey == this.stateKey &&
+          other.redacts == this.redacts &&
+          other.inTimeline == this.inTimeline);
+}
+
+class RoomEventsCompanion extends UpdateCompanion<RoomEventRecord> {
+  final Value<String> id;
+  final Value<String> type;
+  final Value<String> roomId;
+  final Value<String> senderId;
+  final Value<DateTime?> time;
+  final Value<String?> content;
+  final Value<String?> previousContent;
+  final Value<String?> sentState;
+  final Value<String?> transactionId;
+  final Value<String?> stateKey;
+  final Value<String?> redacts;
+  final Value<bool> inTimeline;
+  const RoomEventsCompanion({
+    this.id = const Value.absent(),
+    this.type = const Value.absent(),
+    this.roomId = const Value.absent(),
+    this.senderId = const Value.absent(),
+    this.time = const Value.absent(),
+    this.content = const Value.absent(),
+    this.previousContent = const Value.absent(),
+    this.sentState = const Value.absent(),
+    this.transactionId = const Value.absent(),
+    this.stateKey = const Value.absent(),
+    this.redacts = const Value.absent(),
+    this.inTimeline = const Value.absent(),
+  });
+  RoomEventsCompanion.insert({
+    required String id,
+    required String type,
+    required String roomId,
+    required String senderId,
+    this.time = const Value.absent(),
+    this.content = const Value.absent(),
+    this.previousContent = const Value.absent(),
+    this.sentState = const Value.absent(),
+    this.transactionId = const Value.absent(),
+    this.stateKey = const Value.absent(),
+    this.redacts = const Value.absent(),
+    required bool inTimeline,
+  })  : id = Value(id),
+        type = Value(type),
+        roomId = Value(roomId),
+        senderId = Value(senderId),
+        inTimeline = Value(inTimeline);
+  static Insertable<RoomEventRecord> custom({
+    Expression<String>? id,
+    Expression<String>? type,
+    Expression<String>? roomId,
+    Expression<String>? senderId,
+    Expression<DateTime?>? time,
+    Expression<String?>? content,
+    Expression<String?>? previousContent,
+    Expression<String?>? sentState,
+    Expression<String?>? transactionId,
+    Expression<String?>? stateKey,
+    Expression<String?>? redacts,
+    Expression<bool>? inTimeline,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (type != null) 'type': type,
+      if (roomId != null) 'room_id': roomId,
+      if (senderId != null) 'sender_id': senderId,
+      if (time != null) 'time': time,
+      if (content != null) 'content': content,
+      if (previousContent != null) 'previous_content': previousContent,
+      if (sentState != null) 'sent_state': sentState,
+      if (transactionId != null) 'transaction_id': transactionId,
+      if (stateKey != null) 'state_key': stateKey,
+      if (redacts != null) 'redacts': redacts,
+      if (inTimeline != null) 'in_timeline': inTimeline,
+    });
+  }
+
+  RoomEventsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? type,
+      Value<String>? roomId,
+      Value<String>? senderId,
+      Value<DateTime?>? time,
+      Value<String?>? content,
+      Value<String?>? previousContent,
+      Value<String?>? sentState,
+      Value<String?>? transactionId,
+      Value<String?>? stateKey,
+      Value<String?>? redacts,
+      Value<bool>? inTimeline}) {
+    return RoomEventsCompanion(
+      id: id ?? this.id,
+      type: type ?? this.type,
+      roomId: roomId ?? this.roomId,
+      senderId: senderId ?? this.senderId,
+      time: time ?? this.time,
+      content: content ?? this.content,
+      previousContent: previousContent ?? this.previousContent,
+      sentState: sentState ?? this.sentState,
+      transactionId: transactionId ?? this.transactionId,
+      stateKey: stateKey ?? this.stateKey,
+      redacts: redacts ?? this.redacts,
+      inTimeline: inTimeline ?? this.inTimeline,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (roomId.present) {
+      map['room_id'] = Variable<String>(roomId.value);
+    }
+    if (senderId.present) {
+      map['sender_id'] = Variable<String>(senderId.value);
+    }
+    if (time.present) {
+      map['time'] = Variable<DateTime?>(time.value);
+    }
+    if (content.present) {
+      map['content'] = Variable<String?>(content.value);
+    }
+    if (previousContent.present) {
+      map['previous_content'] = Variable<String?>(previousContent.value);
+    }
+    if (sentState.present) {
+      map['sent_state'] = Variable<String?>(sentState.value);
+    }
+    if (transactionId.present) {
+      map['transaction_id'] = Variable<String?>(transactionId.value);
+    }
+    if (stateKey.present) {
+      map['state_key'] = Variable<String?>(stateKey.value);
+    }
+    if (redacts.present) {
+      map['redacts'] = Variable<String?>(redacts.value);
+    }
+    if (inTimeline.present) {
+      map['in_timeline'] = Variable<bool>(inTimeline.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RoomEventsCompanion(')
+          ..write('id: $id, ')
+          ..write('type: $type, ')
+          ..write('roomId: $roomId, ')
+          ..write('senderId: $senderId, ')
+          ..write('time: $time, ')
+          ..write('content: $content, ')
+          ..write('previousContent: $previousContent, ')
+          ..write('sentState: $sentState, ')
+          ..write('transactionId: $transactionId, ')
+          ..write('stateKey: $stateKey, ')
+          ..write('redacts: $redacts, ')
+          ..write('inTimeline: $inTimeline')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $RoomEventsTable extends RoomEvents
+    with TableInfo<$RoomEventsTable, RoomEventRecord> {
+  final GeneratedDatabase _db;
+  final String? _alias;
+  $RoomEventsTable(this._db, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  late final GeneratedColumn<String?> id = GeneratedColumn<String?>(
+      'id', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true);
+  final VerificationMeta _typeMeta = const VerificationMeta('type');
+  late final GeneratedColumn<String?> type = GeneratedColumn<String?>(
+      'type', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true);
+  final VerificationMeta _roomIdMeta = const VerificationMeta('roomId');
+  late final GeneratedColumn<String?> roomId = GeneratedColumn<String?>(
+      'room_id', aliasedName, false,
+      typeName: 'TEXT',
+      requiredDuringInsert: true,
+      $customConstraints: 'REFERENCES room_events(id)');
+  final VerificationMeta _senderIdMeta = const VerificationMeta('senderId');
+  late final GeneratedColumn<String?> senderId = GeneratedColumn<String?>(
+      'sender_id', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true);
+  final VerificationMeta _timeMeta = const VerificationMeta('time');
+  late final GeneratedColumn<DateTime?> time = GeneratedColumn<DateTime?>(
+      'time', aliasedName, true,
+      typeName: 'INTEGER', requiredDuringInsert: false);
+  final VerificationMeta _contentMeta = const VerificationMeta('content');
+  late final GeneratedColumn<String?> content = GeneratedColumn<String?>(
+      'content', aliasedName, true,
+      typeName: 'TEXT', requiredDuringInsert: false);
+  final VerificationMeta _previousContentMeta =
+      const VerificationMeta('previousContent');
+  late final GeneratedColumn<String?> previousContent =
+      GeneratedColumn<String?>('previous_content', aliasedName, true,
+          typeName: 'TEXT', requiredDuringInsert: false);
+  final VerificationMeta _sentStateMeta = const VerificationMeta('sentState');
+  late final GeneratedColumn<String?> sentState = GeneratedColumn<String?>(
+      'sent_state', aliasedName, true,
+      typeName: 'TEXT', requiredDuringInsert: false);
+  final VerificationMeta _transactionIdMeta =
+      const VerificationMeta('transactionId');
+  late final GeneratedColumn<String?> transactionId = GeneratedColumn<String?>(
+      'transaction_id', aliasedName, true,
+      typeName: 'TEXT', requiredDuringInsert: false);
+  final VerificationMeta _stateKeyMeta = const VerificationMeta('stateKey');
+  late final GeneratedColumn<String?> stateKey = GeneratedColumn<String?>(
+      'state_key', aliasedName, true,
+      typeName: 'TEXT', requiredDuringInsert: false);
+  final VerificationMeta _redactsMeta = const VerificationMeta('redacts');
+  late final GeneratedColumn<String?> redacts = GeneratedColumn<String?>(
+      'redacts', aliasedName, true,
+      typeName: 'TEXT', requiredDuringInsert: false);
+  final VerificationMeta _inTimelineMeta = const VerificationMeta('inTimeline');
+  late final GeneratedColumn<bool?> inTimeline = GeneratedColumn<bool?>(
+      'in_timeline', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: true,
+      defaultConstraints: 'CHECK (in_timeline IN (0, 1))');
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        type,
+        roomId,
+        senderId,
+        time,
+        content,
+        previousContent,
+        sentState,
+        transactionId,
+        stateKey,
+        redacts,
+        inTimeline
+      ];
+  @override
+  String get aliasedName => _alias ?? 'room_events';
+  @override
+  String get actualTableName => 'room_events';
+  @override
+  VerificationContext validateIntegrity(Insertable<RoomEventRecord> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+          _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('room_id')) {
+      context.handle(_roomIdMeta,
+          roomId.isAcceptableOrUnknown(data['room_id']!, _roomIdMeta));
+    } else if (isInserting) {
+      context.missing(_roomIdMeta);
+    }
+    if (data.containsKey('sender_id')) {
+      context.handle(_senderIdMeta,
+          senderId.isAcceptableOrUnknown(data['sender_id']!, _senderIdMeta));
+    } else if (isInserting) {
+      context.missing(_senderIdMeta);
+    }
+    if (data.containsKey('time')) {
+      context.handle(
+          _timeMeta, time.isAcceptableOrUnknown(data['time']!, _timeMeta));
+    }
+    if (data.containsKey('content')) {
+      context.handle(_contentMeta,
+          content.isAcceptableOrUnknown(data['content']!, _contentMeta));
+    }
+    if (data.containsKey('previous_content')) {
+      context.handle(
+          _previousContentMeta,
+          previousContent.isAcceptableOrUnknown(
+              data['previous_content']!, _previousContentMeta));
+    }
+    if (data.containsKey('sent_state')) {
+      context.handle(_sentStateMeta,
+          sentState.isAcceptableOrUnknown(data['sent_state']!, _sentStateMeta));
+    }
+    if (data.containsKey('transaction_id')) {
+      context.handle(
+          _transactionIdMeta,
+          transactionId.isAcceptableOrUnknown(
+              data['transaction_id']!, _transactionIdMeta));
+    }
+    if (data.containsKey('state_key')) {
+      context.handle(_stateKeyMeta,
+          stateKey.isAcceptableOrUnknown(data['state_key']!, _stateKeyMeta));
+    }
+    if (data.containsKey('redacts')) {
+      context.handle(_redactsMeta,
+          redacts.isAcceptableOrUnknown(data['redacts']!, _redactsMeta));
+    }
+    if (data.containsKey('in_timeline')) {
+      context.handle(
+          _inTimelineMeta,
+          inTimeline.isAcceptableOrUnknown(
+              data['in_timeline']!, _inTimelineMeta));
+    } else if (isInserting) {
+      context.missing(_inTimelineMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  RoomEventRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return RoomEventRecord.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  $RoomEventsTable createAlias(String alias) {
+    return $RoomEventsTable(_db, alias);
   }
 }
 
@@ -1446,577 +2308,6 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, RoomRecord> {
   }
 }
 
-class RoomEventRecord extends DataClass implements Insertable<RoomEventRecord> {
-  final String id;
-  final String type;
-  final String roomId;
-  final String senderId;
-  final DateTime? time;
-  final String? content;
-  final String? previousContent;
-  final String? sentState;
-  final String? transactionId;
-  final String? stateKey;
-  final String? redacts;
-  final bool inTimeline;
-  RoomEventRecord(
-      {required this.id,
-      required this.type,
-      required this.roomId,
-      required this.senderId,
-      this.time,
-      this.content,
-      this.previousContent,
-      this.sentState,
-      this.transactionId,
-      this.stateKey,
-      this.redacts,
-      required this.inTimeline});
-  factory RoomEventRecord.fromData(
-      Map<String, dynamic> data, GeneratedDatabase db,
-      {String? prefix}) {
-    final effectivePrefix = prefix ?? '';
-    return RoomEventRecord(
-      id: const StringType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
-      type: const StringType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}type'])!,
-      roomId: const StringType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}room_id'])!,
-      senderId: const StringType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}sender_id'])!,
-      time: const DateTimeType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}time']),
-      content: const StringType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}content']),
-      previousContent: const StringType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}previous_content']),
-      sentState: const StringType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}sent_state']),
-      transactionId: const StringType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}transaction_id']),
-      stateKey: const StringType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}state_key']),
-      redacts: const StringType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}redacts']),
-      inTimeline: const BoolType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}in_timeline'])!,
-    );
-  }
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<String>(id);
-    map['type'] = Variable<String>(type);
-    map['room_id'] = Variable<String>(roomId);
-    map['sender_id'] = Variable<String>(senderId);
-    if (!nullToAbsent || time != null) {
-      map['time'] = Variable<DateTime?>(time);
-    }
-    if (!nullToAbsent || content != null) {
-      map['content'] = Variable<String?>(content);
-    }
-    if (!nullToAbsent || previousContent != null) {
-      map['previous_content'] = Variable<String?>(previousContent);
-    }
-    if (!nullToAbsent || sentState != null) {
-      map['sent_state'] = Variable<String?>(sentState);
-    }
-    if (!nullToAbsent || transactionId != null) {
-      map['transaction_id'] = Variable<String?>(transactionId);
-    }
-    if (!nullToAbsent || stateKey != null) {
-      map['state_key'] = Variable<String?>(stateKey);
-    }
-    if (!nullToAbsent || redacts != null) {
-      map['redacts'] = Variable<String?>(redacts);
-    }
-    map['in_timeline'] = Variable<bool>(inTimeline);
-    return map;
-  }
-
-  RoomEventsCompanion toCompanion(bool nullToAbsent) {
-    return RoomEventsCompanion(
-      id: Value(id),
-      type: Value(type),
-      roomId: Value(roomId),
-      senderId: Value(senderId),
-      time: time == null && nullToAbsent ? const Value.absent() : Value(time),
-      content: content == null && nullToAbsent
-          ? const Value.absent()
-          : Value(content),
-      previousContent: previousContent == null && nullToAbsent
-          ? const Value.absent()
-          : Value(previousContent),
-      sentState: sentState == null && nullToAbsent
-          ? const Value.absent()
-          : Value(sentState),
-      transactionId: transactionId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(transactionId),
-      stateKey: stateKey == null && nullToAbsent
-          ? const Value.absent()
-          : Value(stateKey),
-      redacts: redacts == null && nullToAbsent
-          ? const Value.absent()
-          : Value(redacts),
-      inTimeline: Value(inTimeline),
-    );
-  }
-
-  factory RoomEventRecord.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
-    return RoomEventRecord(
-      id: serializer.fromJson<String>(json['id']),
-      type: serializer.fromJson<String>(json['type']),
-      roomId: serializer.fromJson<String>(json['roomId']),
-      senderId: serializer.fromJson<String>(json['senderId']),
-      time: serializer.fromJson<DateTime?>(json['time']),
-      content: serializer.fromJson<String?>(json['content']),
-      previousContent: serializer.fromJson<String?>(json['previousContent']),
-      sentState: serializer.fromJson<String?>(json['sentState']),
-      transactionId: serializer.fromJson<String?>(json['transactionId']),
-      stateKey: serializer.fromJson<String?>(json['stateKey']),
-      redacts: serializer.fromJson<String?>(json['redacts']),
-      inTimeline: serializer.fromJson<bool>(json['inTimeline']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<String>(id),
-      'type': serializer.toJson<String>(type),
-      'roomId': serializer.toJson<String>(roomId),
-      'senderId': serializer.toJson<String>(senderId),
-      'time': serializer.toJson<DateTime?>(time),
-      'content': serializer.toJson<String?>(content),
-      'previousContent': serializer.toJson<String?>(previousContent),
-      'sentState': serializer.toJson<String?>(sentState),
-      'transactionId': serializer.toJson<String?>(transactionId),
-      'stateKey': serializer.toJson<String?>(stateKey),
-      'redacts': serializer.toJson<String?>(redacts),
-      'inTimeline': serializer.toJson<bool>(inTimeline),
-    };
-  }
-
-  RoomEventRecord copyWith(
-          {String? id,
-          String? type,
-          String? roomId,
-          String? senderId,
-          DateTime? time,
-          String? content,
-          String? previousContent,
-          String? sentState,
-          String? transactionId,
-          String? stateKey,
-          String? redacts,
-          bool? inTimeline}) =>
-      RoomEventRecord(
-        id: id ?? this.id,
-        type: type ?? this.type,
-        roomId: roomId ?? this.roomId,
-        senderId: senderId ?? this.senderId,
-        time: time ?? this.time,
-        content: content ?? this.content,
-        previousContent: previousContent ?? this.previousContent,
-        sentState: sentState ?? this.sentState,
-        transactionId: transactionId ?? this.transactionId,
-        stateKey: stateKey ?? this.stateKey,
-        redacts: redacts ?? this.redacts,
-        inTimeline: inTimeline ?? this.inTimeline,
-      );
-  @override
-  String toString() {
-    return (StringBuffer('RoomEventRecord(')
-          ..write('id: $id, ')
-          ..write('type: $type, ')
-          ..write('roomId: $roomId, ')
-          ..write('senderId: $senderId, ')
-          ..write('time: $time, ')
-          ..write('content: $content, ')
-          ..write('previousContent: $previousContent, ')
-          ..write('sentState: $sentState, ')
-          ..write('transactionId: $transactionId, ')
-          ..write('stateKey: $stateKey, ')
-          ..write('redacts: $redacts, ')
-          ..write('inTimeline: $inTimeline')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => $mrjf($mrjc(
-      id.hashCode,
-      $mrjc(
-          type.hashCode,
-          $mrjc(
-              roomId.hashCode,
-              $mrjc(
-                  senderId.hashCode,
-                  $mrjc(
-                      time.hashCode,
-                      $mrjc(
-                          content.hashCode,
-                          $mrjc(
-                              previousContent.hashCode,
-                              $mrjc(
-                                  sentState.hashCode,
-                                  $mrjc(
-                                      transactionId.hashCode,
-                                      $mrjc(
-                                          stateKey.hashCode,
-                                          $mrjc(redacts.hashCode,
-                                              inTimeline.hashCode))))))))))));
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is RoomEventRecord &&
-          other.id == this.id &&
-          other.type == this.type &&
-          other.roomId == this.roomId &&
-          other.senderId == this.senderId &&
-          other.time == this.time &&
-          other.content == this.content &&
-          other.previousContent == this.previousContent &&
-          other.sentState == this.sentState &&
-          other.transactionId == this.transactionId &&
-          other.stateKey == this.stateKey &&
-          other.redacts == this.redacts &&
-          other.inTimeline == this.inTimeline);
-}
-
-class RoomEventsCompanion extends UpdateCompanion<RoomEventRecord> {
-  final Value<String> id;
-  final Value<String> type;
-  final Value<String> roomId;
-  final Value<String> senderId;
-  final Value<DateTime?> time;
-  final Value<String?> content;
-  final Value<String?> previousContent;
-  final Value<String?> sentState;
-  final Value<String?> transactionId;
-  final Value<String?> stateKey;
-  final Value<String?> redacts;
-  final Value<bool> inTimeline;
-  const RoomEventsCompanion({
-    this.id = const Value.absent(),
-    this.type = const Value.absent(),
-    this.roomId = const Value.absent(),
-    this.senderId = const Value.absent(),
-    this.time = const Value.absent(),
-    this.content = const Value.absent(),
-    this.previousContent = const Value.absent(),
-    this.sentState = const Value.absent(),
-    this.transactionId = const Value.absent(),
-    this.stateKey = const Value.absent(),
-    this.redacts = const Value.absent(),
-    this.inTimeline = const Value.absent(),
-  });
-  RoomEventsCompanion.insert({
-    required String id,
-    required String type,
-    required String roomId,
-    required String senderId,
-    this.time = const Value.absent(),
-    this.content = const Value.absent(),
-    this.previousContent = const Value.absent(),
-    this.sentState = const Value.absent(),
-    this.transactionId = const Value.absent(),
-    this.stateKey = const Value.absent(),
-    this.redacts = const Value.absent(),
-    required bool inTimeline,
-  })  : id = Value(id),
-        type = Value(type),
-        roomId = Value(roomId),
-        senderId = Value(senderId),
-        inTimeline = Value(inTimeline);
-  static Insertable<RoomEventRecord> custom({
-    Expression<String>? id,
-    Expression<String>? type,
-    Expression<String>? roomId,
-    Expression<String>? senderId,
-    Expression<DateTime?>? time,
-    Expression<String?>? content,
-    Expression<String?>? previousContent,
-    Expression<String?>? sentState,
-    Expression<String?>? transactionId,
-    Expression<String?>? stateKey,
-    Expression<String?>? redacts,
-    Expression<bool>? inTimeline,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (type != null) 'type': type,
-      if (roomId != null) 'room_id': roomId,
-      if (senderId != null) 'sender_id': senderId,
-      if (time != null) 'time': time,
-      if (content != null) 'content': content,
-      if (previousContent != null) 'previous_content': previousContent,
-      if (sentState != null) 'sent_state': sentState,
-      if (transactionId != null) 'transaction_id': transactionId,
-      if (stateKey != null) 'state_key': stateKey,
-      if (redacts != null) 'redacts': redacts,
-      if (inTimeline != null) 'in_timeline': inTimeline,
-    });
-  }
-
-  RoomEventsCompanion copyWith(
-      {Value<String>? id,
-      Value<String>? type,
-      Value<String>? roomId,
-      Value<String>? senderId,
-      Value<DateTime?>? time,
-      Value<String?>? content,
-      Value<String?>? previousContent,
-      Value<String?>? sentState,
-      Value<String?>? transactionId,
-      Value<String?>? stateKey,
-      Value<String?>? redacts,
-      Value<bool>? inTimeline}) {
-    return RoomEventsCompanion(
-      id: id ?? this.id,
-      type: type ?? this.type,
-      roomId: roomId ?? this.roomId,
-      senderId: senderId ?? this.senderId,
-      time: time ?? this.time,
-      content: content ?? this.content,
-      previousContent: previousContent ?? this.previousContent,
-      sentState: sentState ?? this.sentState,
-      transactionId: transactionId ?? this.transactionId,
-      stateKey: stateKey ?? this.stateKey,
-      redacts: redacts ?? this.redacts,
-      inTimeline: inTimeline ?? this.inTimeline,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
-    if (type.present) {
-      map['type'] = Variable<String>(type.value);
-    }
-    if (roomId.present) {
-      map['room_id'] = Variable<String>(roomId.value);
-    }
-    if (senderId.present) {
-      map['sender_id'] = Variable<String>(senderId.value);
-    }
-    if (time.present) {
-      map['time'] = Variable<DateTime?>(time.value);
-    }
-    if (content.present) {
-      map['content'] = Variable<String?>(content.value);
-    }
-    if (previousContent.present) {
-      map['previous_content'] = Variable<String?>(previousContent.value);
-    }
-    if (sentState.present) {
-      map['sent_state'] = Variable<String?>(sentState.value);
-    }
-    if (transactionId.present) {
-      map['transaction_id'] = Variable<String?>(transactionId.value);
-    }
-    if (stateKey.present) {
-      map['state_key'] = Variable<String?>(stateKey.value);
-    }
-    if (redacts.present) {
-      map['redacts'] = Variable<String?>(redacts.value);
-    }
-    if (inTimeline.present) {
-      map['in_timeline'] = Variable<bool>(inTimeline.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('RoomEventsCompanion(')
-          ..write('id: $id, ')
-          ..write('type: $type, ')
-          ..write('roomId: $roomId, ')
-          ..write('senderId: $senderId, ')
-          ..write('time: $time, ')
-          ..write('content: $content, ')
-          ..write('previousContent: $previousContent, ')
-          ..write('sentState: $sentState, ')
-          ..write('transactionId: $transactionId, ')
-          ..write('stateKey: $stateKey, ')
-          ..write('redacts: $redacts, ')
-          ..write('inTimeline: $inTimeline')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $RoomEventsTable extends RoomEvents
-    with TableInfo<$RoomEventsTable, RoomEventRecord> {
-  final GeneratedDatabase _db;
-  final String? _alias;
-  $RoomEventsTable(this._db, [this._alias]);
-  final VerificationMeta _idMeta = const VerificationMeta('id');
-  late final GeneratedColumn<String?> id = GeneratedColumn<String?>(
-      'id', aliasedName, false,
-      typeName: 'TEXT', requiredDuringInsert: true);
-  final VerificationMeta _typeMeta = const VerificationMeta('type');
-  late final GeneratedColumn<String?> type = GeneratedColumn<String?>(
-      'type', aliasedName, false,
-      typeName: 'TEXT', requiredDuringInsert: true);
-  final VerificationMeta _roomIdMeta = const VerificationMeta('roomId');
-  late final GeneratedColumn<String?> roomId = GeneratedColumn<String?>(
-      'room_id', aliasedName, false,
-      typeName: 'TEXT',
-      requiredDuringInsert: true,
-      $customConstraints: 'REFERENCES room_events(id)');
-  final VerificationMeta _senderIdMeta = const VerificationMeta('senderId');
-  late final GeneratedColumn<String?> senderId = GeneratedColumn<String?>(
-      'sender_id', aliasedName, false,
-      typeName: 'TEXT', requiredDuringInsert: true);
-  final VerificationMeta _timeMeta = const VerificationMeta('time');
-  late final GeneratedColumn<DateTime?> time = GeneratedColumn<DateTime?>(
-      'time', aliasedName, true,
-      typeName: 'INTEGER', requiredDuringInsert: false);
-  final VerificationMeta _contentMeta = const VerificationMeta('content');
-  late final GeneratedColumn<String?> content = GeneratedColumn<String?>(
-      'content', aliasedName, true,
-      typeName: 'TEXT', requiredDuringInsert: false);
-  final VerificationMeta _previousContentMeta =
-      const VerificationMeta('previousContent');
-  late final GeneratedColumn<String?> previousContent =
-      GeneratedColumn<String?>('previous_content', aliasedName, true,
-          typeName: 'TEXT', requiredDuringInsert: false);
-  final VerificationMeta _sentStateMeta = const VerificationMeta('sentState');
-  late final GeneratedColumn<String?> sentState = GeneratedColumn<String?>(
-      'sent_state', aliasedName, true,
-      typeName: 'TEXT', requiredDuringInsert: false);
-  final VerificationMeta _transactionIdMeta =
-      const VerificationMeta('transactionId');
-  late final GeneratedColumn<String?> transactionId = GeneratedColumn<String?>(
-      'transaction_id', aliasedName, true,
-      typeName: 'TEXT', requiredDuringInsert: false);
-  final VerificationMeta _stateKeyMeta = const VerificationMeta('stateKey');
-  late final GeneratedColumn<String?> stateKey = GeneratedColumn<String?>(
-      'state_key', aliasedName, true,
-      typeName: 'TEXT', requiredDuringInsert: false);
-  final VerificationMeta _redactsMeta = const VerificationMeta('redacts');
-  late final GeneratedColumn<String?> redacts = GeneratedColumn<String?>(
-      'redacts', aliasedName, true,
-      typeName: 'TEXT', requiredDuringInsert: false);
-  final VerificationMeta _inTimelineMeta = const VerificationMeta('inTimeline');
-  late final GeneratedColumn<bool?> inTimeline = GeneratedColumn<bool?>(
-      'in_timeline', aliasedName, false,
-      typeName: 'INTEGER',
-      requiredDuringInsert: true,
-      defaultConstraints: 'CHECK (in_timeline IN (0, 1))');
-  @override
-  List<GeneratedColumn> get $columns => [
-        id,
-        type,
-        roomId,
-        senderId,
-        time,
-        content,
-        previousContent,
-        sentState,
-        transactionId,
-        stateKey,
-        redacts,
-        inTimeline
-      ];
-  @override
-  String get aliasedName => _alias ?? 'room_events';
-  @override
-  String get actualTableName => 'room_events';
-  @override
-  VerificationContext validateIntegrity(Insertable<RoomEventRecord> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
-    }
-    if (data.containsKey('type')) {
-      context.handle(
-          _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
-    } else if (isInserting) {
-      context.missing(_typeMeta);
-    }
-    if (data.containsKey('room_id')) {
-      context.handle(_roomIdMeta,
-          roomId.isAcceptableOrUnknown(data['room_id']!, _roomIdMeta));
-    } else if (isInserting) {
-      context.missing(_roomIdMeta);
-    }
-    if (data.containsKey('sender_id')) {
-      context.handle(_senderIdMeta,
-          senderId.isAcceptableOrUnknown(data['sender_id']!, _senderIdMeta));
-    } else if (isInserting) {
-      context.missing(_senderIdMeta);
-    }
-    if (data.containsKey('time')) {
-      context.handle(
-          _timeMeta, time.isAcceptableOrUnknown(data['time']!, _timeMeta));
-    }
-    if (data.containsKey('content')) {
-      context.handle(_contentMeta,
-          content.isAcceptableOrUnknown(data['content']!, _contentMeta));
-    }
-    if (data.containsKey('previous_content')) {
-      context.handle(
-          _previousContentMeta,
-          previousContent.isAcceptableOrUnknown(
-              data['previous_content']!, _previousContentMeta));
-    }
-    if (data.containsKey('sent_state')) {
-      context.handle(_sentStateMeta,
-          sentState.isAcceptableOrUnknown(data['sent_state']!, _sentStateMeta));
-    }
-    if (data.containsKey('transaction_id')) {
-      context.handle(
-          _transactionIdMeta,
-          transactionId.isAcceptableOrUnknown(
-              data['transaction_id']!, _transactionIdMeta));
-    }
-    if (data.containsKey('state_key')) {
-      context.handle(_stateKeyMeta,
-          stateKey.isAcceptableOrUnknown(data['state_key']!, _stateKeyMeta));
-    }
-    if (data.containsKey('redacts')) {
-      context.handle(_redactsMeta,
-          redacts.isAcceptableOrUnknown(data['redacts']!, _redactsMeta));
-    }
-    if (data.containsKey('in_timeline')) {
-      context.handle(
-          _inTimelineMeta,
-          inTimeline.isAcceptableOrUnknown(
-              data['in_timeline']!, _inTimelineMeta));
-    } else if (isInserting) {
-      context.missing(_inTimelineMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  RoomEventRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
-    return RoomEventRecord.fromData(data, _db,
-        prefix: tablePrefix != null ? '$tablePrefix.' : null);
-  }
-
-  @override
-  $RoomEventsTable createAlias(String alias) {
-    return $RoomEventsTable(_db, alias);
-  }
-}
-
 class EphemeralEventRecord extends DataClass
     implements Insertable<EphemeralEventRecord> {
   final String type;
@@ -2232,308 +2523,34 @@ class $EphemeralEventsTable extends EphemeralEvents
   }
 }
 
-class DeviceRecord extends DataClass implements Insertable<DeviceRecord> {
-  final String id;
-  final String userId;
-  final String? name;
-  final DateTime? lastSeen;
-  final String? lastIpAddress;
-  DeviceRecord(
-      {required this.id,
-      required this.userId,
-      this.name,
-      this.lastSeen,
-      this.lastIpAddress});
-  factory DeviceRecord.fromData(Map<String, dynamic> data, GeneratedDatabase db,
-      {String? prefix}) {
-    final effectivePrefix = prefix ?? '';
-    return DeviceRecord(
-      id: const StringType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
-      userId: const StringType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}user_id'])!,
-      name: const StringType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}name']),
-      lastSeen: const DateTimeType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}last_seen']),
-      lastIpAddress: const StringType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}last_ip_address']),
-    );
-  }
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<String>(id);
-    map['user_id'] = Variable<String>(userId);
-    if (!nullToAbsent || name != null) {
-      map['name'] = Variable<String?>(name);
-    }
-    if (!nullToAbsent || lastSeen != null) {
-      map['last_seen'] = Variable<DateTime?>(lastSeen);
-    }
-    if (!nullToAbsent || lastIpAddress != null) {
-      map['last_ip_address'] = Variable<String?>(lastIpAddress);
-    }
-    return map;
-  }
-
-  DevicesCompanion toCompanion(bool nullToAbsent) {
-    return DevicesCompanion(
-      id: Value(id),
-      userId: Value(userId),
-      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
-      lastSeen: lastSeen == null && nullToAbsent
-          ? const Value.absent()
-          : Value(lastSeen),
-      lastIpAddress: lastIpAddress == null && nullToAbsent
-          ? const Value.absent()
-          : Value(lastIpAddress),
-    );
-  }
-
-  factory DeviceRecord.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
-    return DeviceRecord(
-      id: serializer.fromJson<String>(json['id']),
-      userId: serializer.fromJson<String>(json['userId']),
-      name: serializer.fromJson<String?>(json['name']),
-      lastSeen: serializer.fromJson<DateTime?>(json['lastSeen']),
-      lastIpAddress: serializer.fromJson<String?>(json['lastIpAddress']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<String>(id),
-      'userId': serializer.toJson<String>(userId),
-      'name': serializer.toJson<String?>(name),
-      'lastSeen': serializer.toJson<DateTime?>(lastSeen),
-      'lastIpAddress': serializer.toJson<String?>(lastIpAddress),
-    };
-  }
-
-  DeviceRecord copyWith(
-          {String? id,
-          String? userId,
-          String? name,
-          DateTime? lastSeen,
-          String? lastIpAddress}) =>
-      DeviceRecord(
-        id: id ?? this.id,
-        userId: userId ?? this.userId,
-        name: name ?? this.name,
-        lastSeen: lastSeen ?? this.lastSeen,
-        lastIpAddress: lastIpAddress ?? this.lastIpAddress,
-      );
-  @override
-  String toString() {
-    return (StringBuffer('DeviceRecord(')
-          ..write('id: $id, ')
-          ..write('userId: $userId, ')
-          ..write('name: $name, ')
-          ..write('lastSeen: $lastSeen, ')
-          ..write('lastIpAddress: $lastIpAddress')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => $mrjf($mrjc(
-      id.hashCode,
-      $mrjc(
-          userId.hashCode,
-          $mrjc(name.hashCode,
-              $mrjc(lastSeen.hashCode, lastIpAddress.hashCode)))));
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is DeviceRecord &&
-          other.id == this.id &&
-          other.userId == this.userId &&
-          other.name == this.name &&
-          other.lastSeen == this.lastSeen &&
-          other.lastIpAddress == this.lastIpAddress);
-}
-
-class DevicesCompanion extends UpdateCompanion<DeviceRecord> {
-  final Value<String> id;
-  final Value<String> userId;
-  final Value<String?> name;
-  final Value<DateTime?> lastSeen;
-  final Value<String?> lastIpAddress;
-  const DevicesCompanion({
-    this.id = const Value.absent(),
-    this.userId = const Value.absent(),
-    this.name = const Value.absent(),
-    this.lastSeen = const Value.absent(),
-    this.lastIpAddress = const Value.absent(),
-  });
-  DevicesCompanion.insert({
-    required String id,
-    required String userId,
-    this.name = const Value.absent(),
-    this.lastSeen = const Value.absent(),
-    this.lastIpAddress = const Value.absent(),
-  })  : id = Value(id),
-        userId = Value(userId);
-  static Insertable<DeviceRecord> custom({
-    Expression<String>? id,
-    Expression<String>? userId,
-    Expression<String?>? name,
-    Expression<DateTime?>? lastSeen,
-    Expression<String?>? lastIpAddress,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (userId != null) 'user_id': userId,
-      if (name != null) 'name': name,
-      if (lastSeen != null) 'last_seen': lastSeen,
-      if (lastIpAddress != null) 'last_ip_address': lastIpAddress,
-    });
-  }
-
-  DevicesCompanion copyWith(
-      {Value<String>? id,
-      Value<String>? userId,
-      Value<String?>? name,
-      Value<DateTime?>? lastSeen,
-      Value<String?>? lastIpAddress}) {
-    return DevicesCompanion(
-      id: id ?? this.id,
-      userId: userId ?? this.userId,
-      name: name ?? this.name,
-      lastSeen: lastSeen ?? this.lastSeen,
-      lastIpAddress: lastIpAddress ?? this.lastIpAddress,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
-    if (userId.present) {
-      map['user_id'] = Variable<String>(userId.value);
-    }
-    if (name.present) {
-      map['name'] = Variable<String?>(name.value);
-    }
-    if (lastSeen.present) {
-      map['last_seen'] = Variable<DateTime?>(lastSeen.value);
-    }
-    if (lastIpAddress.present) {
-      map['last_ip_address'] = Variable<String?>(lastIpAddress.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('DevicesCompanion(')
-          ..write('id: $id, ')
-          ..write('userId: $userId, ')
-          ..write('name: $name, ')
-          ..write('lastSeen: $lastSeen, ')
-          ..write('lastIpAddress: $lastIpAddress')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $DevicesTable extends Devices
-    with TableInfo<$DevicesTable, DeviceRecord> {
-  final GeneratedDatabase _db;
-  final String? _alias;
-  $DevicesTable(this._db, [this._alias]);
-  final VerificationMeta _idMeta = const VerificationMeta('id');
-  late final GeneratedColumn<String?> id = GeneratedColumn<String?>(
-      'id', aliasedName, false,
-      typeName: 'TEXT', requiredDuringInsert: true);
-  final VerificationMeta _userIdMeta = const VerificationMeta('userId');
-  late final GeneratedColumn<String?> userId = GeneratedColumn<String?>(
-      'user_id', aliasedName, false,
-      typeName: 'TEXT', requiredDuringInsert: true);
-  final VerificationMeta _nameMeta = const VerificationMeta('name');
-  late final GeneratedColumn<String?> name = GeneratedColumn<String?>(
-      'name', aliasedName, true,
-      typeName: 'TEXT', requiredDuringInsert: false);
-  final VerificationMeta _lastSeenMeta = const VerificationMeta('lastSeen');
-  late final GeneratedColumn<DateTime?> lastSeen = GeneratedColumn<DateTime?>(
-      'last_seen', aliasedName, true,
-      typeName: 'INTEGER', requiredDuringInsert: false);
-  final VerificationMeta _lastIpAddressMeta =
-      const VerificationMeta('lastIpAddress');
-  late final GeneratedColumn<String?> lastIpAddress = GeneratedColumn<String?>(
-      'last_ip_address', aliasedName, true,
-      typeName: 'TEXT', requiredDuringInsert: false);
-  @override
-  List<GeneratedColumn> get $columns =>
-      [id, userId, name, lastSeen, lastIpAddress];
-  @override
-  String get aliasedName => _alias ?? 'devices';
-  @override
-  String get actualTableName => 'devices';
-  @override
-  VerificationContext validateIntegrity(Insertable<DeviceRecord> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
-    }
-    if (data.containsKey('user_id')) {
-      context.handle(_userIdMeta,
-          userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
-    } else if (isInserting) {
-      context.missing(_userIdMeta);
-    }
-    if (data.containsKey('name')) {
-      context.handle(
-          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
-    }
-    if (data.containsKey('last_seen')) {
-      context.handle(_lastSeenMeta,
-          lastSeen.isAcceptableOrUnknown(data['last_seen']!, _lastSeenMeta));
-    }
-    if (data.containsKey('last_ip_address')) {
-      context.handle(
-          _lastIpAddressMeta,
-          lastIpAddress.isAcceptableOrUnknown(
-              data['last_ip_address']!, _lastIpAddressMeta));
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  DeviceRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
-    return DeviceRecord.fromData(data, _db,
-        prefix: tablePrefix != null ? '$tablePrefix.' : null);
-  }
-
-  @override
-  $DevicesTable createAlias(String alias) {
-    return $DevicesTable(_db, alias);
-  }
-}
-
 abstract class _$Database extends GeneratedDatabase {
   _$Database(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
+  late final $DevicesTable devices = $DevicesTable(this);
+  late final Index ixDevicesUser = Index('ix_devices_user',
+      'CREATE INDEX IF NOT EXISTS ix_devices_user ON devices(user_id);');
   late final $MyUsersTable myUsers = $MyUsersTable(this);
-  late final $RoomsTable rooms = $RoomsTable(this);
+  late final Index ixMyuserDevice = Index('ix_myuser_device',
+      'CREATE INDEX IF NOT EXISTS ix_myuser_device ON my_users(current_device_id);');
   late final $RoomEventsTable roomEvents = $RoomEventsTable(this);
+  late final Index ixRoomevents = Index('ix_roomevents',
+      'CREATE INDEX IF NOT EXISTS ix_roomevents ON room_events(room_id, sender_id, transaction_id);');
+  late final $RoomsTable rooms = $RoomsTable(this);
+  late final Index ixRooms = Index('ix_rooms',
+      'CREATE INDEX IF NOT EXISTS ix_rooms ON rooms(name_change_event_id, avatar_change_event_id, topic_change_event_id, power_levels_change_event_id, join_rules_change_event_id, canonical_alias_change_event_id, creation_event_id, upgrade_event_id, direct_user_id);');
   late final $EphemeralEventsTable ephemeralEvents =
       $EphemeralEventsTable(this);
-  late final $DevicesTable devices = $DevicesTable(this);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [myUsers, rooms, roomEvents, ephemeralEvents, devices];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+        devices,
+        ixDevicesUser,
+        myUsers,
+        ixMyuserDevice,
+        roomEvents,
+        ixRoomevents,
+        rooms,
+        ixRooms,
+        ephemeralEvents
+      ];
 }
