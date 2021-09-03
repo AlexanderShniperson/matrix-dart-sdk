@@ -126,7 +126,7 @@ class Database extends _$Database {
   Database(DelegatedDatabase delegate) : super(delegate);
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => destructiveFallback;
