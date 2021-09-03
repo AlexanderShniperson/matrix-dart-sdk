@@ -2485,35 +2485,11 @@ abstract class _$Database extends GeneratedDatabase {
   late final Index ixMyuserDevice = Index('ix_myuser_device',
       'CREATE INDEX IF NOT EXISTS ix_myuser_device ON my_users(current_device_id);');
   late final $RoomEventsTable roomEvents = $RoomEventsTable(this);
-  late final Index ixRoomeventsRoom = Index('ix_roomevents_room',
-      'CREATE INDEX IF NOT EXISTS ix_roomevents_room ON room_events(room_id);');
-  late final Index ixRoomeventsSender = Index('ix_roomevents_sender',
-      'CREATE INDEX IF NOT EXISTS ix_roomevents_sender ON room_events(sender_id);');
-  late final Index ixRoomeventsTransaction = Index('ix_roomevents_transaction',
-      'CREATE INDEX IF NOT EXISTS ix_roomevents_transaction ON room_events(transaction_id);');
+  late final Index ixRoomevents = Index('ix_roomevents',
+      'CREATE INDEX IF NOT EXISTS ix_roomevents ON room_events(room_id, sender_id, transaction_id);');
   late final $RoomsTable rooms = $RoomsTable(this);
-  late final Index ixRoomsNamechangeevent = Index('ix_rooms_namechangeevent',
-      'CREATE INDEX IF NOT EXISTS ix_rooms_namechangeevent ON rooms(name_change_event_id);');
-  late final Index ixRoomsAvatarchangeevent = Index(
-      'ix_rooms_avatarchangeevent',
-      'CREATE INDEX IF NOT EXISTS ix_rooms_avatarchangeevent ON rooms(avatar_change_event_id);');
-  late final Index ixRoomsTopicchangeevent = Index('ix_rooms_topicchangeevent',
-      'CREATE INDEX IF NOT EXISTS ix_rooms_topicchangeevent ON rooms(topic_change_event_id);');
-  late final Index ixRoomsPowerlevelchangeevent = Index(
-      'ix_rooms_powerlevelchangeevent',
-      'CREATE INDEX IF NOT EXISTS ix_rooms_powerlevelchangeevent ON rooms(power_levels_change_event_id);');
-  late final Index ixRoomsJoinrulechangeevent = Index(
-      'ix_rooms_joinrulechangeevent',
-      'CREATE INDEX IF NOT EXISTS ix_rooms_joinrulechangeevent ON rooms(join_rules_change_event_id);');
-  late final Index ixRoomsCanonicalaliaschangeevent = Index(
-      'ix_rooms_canonicalaliaschangeevent',
-      'CREATE INDEX IF NOT EXISTS ix_rooms_canonicalaliaschangeevent ON rooms(canonical_alias_change_event_id);');
-  late final Index ixRoomsCreationevent = Index('ix_rooms_creationevent',
-      'CREATE INDEX IF NOT EXISTS ix_rooms_creationevent ON rooms(creation_event_id);');
-  late final Index ixRoomsUpgradeevent = Index('ix_rooms_upgradeevent',
-      'CREATE INDEX IF NOT EXISTS ix_rooms_upgradeevent ON rooms(upgrade_event_id);');
-  late final Index ixRoomsDirectuser = Index('ix_rooms_directuser',
-      'CREATE INDEX IF NOT EXISTS ix_rooms_directuser ON rooms(direct_user_id);');
+  late final Index ixRooms = Index('ix_rooms',
+      'CREATE INDEX IF NOT EXISTS ix_rooms ON rooms(name_change_event_id, avatar_change_event_id, topic_change_event_id, power_levels_change_event_id, join_rules_change_event_id, canonical_alias_change_event_id, creation_event_id, upgrade_event_id, direct_user_id);');
   late final $EphemeralEventsTable ephemeralEvents =
       $EphemeralEventsTable(this);
   @override
@@ -2525,19 +2501,9 @@ abstract class _$Database extends GeneratedDatabase {
         myUsers,
         ixMyuserDevice,
         roomEvents,
-        ixRoomeventsRoom,
-        ixRoomeventsSender,
-        ixRoomeventsTransaction,
+        ixRoomevents,
         rooms,
-        ixRoomsNamechangeevent,
-        ixRoomsAvatarchangeevent,
-        ixRoomsTopicchangeevent,
-        ixRoomsPowerlevelchangeevent,
-        ixRoomsJoinrulechangeevent,
-        ixRoomsCanonicalaliaschangeevent,
-        ixRoomsCreationevent,
-        ixRoomsUpgradeevent,
-        ixRoomsDirectuser,
+        ixRooms,
         ephemeralEvents
       ];
 }
