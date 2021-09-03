@@ -245,8 +245,9 @@ class MoorStore extends Store {
         }
         return previousValue;
       });
-
-      await _db?.setRoomsLatestMessages(result);
+      if (result.isNotEmpty) {
+        await _db?.setRoomsLatestMessages(result);
+      }
     }
   }
 
