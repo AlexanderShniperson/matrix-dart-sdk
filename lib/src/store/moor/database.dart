@@ -64,7 +64,8 @@ class Rooms extends Table {
   IntColumn get highlightedUnreadNotificationCount => integer().nullable()();
   IntColumn get totalUnreadNotificationCount => integer().nullable()();
 
-  IntColumn get lastMessageTimeInterval => integer().withDefault(const Constant(0))();
+  IntColumn get lastMessageTimeInterval =>
+      integer().withDefault(const Constant(0))();
 
   TextColumn get directUserId => text().nullable()();
 
@@ -131,20 +132,17 @@ class Database extends _$Database {
   int get schemaVersion => 5;
 
   @override
-  MigrationStrategy get migration  {
+  MigrationStrategy get migration {
     if (schemaVersion < 4) {
       return destructiveFallback;
     }
-    return MigrationStrategy(
-        onCreate: (Migrator m) {
-          return m.createAll();
-        },
-        onUpgrade: (Migrator m, int from, int to) async {
-          if (from == 3) {
-            await m.addColumn(rooms, rooms.lastMessageTimeInterval);
-          }
-        }
-    );
+    return MigrationStrategy(onCreate: (Migrator m) {
+      return m.createAll();
+    }, onUpgrade: (Migrator m, int from, int to) async {
+      if (from == 3) {
+        await m.addColumn(rooms, rooms.lastMessageTimeInterval);
+      }
+    });
   }
 
   Future<MyUserRecordWithDeviceRecord?> getMyUserRecord(
@@ -251,9 +249,7 @@ class Database extends _$Database {
   }
 
   Future<List<RoomRecordWithStateRecords>> getRoomRecords(
-      int limit,
-      int offset
-      ) {
+      int limit, int offset) {
     final nameChangeAlias = alias(roomEvents, 'name_change');
     final avatarChangeAlias = alias(roomEvents, 'avatar_change');
     final topicChangeAlias = alias(roomEvents, 'topic_change');
@@ -302,24 +298,27 @@ class Database extends _$Database {
         upgradeAlias.id.equalsExp(rooms.upgradeEventId),
       ),
     ]);
-    query.orderBy([OrderingTerm(expression: rooms.lastMessageTimeInterval, mode: OrderingMode.desc)]);
+    query.orderBy([
+      OrderingTerm(
+          expression: rooms.lastMessageTimeInterval, mode: OrderingMode.desc)
+    ]);
     query.limit(limit, offset: offset);
 
     return query
         .map(
           (r) => RoomRecordWithStateRecords(
-        roomRecord: r.readTable(rooms),
-        nameChangeRecord: r.readTableOrNull(nameChangeAlias),
-        avatarChangeRecord: r.readTableOrNull(avatarChangeAlias),
-        topicChangeRecord: r.readTableOrNull(topicChangeAlias),
-        powerLevelsChangeRecord: r.readTableOrNull(powerLevelsChangeAlias),
-        joinRulesChangeRecord: r.readTableOrNull(joinRulesChangeAlias),
-        canonicalAliasChangeRecord:
-        r.readTableOrNull(canonicalAliasChangeAlias),
-        creationRecord: r.readTableOrNull(creationAlias),
-        upgradeRecord: r.readTableOrNull(upgradeAlias),
-      ),
-    )
+            roomRecord: r.readTable(rooms),
+            nameChangeRecord: r.readTableOrNull(nameChangeAlias),
+            avatarChangeRecord: r.readTableOrNull(avatarChangeAlias),
+            topicChangeRecord: r.readTableOrNull(topicChangeAlias),
+            powerLevelsChangeRecord: r.readTableOrNull(powerLevelsChangeAlias),
+            joinRulesChangeRecord: r.readTableOrNull(joinRulesChangeAlias),
+            canonicalAliasChangeRecord:
+                r.readTableOrNull(canonicalAliasChangeAlias),
+            creationRecord: r.readTableOrNull(creationAlias),
+            upgradeRecord: r.readTableOrNull(upgradeAlias),
+          ),
+        )
         .get();
   }
 
@@ -332,9 +331,12 @@ class Database extends _$Database {
   Future<void> setRoomsLatestMessages(Map<String, int> data) async {
     await batch((batch) async {
       data.forEach((key, value) {
-        batch.update<$RoomsTable, RoomRecord>(rooms, RoomsCompanion(
-          lastMessageTimeInterval: Value(value),
-        ), where: (t) => t.id.like(key));
+        batch.update<$RoomsTable, RoomRecord>(
+            rooms,
+            RoomsCompanion(
+              lastMessageTimeInterval: Value(value),
+            ),
+            where: (t) => t.id.like(key));
       });
     });
   }
@@ -377,7 +379,17 @@ class Database extends _$Database {
 
   Future<void> setRoomEventRecords(List<RoomEventRecord> records) async {
     await batch((batch) async {
-      batch.insertAllOnConflictUpdate(roomEvents, records);
+      batch.insertAll(
+        roomEvents,
+        records,
+        mode: InsertMode.insertOrReplace,
+      );
+      batch.deleteWhere<$RoomEventsTable, RoomEventRecord>(
+        roomEvents,
+        (tbl) => tbl.id.isIn(
+          records.map((r) => r.transactionId).where((txnId) => txnId != null),
+        ),
+      );
     });
   }
 
