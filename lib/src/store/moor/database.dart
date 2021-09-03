@@ -113,6 +113,8 @@ class Devices extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// Moor files:
+/// https://moor.simonbinder.eu/docs/using-sql/moor_files/
 @UseMoor(include: {
   "indices.moor",
 }, tables: [
