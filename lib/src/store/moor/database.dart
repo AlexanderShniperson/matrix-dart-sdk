@@ -133,16 +133,7 @@ class Database extends _$Database {
 
   @override
   MigrationStrategy get migration {
-    if (schemaVersion < 5) {
-      return destructiveFallback;
-    }
-    return MigrationStrategy(onCreate: (Migrator m) {
-      return m.createAll();
-    }, onUpgrade: (Migrator m, int from, int to) async {
-      // if (from == 3) {
-      //   await m.addColumn(rooms, rooms.lastMessageTimeInterval);
-      // }
-    });
+    return destructiveFallback;
   }
 
   Future<MyUserRecordWithDeviceRecord?> getMyUserRecord(
