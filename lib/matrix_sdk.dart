@@ -59,5 +59,6 @@ export 'src/util/mxc_url.dart' show MatrixUrl;
 export 'src/encryption/olm.dart';
 export 'src/encryption/account.dart';
 export 'src/util/update_extension.dart';
+export 'src/model/api_call_statistics.dart';
 
 export 'src/matrix_client.dart';
