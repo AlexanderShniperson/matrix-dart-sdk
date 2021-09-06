@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:matrix_sdk/matrix_sdk.dart';
+import 'package:matrix_sdk/src/model/next_batch_token.dart';
 import 'package:matrix_sdk/src/updater/isolated/isolated_updater.dart';
+import 'package:matrix_sdk/src/model/sync_filter.dart';
 import 'model/api_call_statistics.dart';
 import 'model/request_update.dart';
 import 'model/update.dart';
@@ -203,5 +205,15 @@ class MatrixClient {
     );
 
     return newRoom;
+  }
+
+  Future<NextBatchToken?> runSyncOnce({
+    required SyncFilter filter
+  }) async {
+    if (_updater == null) {
+      return Future.value(null);
+    }
+    final token = await _updater!.syncer.runSyncOnce(filter: filter);
+    return token;
   }
 }

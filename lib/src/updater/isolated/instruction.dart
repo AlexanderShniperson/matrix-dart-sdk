@@ -6,6 +6,7 @@
 
 import 'package:matrix_sdk/src/event/room/message_event.dart';
 import 'package:matrix_sdk/src/model/instruction.dart';
+import 'package:matrix_sdk/src/model/next_batch_token.dart';
 import 'package:matrix_sdk/src/model/request_update.dart';
 
 import '../../event/ephemeral/ephemeral.dart';
@@ -15,6 +16,7 @@ import '../../room/rooms.dart';
 import '../../room/member/member_timeline.dart';
 import '../../room/timeline.dart';
 import '../../model/models.dart';
+import '../../model/sync_filter.dart';
 
 class StartSyncInstruction extends Instruction<void> {
   @override
@@ -195,6 +197,15 @@ class SetPusherInstruction extends RequestInstruction<MyUser> {
   final Map<String, dynamic> pusher;
 
   SetPusherInstruction(this.pusher);
+
+  @override
+  final bool basedOnUpdate = true;
+}
+
+class RunSyncOnceInstruction extends RequestInstruction<NextBatchToken> {
+  final SyncFilter filter;
+
+  RunSyncOnceInstruction(this.filter);
 
   @override
   final bool basedOnUpdate = true;

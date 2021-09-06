@@ -12,6 +12,8 @@ export 'minimized_request_update.dart';
 export 'minimized_sync_update.dart';
 export 'minimized_update.dart';
 export 'my_user.dart';
+export 'next_batch_token.dart';
 export 'request_update.dart';
 export 'sync_update.dart';
+export 'sync_filter.dart';
 export 'update.dart';

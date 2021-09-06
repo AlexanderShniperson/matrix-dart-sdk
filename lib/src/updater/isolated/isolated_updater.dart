@@ -29,9 +29,10 @@ import '../../model/error_with_stacktrace.dart';
 import '../updater.dart';
 import 'instruction.dart';
 import 'isolate_runner.dart';
+import 'isolated_syncer.dart';
 
 /// Manages updates to [MyUser] in a different [Isolate].
-class IsolatedUpdater implements Updater {
+class IsolatedUpdater extends Updater {
   static Future<IsolatedUpdater> create(
     MyUser myUser,
     Homeserver homeServer,
@@ -55,7 +56,7 @@ class IsolatedUpdater implements Updater {
     this._homeServer,
     StoreLocation storeLocation, {
     bool saveMyUserToStore = false,
-  }) {
+  }): super(_user, _homeServer, storeLocation) {
     Updater.register(_user.id, this);
 
     _messageStream.listen((message) async {
@@ -153,7 +154,7 @@ class IsolatedUpdater implements Updater {
   Stream<Update> get updates => _controller.stream;
 
   /// Sends an instruction to the isolate, possibly with a return value.
-  Future<T?> _execute<T>(Instruction<T> instruction) async {
+  Future<T?> execute<T>(Instruction<T> instruction) async {
     _sendPort?.send(instruction);
 
     if (instruction.expectsReturnValue) {
@@ -194,7 +195,7 @@ class IsolatedUpdater implements Updater {
     UserId id, {
     RoomId? from,
   }) =>
-      _execute(KickInstruction(id, from));
+      execute(KickInstruction(id, from));
 
   @override
   Future<RequestUpdate<Timeline>?> loadRoomEvents({
@@ -202,7 +203,7 @@ class IsolatedUpdater implements Updater {
     int count = 20,
     Room? room,
   }) =>
-      _execute(LoadRoomEventsInstruction(roomId, count, room));
+      execute(LoadRoomEventsInstruction(roomId, count, room));
 
   @override
   Future<RequestUpdate<MemberTimeline>?> loadMembers({
@@ -210,14 +211,14 @@ class IsolatedUpdater implements Updater {
     int count = 10,
     Room? room,
   }) =>
-      _execute(LoadMembersInstruction(roomId, count, room));
+      execute(LoadMembersInstruction(roomId, count, room));
 
   @override
   Future<RequestUpdate<Rooms>?> loadRoomsByIDs(
     Iterable<RoomId> roomIds,
     int timelineLimit,
   ) =>
-      _execute(LoadRoomsByIDsInstruction(roomIds.toList(), timelineLimit));
+      execute(LoadRoomsByIDsInstruction(roomIds.toList(), timelineLimit));
 
   @override
   Future<RequestUpdate<Rooms>?> loadRooms(
@@ -225,10 +226,10 @@ class IsolatedUpdater implements Updater {
       int offset,
       int timelineLimit,
       ) =>
-      _execute(LoadRoomsInstruction(limit, offset, timelineLimit));
+      execute(LoadRoomsInstruction(limit, offset, timelineLimit));
 
   @override
-  Future<RequestUpdate<MyUser>?> logout() => _execute(LogoutInstruction());
+  Future<RequestUpdate<MyUser>?> logout() => execute(LogoutInstruction());
 
   @override
   Future<RequestUpdate<ReadReceipts>?> markRead({
@@ -237,7 +238,7 @@ class IsolatedUpdater implements Updater {
     bool receipt = true,
     Room? room,
   }) =>
-      _execute(MarkReadInstruction(roomId, until, receipt, room));
+      execute(MarkReadInstruction(roomId, until, receipt, room));
 
   @override
   Stream<RequestUpdate<Timeline>?> send(
@@ -267,7 +268,7 @@ class IsolatedUpdater implements Updater {
     bool isTyping = false,
     Duration timeout = const Duration(seconds: 30),
   }) =>
-      _execute(SetIsTypingInstruction(roomId, isTyping, timeout));
+      execute(SetIsTypingInstruction(roomId, isTyping, timeout));
 
   @override
   Future<RequestUpdate<Room>?> joinRoom({
@@ -275,21 +276,21 @@ class IsolatedUpdater implements Updater {
     RoomAlias? alias,
     required Uri serverUrl,
   }) =>
-      _execute(JoinRoomInstruction(id, alias, serverUrl));
+      execute(JoinRoomInstruction(id, alias, serverUrl));
 
   @override
   Future<RequestUpdate<Room>?> leaveRoom(RoomId id) =>
-      _execute(LeaveRoomInstruction(id));
+      execute(LeaveRoomInstruction(id));
 
   @override
   Future<RequestUpdate<MyUser>?> setDisplayName({
     required String name,
   }) =>
-      _execute(SetNameInstruction(name));
+      execute(SetNameInstruction(name));
 
   @override
   Future<void> setPusher(Map<String, dynamic> pusher) =>
-      _execute(SetPusherInstruction(pusher));
+      execute(SetPusherInstruction(pusher));
 
   @override
   Future<RequestUpdate<Timeline>?> edit(
@@ -299,7 +300,7 @@ class IsolatedUpdater implements Updater {
     Room? room,
     String? transactionId,
   }) async {
-    return _execute(EditTextEventInstruction(
+    return execute(EditTextEventInstruction(
         roomId, event, newContent, transactionId,
         room: room));
   }
@@ -312,35 +313,7 @@ class IsolatedUpdater implements Updater {
     String? reason,
         Room? room,
   }) async {
-    return _execute(
+    return execute(
         DeleteEventInstruction(roomId, eventId, transactionId, reason, room));
-  }
-}
-
-class IsolatedSyncer implements Syncer {
-  final IsolatedUpdater _updater;
-
-  IsolatedSyncer(this._updater);
-
-  bool _isSyncing = false;
-
-  @override
-  bool get isSyncing => _isSyncing;
-
-  @override
-  void start({
-    Duration maxRetryAfter = const Duration(seconds: 30),
-    int timelineLimit = 30,
-  }) {
-    _updater._execute(
-      StartSyncInstruction(maxRetryAfter, timelineLimit),
-    );
-    _isSyncing = true;
-  }
-
-  @override
-  Future<void> stop() async {
-    await _updater._execute(StopSyncInstruction());
-    _isSyncing = false;
   }
 }

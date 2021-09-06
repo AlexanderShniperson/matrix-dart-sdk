@@ -181,6 +181,8 @@ abstract class IsolateRunner {
             reason: instruction.reason,
             room: instruction.room,
           );
+    } else if (instruction is RunSyncOnceInstruction) {
+      operation = () => updater.syncer.runSyncOnce(filter: instruction.filter);
     } else {
       throw UnsupportedError(
         'Unsupported instruction: ${instruction.runtimeType}',
