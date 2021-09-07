@@ -33,7 +33,7 @@ class IsolatedSyncer implements Syncer {
   }
 
   @override
-  Future<NextBatchToken?> runSyncOnce({
+  Future<void> runSyncOnce({
     required SyncFilter filter,
   }) async {
     await _updater.execute(RunSyncOnceInstruction(filter));

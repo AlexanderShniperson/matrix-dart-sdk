@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class SyncFilter {
   final int timelineLimit;
   final bool fullState;
@@ -19,12 +21,12 @@ class SyncFilter {
         'timeline': {
           'limit': timelineLimit,
         },
+        'rooms': roomIDs
       }
     };
 
-    if (roomIDs.isNotEmpty) {
-      (filterParams['room'] as Map)['rooms'] =
-          roomIDs;
+    if (roomIDs.isEmpty) {
+      (filterParams['room'] as Map).remove('rooms');
     }
 
     return filterParams;

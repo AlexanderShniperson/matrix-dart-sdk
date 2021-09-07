@@ -143,8 +143,7 @@ class Syncer {
     }
   }
 
-
-  Future<NextBatchToken?> runSyncOnce({
+  Future<void> runSyncOnce({
     required SyncFilter filter,
   }) async {
     if (_user.isLoggedOut ?? false) {
@@ -159,7 +158,7 @@ class Syncer {
       final cancelable = CancelableOperation.fromFuture(
         _homeserver.api.sync(
           accessToken: _user.accessToken ?? '',
-          since: _user.syncToken ?? '',
+          since: filter.syncToken,
           fullState: filter.fullState,
           filter: filter.toMap(),
           timeout: 0,
@@ -167,8 +166,12 @@ class Syncer {
       );
 
       _cancelableSyncOnceResponse = cancelable;
-
+      // final initStopwatch = Stopwatch();
+      // initStopwatch.start();
       final body = await cancelable.valueOrCancellation();
+      // final time = initStopwatch.elapsedMilliseconds;
+      // print("Stopwatch SYNC : $time");
+      // initStopwatch.stop();
 
       // We're cancelled
       if (body == null) {
@@ -179,8 +182,7 @@ class Syncer {
         return null;
       }
 
-      final token = body['next_batch']?.toString();
-      return token == null ? null : NextBatchToken(token);
+      await _updater.processSync(body);
     } on Exception catch (e) {
       _updater.inError.add(ErrorWithStackTraceString(
         e.toString(),

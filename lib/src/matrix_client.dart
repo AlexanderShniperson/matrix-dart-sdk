@@ -207,7 +207,8 @@ class MatrixClient {
     return newRoom;
   }
 
-  Future<NextBatchToken?> runSyncOnce({
+  //sync data is send to updater's 'updates' stream
+  Future<void> runSyncOnce({
     required SyncFilter filter
   }) async {
     if (_updater == null) {
