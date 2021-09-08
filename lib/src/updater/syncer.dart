@@ -1,7 +1,6 @@
 import 'package:async/async.dart';
 import 'package:matrix_sdk/matrix_sdk.dart';
 import 'package:matrix_sdk/src/model/models.dart';
-import 'package:matrix_sdk/src/model/next_batch_token.dart';
 import 'package:matrix_sdk/src/model/sync_filter.dart';
 
 import '../homeserver.dart';
@@ -151,7 +150,7 @@ class Syncer {
     }
 
     if (_shouldStopSync) {
-      return null;
+      return;
     }
 
     try {
@@ -175,11 +174,11 @@ class Syncer {
 
       // We're cancelled
       if (body == null) {
-        return null;
+        return;
       }
 
       if (_shouldStopSync) {
-        return null;
+        return;
       }
 
       await _updater.processSync(body);
@@ -188,8 +187,6 @@ class Syncer {
         e.toString(),
         StackTrace.current.toString(),
       ));
-
-      return null;
     }
   }
 

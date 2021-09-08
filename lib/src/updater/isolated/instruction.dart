@@ -6,7 +6,6 @@
 
 import 'package:matrix_sdk/src/event/room/message_event.dart';
 import 'package:matrix_sdk/src/model/instruction.dart';
-import 'package:matrix_sdk/src/model/next_batch_token.dart';
 import 'package:matrix_sdk/src/model/request_update.dart';
 
 import '../../event/ephemeral/ephemeral.dart';
@@ -202,7 +201,7 @@ class SetPusherInstruction extends RequestInstruction<MyUser> {
   final bool basedOnUpdate = true;
 }
 
-class RunSyncOnceInstruction extends RequestInstruction<NextBatchToken> {
+class RunSyncOnceInstruction extends RequestInstruction<MyUser> {
   final SyncFilter filter;
 
   RunSyncOnceInstruction(this.filter);

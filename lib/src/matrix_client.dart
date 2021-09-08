@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:matrix_sdk/matrix_sdk.dart';
-import 'package:matrix_sdk/src/model/next_batch_token.dart';
 import 'package:matrix_sdk/src/updater/isolated/isolated_updater.dart';
 import 'package:matrix_sdk/src/model/sync_filter.dart';
 import 'model/api_call_statistics.dart';

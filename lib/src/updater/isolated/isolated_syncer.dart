@@ -1,4 +1,3 @@
-import 'package:matrix_sdk/src/model/next_batch_token.dart';
 
 import '../../model/sync_filter.dart';
 import '../syncer.dart';
