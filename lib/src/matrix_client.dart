@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:matrix_sdk/matrix_sdk.dart';
 import 'package:matrix_sdk/src/updater/isolated/isolated_updater.dart';
 import 'package:matrix_sdk/src/model/sync_filter.dart';
+import 'package:matrix_sdk/src/updater/one_room_syncer.dart';
 import 'model/api_call_statistics.dart';
 import 'model/request_update.dart';
 import 'model/update.dart';
@@ -13,6 +14,7 @@ class MatrixClient {
   final Homeserver _homeServer;
   final StoreLocation _storeLocation;
   final List<StreamSubscription> _streamSubscription = [];
+  OneRoomSyncer? _oneRoomSyncer;
 
   // ignore: close_sinks
   final _apiCallStatsSubject = StreamController<ApiCallStatistics>.broadcast();
@@ -215,5 +217,26 @@ class MatrixClient {
     }
     final token = await _updater!.syncer.runSyncOnce(filter: filter);
     return token;
+  }
+
+  Stream<Update>? get outOneRoomUpdates => _oneRoomSyncer?.outUpdates;
+
+  void startOneRoomSyncer(String roomID, Room? room) {
+    if (_updater == null) {
+      return;
+    }
+
+    if (_oneRoomSyncer != null) {
+      stopOneRoomSyncer();
+    }
+
+    _oneRoomSyncer = OneRoomSyncer(_homeServer, _updater!.user.copyWith(), roomID, room);
+    _oneRoomSyncer?.start();
+  }
+
+  void stopOneRoomSyncer() {
+    _oneRoomSyncer?.stop();
+    _oneRoomSyncer?.clear();
+    _oneRoomSyncer = null;
   }
 }

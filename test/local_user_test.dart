@@ -219,7 +219,7 @@ void testLocalUser() {
 
       test('stops sync process', () async {
         StreamSubscription? sub;
-        sub = user?.updates?.listen((_) async {
+        sub = user?.outUpdates?.listen((_) async {
           expect(user?.isSyncing, isTrue);
           await user?.stopSync();
           expect(user?.isSyncing, isFalse);
@@ -232,7 +232,7 @@ void testLocalUser() {
 
       test('.updates delta has correct rooms', () async {
         StreamSubscription? sub;
-        sub = user?.updates?.listen((update) {
+        sub = user?.outUpdates?.listen((update) {
           final room = update.delta.rooms?.first;
 
           expect(room?.id, RoomId('!726s6s6q:example.com'));
