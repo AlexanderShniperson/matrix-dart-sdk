@@ -90,6 +90,7 @@ class OneRoomSyncer {
           retryAfter = maxRetryAfter.inMilliseconds;
         }
       } else {
+        _syncToken = body['next_batch']?.toString();
         await processSync(body);
 
         // Reset exponential backoff.
