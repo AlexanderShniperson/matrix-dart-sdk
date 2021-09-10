@@ -82,7 +82,6 @@ class MoorStore extends Store {
     Iterable<RoomId>? roomIds,
     int timelineLimit = 100,
     bool isolated = false,
-    required StoreLocation storeLocation,
   }) async {
     final myUserWithDeviceRecord = await _db?.getMyUserRecord(userID);
 

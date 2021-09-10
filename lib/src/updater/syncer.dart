@@ -24,6 +24,7 @@ class Syncer {
   void start({
     Duration maxRetryAfter = const Duration(seconds: 30),
     int timelineLimit = 30,
+    String? syncToken,
   }) {
     if (_user.isLoggedOut ?? false) {
       throw StateError('The user can not be logged out');
@@ -36,6 +37,7 @@ class Syncer {
     _syncFuture = _startSync(
       maxRetryAfter: maxRetryAfter,
       timelineLimit: timelineLimit,
+      syncToken: syncToken,
     );
   }
 
@@ -44,6 +46,7 @@ class Syncer {
   Future<void> _startSync({
     Duration maxRetryAfter = const Duration(seconds: 30),
     int timelineLimit = 30,
+    String? syncToken,
   }) async {
     _shouldStopSync = false;
     _isSyncing = true;
@@ -56,6 +59,7 @@ class Syncer {
       final body = await _sync(
         timeout: Duration(seconds: 10),
         timelineLimit: timelineLimit,
+        syncToken: syncToken,
       );
 
       if (_shouldStopSync) {
@@ -89,6 +93,7 @@ class Syncer {
     timeout = Duration.zero,
     int timelineLimit = 30,
     bool fullState = false,
+    String? syncToken,
   }) async {
     if (_user.isLoggedOut ?? false) {
       throw StateError('The user can not be logged out');
@@ -102,7 +107,7 @@ class Syncer {
       final cancelable = CancelableOperation.fromFuture(
         _homeserver.api.sync(
           accessToken: _user.accessToken ?? '',
-          since: _user.syncToken ?? '',
+          since: syncToken ?? _user.syncToken ?? '',
           fullState: fullState,
           filter: {
             'room': {

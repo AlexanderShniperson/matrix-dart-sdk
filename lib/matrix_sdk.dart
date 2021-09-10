@@ -18,6 +18,7 @@ export 'src/model/device.dart';
 export 'src/public_rooms.dart';
 
 export 'src/room/room.dart';
+export 'src/room/rooms.dart';
 
 export 'src/room/timeline.dart';
 

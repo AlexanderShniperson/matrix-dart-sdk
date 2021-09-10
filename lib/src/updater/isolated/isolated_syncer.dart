@@ -18,6 +18,7 @@ class IsolatedSyncer implements Syncer {
   void start({
     Duration maxRetryAfter = const Duration(seconds: 30),
     int timelineLimit = 30,
+    String? syncToken,
   }) {
     _updater.execute(
       StartSyncInstruction(maxRetryAfter, timelineLimit),

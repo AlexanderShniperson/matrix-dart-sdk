@@ -44,7 +44,6 @@ abstract class Store {
     Iterable<RoomId>? roomIds,
     int timelineLimit = 100,
     bool isolated = false,
-    required StoreLocation storeLocation,
   });
 
   /// Save [MyUser] and all it's data completely.

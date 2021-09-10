@@ -56,7 +56,7 @@ class IsolatedUpdater extends Updater {
     this._homeServer,
     StoreLocation storeLocation, {
     bool saveMyUserToStore = false,
-  }): super(_user, _homeServer, storeLocation) {
+  }) : super(_user, _homeServer, storeLocation) {
     Updater.register(_user.id, this);
 
     _messageStream.listen((message) async {
@@ -191,6 +191,13 @@ class IsolatedUpdater extends Updater {
   }
 
   @override
+  Future<void> startSync({
+    Duration maxRetryAfter = const Duration(seconds: 30),
+    int timelineLimit = 30,
+  }) =>
+      execute(StartSyncInstruction(maxRetryAfter, timelineLimit));
+
+  @override
   Future<RequestUpdate<MemberTimeline>?> kick(
     UserId id, {
     RoomId? from,
@@ -222,10 +229,10 @@ class IsolatedUpdater extends Updater {
 
   @override
   Future<RequestUpdate<Rooms>?> loadRooms(
-      int limit,
-      int offset,
-      int timelineLimit,
-      ) =>
+    int limit,
+    int offset,
+    int timelineLimit,
+  ) =>
       execute(LoadRoomsInstruction(limit, offset, timelineLimit));
 
   @override
@@ -311,7 +318,7 @@ class IsolatedUpdater extends Updater {
     EventId eventId, {
     String? transactionId,
     String? reason,
-        Room? room,
+    Room? room,
   }) async {
     return execute(
         DeleteEventInstruction(roomId, eventId, transactionId, reason, room));

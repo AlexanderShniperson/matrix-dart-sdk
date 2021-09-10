@@ -58,8 +58,7 @@ class Updater {
 
   MyUser _user;
 
-  late final Syncer _syncer =
-      Syncer(this);
+  late final Syncer _syncer = Syncer(this);
 
   Syncer get syncer => _syncer;
 
@@ -92,6 +91,20 @@ class Updater {
     if (saveMyUserToStore) {
       unawaited(_store.setMyUserDelta(_user));
     }
+  }
+
+  Future<void> startSync({
+    Duration maxRetryAfter = const Duration(seconds: 30),
+    int timelineLimit = 30,
+  }) async {
+    final local = await _store.getMyUser(
+      _user.id.value,
+    );
+    _syncer.start(
+      maxRetryAfter: maxRetryAfter,
+      timelineLimit: timelineLimit,
+      syncToken: local?.syncToken,
+    );
   }
 
   final _lock = Lock();

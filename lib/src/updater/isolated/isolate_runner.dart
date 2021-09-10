@@ -9,7 +9,6 @@ import 'dart:isolate';
 import 'package:matrix_sdk/src/model/models.dart';
 import 'package:meta/meta.dart';
 import '../../homeserver.dart';
-import '../proxy_http_overrides.dart';
 import '../updater.dart';
 import '../../store/store.dart';
 import 'instruction.dart';

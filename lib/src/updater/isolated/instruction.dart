@@ -143,12 +143,7 @@ class DeleteEventInstruction extends RequestInstruction<Timeline> {
   final Room? room;
 
   DeleteEventInstruction(
-    this.roomId,
-    this.eventId,
-    this.transactionId,
-    this.reason,
-      this.room
-  );
+      this.roomId, this.eventId, this.transactionId, this.reason, this.room);
 
   @override
   final bool basedOnUpdate = true;
