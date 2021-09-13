@@ -126,7 +126,9 @@ class Devices extends Table {
   Devices,
 ])
 class Database extends _$Database {
-  Database(DelegatedDatabase delegate) : super(delegate);
+  Database(DelegatedDatabase delegate) : super(delegate) {
+    moorRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+  }
 
   @override
   int get schemaVersion => 5;
