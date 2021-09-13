@@ -99,12 +99,16 @@ class MyUser extends MatrixUser implements Contextual<MyUser> {
 
     store.open();
 
-    return store.getMyUser(
+    final result = await store.getMyUser(
       userID,
       roomIds: roomIds,
       timelineLimit: timelineLimit,
       isolated: isolated,
     );
+
+    await store.close();
+
+    return result;
   }
 
   MyUser copyWith({
