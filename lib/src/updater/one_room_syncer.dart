@@ -9,7 +9,6 @@ import 'package:synchronized/synchronized.dart';
 import '../homeserver.dart';
 
 class OneRoomSyncer {
-
   final Homeserver _homeserver;
   final String _roomID;
   MyUser _user;
@@ -22,7 +21,8 @@ class OneRoomSyncer {
 
   final _lock = Lock();
 
-  OneRoomSyncer(this._homeserver, this._user, this._roomID, this._room);
+  OneRoomSyncer(
+      this._homeserver, this._user, this._roomID, this._room, this._syncToken);
 
   Future<void>? _syncFuture;
   CancelableOperation<Map<String, dynamic>>? _cancelableSyncOnceResponse;
@@ -161,6 +161,7 @@ class OneRoomSyncer {
     await _syncFuture;
     _isSyncing = false;
   }
+
   Future<void> processSync(Map<String, dynamic> body) async {
     final roomDeltas = await _processRooms(body);
 
@@ -170,15 +171,15 @@ class OneRoomSyncer {
           rooms: roomDeltas,
           hasSynced: !(_user.hasSynced ?? false) ? true : null,
         )!,
-            (user, delta) => SyncUpdate(user, delta),
+        (user, delta) => SyncUpdate(user, delta),
       );
     }
   }
 
   Future<U> _update<U extends Update>(
-      MyUser delta,
-      U Function(MyUser user, MyUser delta) createUpdate,
-      ) async {
+    MyUser delta,
+    U Function(MyUser user, MyUser delta) createUpdate,
+  ) async {
     return _lock.synchronized(() async {
       _user = _user.merge(delta);
 
@@ -197,9 +198,9 @@ class OneRoomSyncer {
     const leave = 'leave';
 
     Future<List<Room>?> process(
-        Map<String, dynamic>? rooms, {
-          required String type,
-        }) async {
+      Map<String, dynamic>? rooms, {
+      required String type,
+    }) async {
       final roomDeltas = <Room>[];
 
       if (rooms != null) {
@@ -207,12 +208,14 @@ class OneRoomSyncer {
           final roomId = RoomId(entry.key);
           final json = entry.value;
 
-          final currentRoom = _room ?? _user.rooms?[roomId] ??
+          final currentRoom = _room ??
+              _user.rooms?[roomId] ??
               Room.base(
                 context: Context(myId: _user.id),
                 id: roomId,
               );
-          final isNewRoom = _user.rooms?.any((p0) => p0.id.value == roomId.value) == true;
+          final isNewRoom =
+              _user.rooms?.any((p0) => p0.id.value == roomId.value) == true;
 
           var roomDelta = Room.fromJson(json, context: currentRoom.context!);
 
@@ -236,7 +239,7 @@ class OneRoomSyncer {
             final events = accountData['events'] as List<dynamic>;
 
             final event = events.firstWhere(
-                  (event) => event['type'] == 'm.direct',
+              (event) => event['type'] == 'm.direct',
               orElse: () => null,
             );
 
@@ -259,7 +262,7 @@ class OneRoomSyncer {
           // Process redactions
           // TODO: Redaction deltas
           for (final event
-          in currentRoom.timeline!.whereType<RedactionEvent>()) {
+              in currentRoom.timeline!.whereType<RedactionEvent>()) {
             final redactedId = event.redacts;
 
             final original = currentRoom.timeline?[redactedId];
@@ -297,15 +300,15 @@ class OneRoomSyncer {
     final joins =
         jRooms == null ? [] : ((await process(jRooms[join], type: join)) ?? []);
     final invites = jRooms == null
-    ? []
+        ? []
         : ((await process(jRooms[invite], type: invite)) ?? []);
     final leaves = jRooms == null
-    ? []
+        ? []
         : ((await process(jRooms[leave], type: leave)) ?? []);
     return [
-    ...joins,
-    ...invites,
-    ...leaves,
+      ...joins,
+      ...invites,
+      ...leaves,
     ];
   }
 }

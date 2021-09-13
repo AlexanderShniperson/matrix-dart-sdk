@@ -208,9 +208,7 @@ class MatrixClient {
   }
 
   //sync data is send to updater's 'updates' stream
-  Future<void> runSyncOnce({
-    required SyncFilter filter
-  }) async {
+  Future<void> runSyncOnce({required SyncFilter filter}) async {
     if (_updater == null) {
       return Future.value(null);
     }
@@ -220,7 +218,7 @@ class MatrixClient {
 
   Stream<Update>? get outOneRoomUpdates => _oneRoomSyncer?.outUpdates;
 
-  void startOneRoomSyncer(String roomID, Room? room) {
+  void startOneRoomSyncer(String roomID, Room? room, {String? syncToken}) {
     if (_updater == null) {
       return;
     }
@@ -229,7 +227,8 @@ class MatrixClient {
       stopOneRoomSyncer();
     }
 
-    _oneRoomSyncer = OneRoomSyncer(_homeServer, _updater!.user.copyWith(), roomID, room);
+    _oneRoomSyncer = OneRoomSyncer(
+        _homeServer, _updater!.user.copyWith(), roomID, room, syncToken);
     _oneRoomSyncer?.start();
   }
 
