@@ -4,6 +4,7 @@ import 'package:matrix_sdk/matrix_sdk.dart';
 import 'package:matrix_sdk/src/updater/isolated/isolated_updater.dart';
 import 'package:matrix_sdk/src/model/sync_filter.dart';
 import 'package:matrix_sdk/src/updater/one_room_syncer.dart';
+import 'package:matrix_sdk/src/room/room.dart';
 import 'model/api_call_statistics.dart';
 import 'model/request_update.dart';
 import 'model/update.dart';
@@ -168,16 +169,16 @@ class MatrixClient {
   }
 
   Future<Room?> loadRoomEvents({
-    required Room room,
+    required String roomID,
     int limit = 20,
   }) async {
-    if (_updater == null || room.timeline == null) {
+    if (_updater == null) {
       return Future.value(null);
     }
 
     final body = await homeServer.api.rooms.messages(
       accessToken: _updater!.user.accessToken ?? '',
-      roomId: room.id.toString(),
+      roomId: roomID,
       limit: limit,
       from: '',
       filter: {
@@ -187,20 +188,21 @@ class MatrixClient {
 
     final receivedTimeline = Timeline.fromJson(
       (body['chunk'] as List<dynamic>).cast(),
-      context: room.context,
+      context:
+          RoomContext.inherit(_updater!.user.context!, roomId: RoomId(roomID)),
       previousBatch: body['end'],
       previousBatchSetBySync: false,
     );
 
     final newRoom = Room(
       context: _updater!.user.context!,
-      id: room.id,
+      id: RoomId(roomID),
       timeline: receivedTimeline,
       memberTimeline: MemberTimeline.fromEvents([
         ...receivedTimeline,
         ...(body['state'] as List<dynamic>)
             .cast<Map<String, dynamic>>()
-            .map((e) => RoomEvent.fromJson(e, roomId: room.id)!),
+            .map((e) => RoomEvent.fromJson(e, roomId: RoomId(roomID))!),
       ]),
     );
 
