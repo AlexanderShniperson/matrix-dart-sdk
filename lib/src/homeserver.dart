@@ -137,7 +137,6 @@ class Homeserver {
   Future<MyUser> _prepareUser(
     Map<String, dynamic> body, {
     Device? device,
-    required StoreLocation store,
   }) async {
     final accessToken = body['access_token'];
     final userId = UserId(body['user_id']);
@@ -189,7 +188,6 @@ class Homeserver {
   Future<AuthenticationSession<MyUser>> register({
     required Username username,
     required String password,
-    required StoreLocation store,
     required Device device,
     bool isolated = false,
   }) async {
@@ -213,7 +211,6 @@ class Homeserver {
       onSuccess: (body) {
         return _prepareUser(
           body,
-          store: store,
           device: device,
         );
       },
@@ -237,7 +234,6 @@ class Homeserver {
   Future<MyUser> login(
     UserIdentifier user,
     String password, {
-    required StoreLocation store,
     Device? device,
   }) async {
     final body = await api.login(
@@ -249,7 +245,6 @@ class Homeserver {
 
     return _prepareUser(
       body,
-      store: store,
       device: device,
     );
   }

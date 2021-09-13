@@ -57,7 +57,6 @@ class MatrixClient {
     final result = await _homeServer.login(
       user,
       password,
-      store: _storeLocation,
       device: device,
     );
 
