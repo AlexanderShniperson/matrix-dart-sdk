@@ -173,7 +173,7 @@ class MoorStore extends Store {
         );
       }
 
-      await _db!.setRooms(
+      await _db?.setRooms(
           myUser.rooms!.map((r) => r.toCompanion()).whereNotNull().toList());
 
       // Set room state
