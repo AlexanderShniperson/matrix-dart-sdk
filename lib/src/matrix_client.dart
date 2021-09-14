@@ -239,4 +239,9 @@ class MatrixClient {
     _oneRoomSyncer?.clear();
     _oneRoomSyncer = null;
   }
+
+  Future<List<String?>> getRoomIDs() async {
+    final result = await _updater?.getRoomIDs();
+    return result ?? [];
+  }
 }

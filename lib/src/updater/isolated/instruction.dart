@@ -32,6 +32,8 @@ class StartSyncInstruction extends Instruction<void> {
 
 class StopSyncInstruction extends Instruction<void> {}
 
+class GetRoomIDsInstruction extends Instruction<List<String?>> {}
+
 abstract class RequestInstruction<T extends Contextual<T>>
     extends Instruction<RequestUpdate<T>> {
   /// Some [RequestUpdate]s are wrapped [SyncUpdate]s, we should not send

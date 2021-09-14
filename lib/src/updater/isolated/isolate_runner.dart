@@ -67,6 +67,11 @@ abstract class IsolateRunner {
             sendPort.send(null);
           }
 
+          if (instruction is GetRoomIDsInstruction) {
+            final result = await updater?.getRoomIDs();
+            sendPort.send(result);
+          }
+
           if (instruction is RequestInstruction) {
             await _executeRequest(updater, sendPort, instruction);
           }

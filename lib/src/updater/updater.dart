@@ -93,6 +93,10 @@ class Updater {
     }
   }
 
+  Future<List<String?>?> getRoomIDs() {
+    return _store.getRoomIDs();
+  }
+
   Future<void> startSync({
     Duration maxRetryAfter = const Duration(seconds: 30),
     int timelineLimit = 30,

@@ -241,6 +241,12 @@ class Database extends _$Database {
         .get();
   }
 
+  Future<List<String?>> getRoomIDs() {
+    final roomIDs = rooms.id;
+    final query = selectOnly(rooms)..addColumns([rooms.id]);
+    return query.map((row) => row.read(roomIDs)).get();
+  }
+
   Future<List<RoomRecordWithStateRecords>> getRoomRecords(
       int limit, int offset) {
     final nameChangeAlias = alias(roomEvents, 'name_change');

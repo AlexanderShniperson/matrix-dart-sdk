@@ -191,6 +191,9 @@ class IsolatedUpdater extends Updater {
   }
 
   @override
+  Future<List<String?>?> getRoomIDs() => execute(GetRoomIDsInstruction());
+
+  @override
   Future<void> startSync({
     Duration maxRetryAfter = const Duration(seconds: 30),
     int timelineLimit = 30,

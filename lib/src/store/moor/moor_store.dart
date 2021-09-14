@@ -265,6 +265,12 @@ class MoorStore extends Store {
   }
 
   @override
+  Future<List<String?>> getRoomIDs() async {
+    final result = await _db?.getRoomIDs();
+    return result ?? [];
+  }
+
+  @override
   Future<Iterable<Room>> getRooms({
     Context? context,
     required int limit,
