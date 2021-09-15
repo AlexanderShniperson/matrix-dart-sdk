@@ -56,9 +56,10 @@ abstract class IsolateRunner {
           final instruction = message as Instruction;
 
           if (instruction is StartSyncInstruction) {
-            updater?.startSync(
+            await updater?.startSync(
               maxRetryAfter: instruction.maxRetryAfter,
               timelineLimit: instruction.timelineLimit,
+              syncToken: instruction.syncToken,
             );
           }
 

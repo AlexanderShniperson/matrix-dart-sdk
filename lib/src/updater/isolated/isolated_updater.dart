@@ -197,8 +197,9 @@ class IsolatedUpdater extends Updater {
   Future<void> startSync({
     Duration maxRetryAfter = const Duration(seconds: 30),
     int timelineLimit = 30,
+    String? syncToken,
   }) =>
-      execute(StartSyncInstruction(maxRetryAfter, timelineLimit));
+      execute(StartSyncInstruction(maxRetryAfter, timelineLimit, syncToken));
 
   @override
   Future<RequestUpdate<MemberTimeline>?> kick(

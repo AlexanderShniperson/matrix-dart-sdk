@@ -32,7 +32,7 @@ class MyUser extends MatrixUser implements Contextual<MyUser> {
 
   final String? accessToken;
 
-  final String? syncToken;
+  String? syncToken;
 
   final Device? currentDevice;
 

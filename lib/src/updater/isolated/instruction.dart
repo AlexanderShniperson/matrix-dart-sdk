@@ -23,11 +23,9 @@ class StartSyncInstruction extends Instruction<void> {
 
   final Duration maxRetryAfter;
   final int timelineLimit;
+  final String? syncToken;
 
-  StartSyncInstruction(
-    this.maxRetryAfter,
-    this.timelineLimit,
-  );
+  StartSyncInstruction(this.maxRetryAfter, this.timelineLimit, this.syncToken);
 }
 
 class StopSyncInstruction extends Instruction<void> {}

@@ -120,6 +120,7 @@ class MatrixClient {
     user.context?.updater?.startSync(
       maxRetryAfter: maxRetryAfter,
       timelineLimit: timelineLimit,
+      syncToken: user.syncToken
     );
   }
 

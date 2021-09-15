@@ -21,7 +21,7 @@ class IsolatedSyncer implements Syncer {
     String? syncToken,
   }) {
     _updater.execute(
-      StartSyncInstruction(maxRetryAfter, timelineLimit),
+      StartSyncInstruction(maxRetryAfter, timelineLimit, syncToken),
     );
     _isSyncing = true;
   }

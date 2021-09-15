@@ -100,14 +100,18 @@ class Updater {
   Future<void> startSync({
     Duration maxRetryAfter = const Duration(seconds: 30),
     int timelineLimit = 30,
+    String? syncToken,
   }) async {
-    final local = await _store.getMyUser(
-      _user.id.value,
-    );
+    if (syncToken == null) {
+      final local = await _store.getMyUser(
+        _user.id.value,
+      );
+      syncToken = local?.syncToken;
+    }
     _syncer.start(
       maxRetryAfter: maxRetryAfter,
       timelineLimit: timelineLimit,
-      syncToken: local?.syncToken,
+      syncToken: syncToken,
     );
   }
 

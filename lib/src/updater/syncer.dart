@@ -20,6 +20,8 @@ class Syncer {
   Future<void>? _syncFuture;
   CancelableOperation<Map<String, dynamic>>? _cancelableSyncOnceResponse;
 
+  String? _syncToken;
+
   /// Syncs data with the user's [_homeserver].
   void start({
     Duration maxRetryAfter = const Duration(seconds: 30),
@@ -34,10 +36,11 @@ class Syncer {
       return;
     }
 
+    _syncToken = syncToken;
+
     _syncFuture = _startSync(
       maxRetryAfter: maxRetryAfter,
       timelineLimit: timelineLimit,
-      syncToken: syncToken,
     );
   }
 
@@ -46,7 +49,6 @@ class Syncer {
   Future<void> _startSync({
     Duration maxRetryAfter = const Duration(seconds: 30),
     int timelineLimit = 30,
-    String? syncToken,
   }) async {
     _shouldStopSync = false;
     _isSyncing = true;
@@ -59,7 +61,7 @@ class Syncer {
       final body = await _sync(
         timeout: Duration(seconds: 10),
         timelineLimit: timelineLimit,
-        syncToken: syncToken,
+        syncToken: _syncToken,
       );
 
       if (_shouldStopSync) {
@@ -79,6 +81,8 @@ class Syncer {
           retryAfter = maxRetryAfter.inMilliseconds;
         }
       } else {
+        _syncToken = body['next_batch'];
+
         await _updater.processSync(body);
 
         // Reset exponential backoff.
