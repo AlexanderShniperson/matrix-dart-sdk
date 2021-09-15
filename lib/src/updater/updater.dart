@@ -8,6 +8,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:matrix_sdk/src/model/api_call_statistics.dart';
 import 'package:matrix_sdk/src/model/request_update.dart';
+import 'package:matrix_sdk/src/model/sync_token.dart';
 import 'package:matrix_sdk/src/model/sync_update.dart';
 import 'package:matrix_sdk/src/model/update.dart';
 import 'package:matrix_sdk/src/updater/syncer.dart';
@@ -68,6 +69,9 @@ class Updater {
   final _errorSubject = StreamController<ErrorWithStackTraceString>.broadcast();
   Stream<ErrorWithStackTraceString> get outError => _errorSubject.stream;
   Sink<ErrorWithStackTraceString> get inError => _errorSubject.sink;
+
+  final _tokenSubject = StreamController<SyncToken>.broadcast();
+  Stream<SyncToken> get outSyncToken => _tokenSubject.stream;
 
   Stream<ApiCallStatistics> get outApiCallStatistics =>
       homeServer.outApiCallStats;

@@ -124,10 +124,10 @@ abstract class IsolateRunner {
           );
     } else if (instruction is LoadRoomsInstruction) {
       operation = () => updater.loadRooms(
-        instruction.limit,
-        instruction.offset,
-        instruction.timelineLimit,
-      );
+            instruction.limit,
+            instruction.offset,
+            instruction.timelineLimit,
+          );
     } else if (instruction is LogoutInstruction) {
       operation = () => updater.logout();
     } else if (instruction is MarkReadInstruction) {
@@ -195,6 +195,11 @@ abstract class IsolateRunner {
     }
 
     final result = await operation();
+
+    if (instruction is RunSyncOnceInstruction) {
+      sendPort.send(result);
+      return;
+    }
 
     if (result != null &&
         (result is! Update ||

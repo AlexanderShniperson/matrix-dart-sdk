@@ -2,6 +2,7 @@ import 'package:async/async.dart';
 import 'package:matrix_sdk/matrix_sdk.dart';
 import 'package:matrix_sdk/src/model/models.dart';
 import 'package:matrix_sdk/src/model/sync_filter.dart';
+import 'package:matrix_sdk/src/model/sync_token.dart';
 
 import '../homeserver.dart';
 
@@ -151,7 +152,7 @@ class Syncer {
     }
   }
 
-  Future<void> runSyncOnce({
+  Future<SyncToken?> runSyncOnce({
     required SyncFilter filter,
   }) async {
     if (_user.isLoggedOut ?? false) {
@@ -159,7 +160,7 @@ class Syncer {
     }
 
     if (_shouldStopSync) {
-      return;
+      return null;
     }
 
     try {
@@ -183,14 +184,15 @@ class Syncer {
 
       // We're cancelled
       if (body == null) {
-        return;
+        return null;
       }
 
       if (_shouldStopSync) {
-        return;
+        return null;
       }
 
       await _updater.processSync(body);
+      return SyncToken(body['next_batch']);
     } on Exception catch (e) {
       _updater.inError.add(ErrorWithStackTraceString(
         e.toString(),

@@ -12,6 +12,7 @@ import 'package:matrix_sdk/src/model/api_call_statistics.dart';
 import 'package:matrix_sdk/src/model/instruction.dart';
 import 'package:matrix_sdk/src/model/minimized_update.dart';
 import 'package:matrix_sdk/src/model/request_update.dart';
+import 'package:matrix_sdk/src/model/sync_token.dart';
 import 'package:matrix_sdk/src/model/update.dart';
 
 import '../../event/ephemeral/ephemeral.dart';
@@ -99,6 +100,10 @@ class IsolatedUpdater extends Updater {
       if (message is ErrorWithStackTraceString) {
         _errorSubject.add(message);
       }
+
+      if (message is SyncToken) {
+        _tokenSubject.add(message);
+      }
     });
 
     Isolate.spawn(IsolateRunner.run, _receivePort.sendPort);
@@ -117,6 +122,10 @@ class IsolatedUpdater extends Updater {
   final _errorSubject = StreamController<ErrorWithStackTraceString>.broadcast();
   @override
   Stream<ErrorWithStackTraceString> get outError => _errorSubject.stream;
+
+  final _tokenSubject = StreamController<SyncToken>.broadcast();
+  @override
+  Stream<SyncToken> get outSyncToken => _tokenSubject.stream;
 
   // ignore: close_sinks
   final _apiCallStatsSubject = StreamController<ApiCallStatistics>.broadcast();

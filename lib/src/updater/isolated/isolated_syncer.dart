@@ -1,4 +1,6 @@
 
+import 'package:matrix_sdk/src/model/sync_token.dart';
+
 import '../../model/sync_filter.dart';
 import '../syncer.dart';
 import 'instruction.dart';
@@ -33,7 +35,7 @@ class IsolatedSyncer implements Syncer {
   }
 
   @override
-  Future<void> runSyncOnce({
+  Future<SyncToken?> runSyncOnce({
     required SyncFilter filter,
   }) async {
     await _updater.execute(RunSyncOnceInstruction(filter));

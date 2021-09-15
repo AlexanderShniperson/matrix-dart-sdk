@@ -7,6 +7,7 @@ import 'package:matrix_sdk/src/updater/one_room_syncer.dart';
 import 'package:matrix_sdk/src/room/room.dart';
 import 'model/api_call_statistics.dart';
 import 'model/request_update.dart';
+import 'model/sync_token.dart';
 import 'model/update.dart';
 
 class MatrixClient {
@@ -211,13 +212,14 @@ class MatrixClient {
   }
 
   //sync data is send to updater's 'updates' stream
+  //sync token is send to updater's 'outSyncToken' stream
   Future<void> runSyncOnce({required SyncFilter filter}) async {
     if (_updater == null) {
       return Future.value(null);
     }
-    final token = await _updater!.syncer.runSyncOnce(filter: filter);
-    return token;
+    await _updater!.syncer.runSyncOnce(filter: filter);
   }
+  Stream<SyncToken>? get outSyncToken => _updater?.outSyncToken;
 
   Stream<Update>? get outOneRoomUpdates => _oneRoomSyncer?.outUpdates;
 
