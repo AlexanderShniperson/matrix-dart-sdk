@@ -73,6 +73,11 @@ abstract class IsolateRunner {
             sendPort.send(result);
           }
 
+          if (instruction is SaveRoomToDBInstruction) {
+            await updater?.saveRoomToDB(instruction.room);
+            sendPort.send(null);
+          }
+
           if (instruction is RequestInstruction) {
             await _executeRequest(updater, sendPort, instruction);
           }

@@ -32,6 +32,12 @@ class StopSyncInstruction extends Instruction<void> {}
 
 class GetRoomIDsInstruction extends Instruction<List<String?>> {}
 
+class SaveRoomToDBInstruction extends Instruction<void> {
+  final Room room;
+
+  SaveRoomToDBInstruction(this.room);
+}
+
 abstract class RequestInstruction<T extends Contextual<T>>
     extends Instruction<RequestUpdate<T>> {
   /// Some [RequestUpdate]s are wrapped [SyncUpdate]s, we should not send

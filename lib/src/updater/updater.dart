@@ -97,6 +97,10 @@ class Updater {
     }
   }
 
+  Future<void> saveRoomToDB(Room room) {
+    return _store.setRoom(room);
+  }
+
   Future<List<String?>?> getRoomIDs() {
     return _store.getRoomIDs();
   }

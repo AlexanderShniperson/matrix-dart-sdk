@@ -207,6 +207,7 @@ class MatrixClient {
             .map((e) => RoomEvent.fromJson(e, roomId: RoomId(roomID))!),
       ]),
     );
+    await _updater?.saveRoomToDB(newRoom);
 
     return newRoom;
   }

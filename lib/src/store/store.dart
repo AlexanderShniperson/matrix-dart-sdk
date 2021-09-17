@@ -49,6 +49,9 @@ abstract class Store {
   /// Save [MyUser] and all it's data completely.
   Future<void> setMyUserDelta(MyUser myUser);
 
+  /// Save certain room to db
+  Future<void> setRoom(Room room);
+
   /// If [memberIds] is not null, the states of the users with those ids will
   /// always be included, if they're in the room.
   Future<Iterable<Room>> getRoomsByIDs(

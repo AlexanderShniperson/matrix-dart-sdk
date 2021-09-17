@@ -251,6 +251,84 @@ class MoorStore extends Store {
   }
 
   @override
+  Future<void> setRoom(Room room) async {
+    await _db
+        ?.setRooms([room].map((r) => r.toCompanion()).whereNotNull().toList());
+
+    // Set room state
+    await _db?.setRoomEventRecords(
+      [room]
+          .map((room) => room.stateEvents)
+          .whereNotNull()
+          .expand((stateEvents) => [
+                stateEvents.nameChange,
+                stateEvents.avatarChange,
+                stateEvents.topicChange,
+                stateEvents.powerLevelsChange,
+                stateEvents.joinRulesChange,
+                stateEvents.canonicalAliasChange,
+                stateEvents.creation,
+                stateEvents.upgrade,
+              ])
+          .whereNotNull()
+          .map((event) => event.toRecord(inTimeline: false))
+          .toList(),
+    );
+
+    await _db?.setEphemeralEventRecords(
+      [room]
+          .map((room) => room.ephemeral)
+          .whereNotNull()
+          .expand((ephemeral) => ephemeral)
+          .where((e) => e is! TypingEvent)
+          .map((e) => e.toRecord())
+          .toList(),
+    );
+
+    // Set member states
+    await _db?.setRoomEventRecords(
+      [room]
+          .map((room) => room.memberTimeline?.map((m) => m.event) ?? [])
+          .expand((events) => events)
+          .whereNotNull()
+          .map((event) => event.toRecord(inTimeline: false))
+          .toList(),
+    );
+
+    // Set timeline. If any of the (member) state events were just set,
+    // they'll be overridden with inTimeline = true.
+    final eventsList = [room]
+        .map((room) => room.timeline)
+        .whereNotNull()
+        .expand((timeline) => timeline)
+        .map((event) => event.toRecord(inTimeline: true))
+        .toList();
+    await _db?.setRoomEventRecords(
+      eventsList,
+    );
+
+    //Find latest message and save time interval to room
+    final Map<String, int> result =
+        eventsList.fold(<String, int>{}, (previousValue, element) {
+      if (element.time != null) {
+        final roomID = element.roomId;
+        if (previousValue.containsKey(roomID) &&
+            previousValue[roomID] != null) {
+          if (previousValue[roomID]! < element.time!.millisecondsSinceEpoch) {
+            previousValue[roomID] = element.time!.millisecondsSinceEpoch;
+          }
+        } else {
+          previousValue[roomID] = element.time!.millisecondsSinceEpoch;
+        }
+      }
+      return previousValue;
+    });
+    if (result.isNotEmpty) {
+      await _db?.setRoomsLatestMessages(result);
+    }
+  }
+
+  @override
   Future<Iterable<Room>> getRoomsByIDs(
     Iterable<RoomId>? roomIds, {
     Context? context,
