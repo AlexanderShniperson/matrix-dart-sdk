@@ -9,6 +9,7 @@ import 'model/api_call_statistics.dart';
 import 'model/request_update.dart';
 import 'model/sync_token.dart';
 import 'model/update.dart';
+import 'package:collection/collection.dart';
 
 class MatrixClient {
   final bool isIsolated;
@@ -142,7 +143,7 @@ class MatrixClient {
       return Future.value(null);
     }
     final update = await _updater!.loadRoomsByIDs([RoomId(roomID)], limit);
-    return update?.data?.firstWhere((e) => e.id.value == roomID);
+    return update?.data?.firstWhereOrNull((e) => e.id.value == roomID);
   }
 
   Future<List<Room>> getRooms({
